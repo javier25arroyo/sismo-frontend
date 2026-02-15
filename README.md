@@ -207,6 +207,4 @@ En el archivo `package.json` encontrarás los siguientes scripts:
 
 Este proyecto está licenciado bajo la Licencia Apache 2.0 - ver el archivo [LICENSE](LICENSE) para más detalles.
 
-## 👥 Contribución
 
-Las contribuciones son bienvenidas. Por favor, asegúrate de seguir las convenciones de código del proyecto y ejecutar las pruebas antes de enviar un pull request.
