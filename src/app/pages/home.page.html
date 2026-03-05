@@ -1,0 +1,21 @@
+<section class="home">
+  <h1>Bienvenido</h1>
+  <p>Esta es la página principal.</p>
+
+  <div class="actions" style="margin-top:1rem; display:flex; gap:0.5rem;">
+    <app-button (click)="openConfirm('delete')" type="button">Eliminar item</app-button>
+    <app-button (click)="openConfirm('update')" type="button">Actualizar item</app-button>
+    <app-button (click)="openConfirm('modify')" type="button">Modificar item</app-button>
+  </div>
+
+  <p class="result" *ngIf="lastResult" style="margin-top:0.75rem;">{{ lastResult }}</p>
+
+  <app-confirm-dialog
+    [visible]="confirmVisible"
+    [action]="pendingAction"
+    [title]="'Confirmar ' + (pendingAction === 'delete' ? 'eliminación' : pendingAction === 'update' ? 'actualización' : 'modificación')"
+    [message]="'¿Estás seguro que quieres ' + (pendingAction === 'delete' ? 'eliminar' : pendingAction === 'update' ? 'actualizar' : 'modificar') + ' este elemento?'"
+    (confirm)="onConfirm()"
+    (cancel)="onCancel()"
+  ></app-confirm-dialog>
+</section>
