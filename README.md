@@ -22,7 +22,6 @@ Este proyecto está construido con las siguientes tecnologías modernas:
 ### Herramientas de Desarrollo
 - **[Angular CLI 21.1.4](https://angular.dev/tools/cli)** - Interfaz de línea de comandos para Angular
 - **[PNPM 10.29](https://pnpm.io/)** - Gestor de paquetes eficiente y rápido
-- **[Prettier](https://prettier.io/)** - Formateador de código automático
 
 ## 📋 Prerequisitos
 
