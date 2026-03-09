@@ -1,7 +1,0 @@
-.overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.45); z-index:1000; }
-.dialog { background: #fff; padding:1rem 1.25rem; border-radius:8px; max-width:420px; width:90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.dialog h2 { margin: 0 0 0.5rem 0; font-size:1.125rem; }
-.dialog p { margin: 0 0 1rem 0; color: #374151; }
-.actions { display:flex; gap:0.5rem; justify-content:flex-end; }
-.actions .cancel { background:transparent; border:1px solid #d1d5db; padding:0.5rem 0.75rem; border-radius:4px; cursor:pointer; }
-.actions .confirm { background:#ef4444; color:white; border:none; padding:0.5rem 0.75rem; border-radius:4px; cursor:pointer; }
