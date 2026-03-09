@@ -7,8 +7,7 @@ import { ButtonComponent } from '../../components/button/button.component';
   standalone: true,
   selector: 'app-home',
   imports: [CommonModule, ConfirmDialogComponent, ButtonComponent],
-  templateUrl: './home.page.html',
-  styleUrl: './home.page.css'
+  templateUrl: './home.page.html'
 })
 export class HomePage {
   confirmVisible = false;

@@ -7,7 +7,6 @@ import { FooterComponent } from '../footer/footer.component';
   standalone: true,
   selector: 'app-main-layout',
   imports: [HeaderComponent, FooterComponent, RouterOutlet],
-  templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.css'
+  templateUrl: './main-layout.component.html'
 })
 export class MainLayoutComponent {}

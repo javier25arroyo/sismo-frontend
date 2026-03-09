@@ -9,8 +9,7 @@ import { ButtonComponent } from '../../components/button/button.component';
   standalone: true,
   selector: 'app-login',
   imports: [CommonModule, ButtonComponent],
-  templateUrl: './login.page.html',
-  styleUrl: './login.page.css'
+  templateUrl: './login.page.html'
 })
 export class LoginPage {
   error = '';

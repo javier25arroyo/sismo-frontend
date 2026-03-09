@@ -5,8 +5,7 @@ import { MainLayoutComponent } from './components/main-layout/main-layout.compon
   standalone: true,
   selector: 'app-root',
   imports: [MainLayoutComponent],
-  template: '<app-main-layout></app-main-layout>',
-  styleUrl: './app.css'
+  template: '<app-main-layout></app-main-layout>'
 })
 export class App {
   protected readonly title = signal('sismo-frontend');
