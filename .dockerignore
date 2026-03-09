@@ -3,8 +3,6 @@ dist
 .git
 .vscode
 .angular
-pnpm-lock.yaml
 README.md
 LICENSE
-Dockerfile
 .dockerignore

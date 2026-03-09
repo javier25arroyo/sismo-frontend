@@ -1,32 +1,30 @@
-# Etapa de construcción
-FROM node:20-alpine AS build
+FROM node:20.19.0-alpine AS build
 
-# Instalar pnpm
-RUN npm install -g pnpm@10.29.3
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable
 
 WORKDIR /app
 
-# Copiar archivos de definición de paquetes
-COPY package.json ./
+COPY package.json pnpm-lock.yaml ./
 
-# Instalar dependencias
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
-# Copiar el resto del código fuente
-COPY . .
+COPY angular.json tsconfig*.json postcss.config.json tailwind.config.js ./
+COPY public ./public
+COPY src ./src
 
-# Construir la aplicación para producción
 RUN pnpm build
 
-# Etapa de ejecución (Nginx)
-FROM nginx:alpine
+FROM nginx:1.27-alpine AS runtime
 
-# Copiar los archivos construidos desde la etapa anterior
-COPY --from=build /app/dist/sismo-frontend /usr/share/nginx/html
-
-# Copiar una configuración personalizada de nginx para manejar rutas de Angular (opcional pero recomendado)
-# RUN echo 'server { listen 80; location / { root /usr/share/nginx/html; index index.html; try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/sismo-frontend/browser /usr/share/nginx/html
 
 EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:80/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
