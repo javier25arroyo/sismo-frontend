@@ -1,209 +1,171 @@
 # Sismo Frontend
 
-Aplicación web frontend desarrollada con Angular para la gestión y visualización de datos sísmicos.
+Frontend en Angular con componentes standalone, autenticacion basada en JWT y estilos con Tailwind CSS 4.
 
-## 🚀 Tecnologías Utilizadas
+## Stack
 
-Este proyecto está construido con las siguientes tecnologías modernas:
+- Angular 21
+- TypeScript 5.9
+- Tailwind CSS 4
+- PostCSS
+- RxJS
+- PNPM
 
-### Core Framework
-- **[Angular 21.1](https://angular.dev/)** - Framework web progresivo para construir aplicaciones modernas
-- **[TypeScript 5.9](https://www.typescriptlang.org/)** - Superset de JavaScript con tipado estático
-- **[RxJS 7.8](https://rxjs.dev/)** - Biblioteca para programación reactiva usando Observables
+## Funcionalidad actual
 
-### Estilos y UI
-- **[TailwindCSS 4.1](https://tailwindcss.com/)** - Framework CSS utility-first para diseño rápido
-- **[PostCSS](https://postcss.org/)** - Herramienta para transformar CSS con plugins JavaScript
-- **[Autoprefixer](https://github.com/postcss/autoprefixer)** - Plugin PostCSS para agregar prefijos de vendors automáticamente
+- Layout principal con header y footer
+- Paginas `Home`, `About`, `Login` y `Profile`
+- Ruta protegida en `/profile`
+- Servicio de autenticacion con almacenamiento de token en `localStorage`
+- Servicio API con envio automatico de header `Authorization`
+- Modal de confirmacion reutilizable
+- UI refactorizada para usar Tailwind en los templates
 
-### Testing
-- **[Vitest 4.0](https://vitest.dev/)** - Framework de testing rápido y moderno
+## Rutas
 
-### Herramientas de Desarrollo
-- **[Angular CLI 21.1.4](https://angular.dev/tools/cli)** - Interfaz de línea de comandos para Angular
-- **[PNPM 10.29](https://pnpm.io/)** - Gestor de paquetes eficiente y rápido
+| Ruta | Acceso | Descripcion |
+| --- | --- | --- |
+| `/` | Publico | Pagina principal con acciones de ejemplo |
+| `/about` | Publico | Informacion general de la aplicacion |
+| `/login` | Publico | Formulario de autenticacion |
+| `/profile` | Protegido | Vista solo para usuarios autenticados |
 
-## 📋 Prerequisitos
+La configuracion de rutas esta en [src/app/app.routes.ts](src/app/app.routes.ts).
 
-Antes de comenzar, asegúrate de tener instalado lo siguiente en tu sistema:
+## Requisitos
 
-### Node.js
-Se requiere Node.js versión 18.19 o superior. Puedes verificar tu versión con:
+- Node.js 20 o superior
+- PNPM 10
+
+Puedes verificar versiones con:
 
 ```bash
 node --version
-```
-
-Para instalar Node.js:
-- **Windows/macOS**: Descarga desde [nodejs.org](https://nodejs.org/)
-- **Linux (Ubuntu/Debian)**:
-  ```bash
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-  sudo apt-get install -y nodejs
-  ```
-- **Linux (Fedora)**:
-  ```bash
-  sudo dnf install nodejs
-  ```
-- **macOS (con Homebrew)**:
-  ```bash
-  brew install node
-  ```
-
-### PNPM
-Este proyecto utiliza PNPM como gestor de paquetes. Para instalarlo globalmente:
-
-```bash
-npm install -g pnpm
-```
-
-O usando Corepack (incluido con Node.js 16.13+):
-
-```bash
-corepack enable
-corepack prepare pnpm@10.29.3 --activate
-```
-
-Verifica la instalación:
-```bash
 pnpm --version
 ```
 
-## 🔧 Instalación
+## Instalacion
 
-Sigue estos pasos para configurar el proyecto en tu máquina local:
+```bash
+git clone https://github.com/javier25arroyo/sismo-frontend.git
+cd sismo-frontend
+pnpm install
+```
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone https://github.com/javier25arroyo/sismo-frontend.git
-   cd sismo-frontend
-   ```
+## Desarrollo
 
-2. **Instalar las dependencias**
-   ```bash
-   pnpm install
-   ```
-   
-   Este comando instalará todas las dependencias especificadas en el archivo `package.json`.
-
-3. **Verificar la instalación**
-   ```bash
-   pnpm ng version
-   ```
-   
-   Deberías ver la versión de Angular CLI y las versiones de los paquetes instalados.
-
-## 🚀 Uso
-
-### Servidor de Desarrollo
-
-Para iniciar un servidor de desarrollo local, ejecuta:
+Inicia el servidor local:
 
 ```bash
 pnpm start
 ```
 
-o alternativamente:
+o:
 
 ```bash
 pnpm ng serve
 ```
 
-Una vez que el servidor esté ejecutándose, abre tu navegador y navega a `http://localhost:4200/`. La aplicación se recargará automáticamente cuando modifiques cualquiera de los archivos fuente.
+La aplicacion queda disponible en `http://localhost:4200/`.
 
-### Construcción del Proyecto
-
-Para construir el proyecto para producción:
+## Build
 
 ```bash
 pnpm build
 ```
 
-Esto compilará tu proyecto y almacenará los artefactos de construcción en el directorio `dist/`. Por defecto, la construcción de producción optimiza tu aplicación para rendimiento y velocidad.
-
-Para construcción en modo desarrollo con observación de cambios:
+Build en modo desarrollo con watch:
 
 ```bash
 pnpm watch
 ```
 
-### Ejecutar Tests
-
-Para ejecutar las pruebas unitarias con [Vitest](https://vitest.dev/):
+## Tests
 
 ```bash
 pnpm test
 ```
 
-### Generación de Código
+## Tailwind
 
-Angular CLI incluye herramientas poderosas para scaffolding de código. Para generar un nuevo componente:
+Tailwind esta configurado con:
+
+- [src/styles.css](src/styles.css)
+- [postcss.config.json](postcss.config.json)
+- [tailwind.config.js](tailwind.config.js)
+
+En Tailwind 4 el archivo global usa:
+
+```css
+@import "tailwindcss";
+```
+
+Si `ng serve` levanta pero no ves estilos, primero confirma que `src/styles.css` siga importando Tailwind y luego reinicia el servidor.
+
+## Nota importante sobre Windows y WSL
+
+Si instalas dependencias en Windows y luego ejecutas `pnpm build` o `ng serve` desde WSL, puedes tener errores con binarios nativos como `esbuild` o `lightningcss`.
+
+La regla correcta es esta:
+
+- Instala dependencias en el mismo entorno donde vas a ejecutar Angular.
+
+Ejemplo en WSL:
 
 ```bash
-pnpm ng generate component nombre-componente
+rm -rf node_modules
+pnpm install
+pnpm ng serve
 ```
 
-Para una lista completa de schematics disponibles (como `components`, `directives`, `pipes`, `services`, etc.):
+Si trabajas desde PowerShell o CMD en Windows, entonces instala y ejecuta todo desde Windows.
 
-```bash
-pnpm ng generate --help
+## Estructura
+
+```text
+src/
+  app/
+    components/
+      button/
+      confirm-dialog/
+      footer/
+      header/
+      main-layout/
+    guards/
+      auth.guard.ts
+    pages/
+      about/
+      home/
+      login/
+      profile/
+    services/
+      api.service.ts
+      auth.service.ts
+    app.config.ts
+    app.routes.ts
+    app.ts
+  index.html
+  main.ts
+  styles.css
+public/
 ```
 
-Ejemplos útiles:
-```bash
-# Generar un servicio
-pnpm ng generate service services/nombre-servicio
+## Scripts
 
-# Generar un módulo
-pnpm ng generate module nombre-modulo
+- `pnpm start`: servidor de desarrollo
+- `pnpm build`: build de produccion
+- `pnpm watch`: build en modo desarrollo con watch
+- `pnpm test`: pruebas unitarias
+- `pnpm ng`: comandos directos de Angular CLI
 
-# Generar un guard
-pnpm ng generate guard guards/nombre-guard
+## Archivos clave
 
-# Generar un pipe
-pnpm ng generate pipe pipes/nombre-pipe
-```
+- [src/app/app.routes.ts](src/app/app.routes.ts): definicion de rutas
+- [src/app/guards/auth.guard.ts](src/app/guards/auth.guard.ts): proteccion de rutas
+- [src/app/services/auth.service.ts](src/app/services/auth.service.ts): manejo del token JWT
+- [src/app/services/api.service.ts](src/app/services/api.service.ts): cliente HTTP basico
+- [src/styles.css](src/styles.css): entrada global de Tailwind
 
-## 📁 Estructura del Proyecto
+## Licencia
 
-```
-sismo-frontend/
-├── src/
-│   ├── app/              # Componentes, servicios y módulos de la aplicación
-│   ├── assets/           # Recursos estáticos (imágenes, fuentes, etc.)
-│   ├── index.html        # Página HTML principal
-│   ├── main.ts          # Punto de entrada de la aplicación
-│   └── styles.css       # Estilos globales
-├── public/              # Archivos públicos estáticos
-├── angular.json         # Configuración de Angular CLI
-├── package.json         # Dependencias y scripts del proyecto
-├── pnpm-lock.yaml      # Archivo de bloqueo de dependencias de PNPM
-├── tailwind.config.js  # Configuración de TailwindCSS
-├── tsconfig.json       # Configuración de TypeScript
-└── README.md           # Este archivo
-```
-
-## 🛠️ Scripts Disponibles
-
-En el archivo `package.json` encontrarás los siguientes scripts:
-
-- `pnpm start` - Inicia el servidor de desarrollo
-- `pnpm build` - Construye la aplicación para producción
-- `pnpm watch` - Construye la aplicación en modo watch (desarrollo)
-- `pnpm test` - Ejecuta las pruebas unitarias
-- `pnpm ng` - Ejecuta comandos de Angular CLI directamente
-
-## 📚 Recursos Adicionales
-
-- [Documentación de Angular](https://angular.dev/overview)
-- [Guía de Angular CLI](https://angular.dev/tools/cli)
-- [Documentación de TailwindCSS](https://tailwindcss.com/docs)
-- [Documentación de TypeScript](https://www.typescriptlang.org/docs/)
-- [Documentación de Vitest](https://vitest.dev/guide/)
-- [Documentación de PNPM](https://pnpm.io/motivation)
-
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la Licencia Apache 2.0 - ver el archivo [LICENSE](LICENSE) para más detalles.
-
-
+Apache 2.0. Consulta [LICENSE](LICENSE).
