@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../components/button.component';
+import { ButtonComponent } from '../../components/button/button.component';
 
 @Component({
   standalone: true,

@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { MainLayoutComponent } from './components/main-layout.component';
+import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 
 @Component({
   standalone: true,
