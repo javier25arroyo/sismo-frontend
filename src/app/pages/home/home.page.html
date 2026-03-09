@@ -1,14 +1,48 @@
-<section class="home">
-  <h1>Bienvenido</h1>
-  <p>Esta es la página principal.</p>
-
-  <div class="actions" style="margin-top:1rem; display:flex; gap:0.5rem;">
-    <app-button (click)="openConfirm('delete')" type="button">Eliminar item</app-button>
-    <app-button (click)="openConfirm('update')" type="button">Actualizar item</app-button>
-    <app-button (click)="openConfirm('modify')" type="button">Modificar item</app-button>
+<section class="space-y-8">
+  <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 p-8 text-white shadow-xl sm:p-10">
+    <span class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
+      Panel principal
+    </span>
+    <h1 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Bienvenido</h1>
+    <p class="mt-4 max-w-2xl text-sm leading-6 text-slate-200 sm:text-base">
+      Esta es la página principal. Las acciones siguientes muestran el flujo de confirmación usando componentes ya migrados a Tailwind.
+    </p>
   </div>
 
-  <p class="result" *ngIf="lastResult" style="margin-top:0.75rem;">{{ lastResult }}</p>
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-xl font-semibold tracking-tight text-slate-900">Acciones rápidas</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Cada botón abre el mismo modal con un contexto distinto.
+      </p>
+
+      <div class="mt-6 flex flex-wrap gap-3">
+        <app-button (click)="openConfirm('delete')" type="button">Eliminar item</app-button>
+        <app-button (click)="openConfirm('update')" type="button">Actualizar item</app-button>
+        <app-button (click)="openConfirm('modify')" type="button">Modificar item</app-button>
+      </div>
+    </div>
+
+    <aside class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900">Estado</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        El resultado de la última acción aparecerá aquí.
+      </p>
+
+      <p
+        class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700"
+        *ngIf="lastResult; else emptyState"
+      >
+        {{ lastResult }}
+      </p>
+
+      <ng-template #emptyState>
+        <p class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+          Aún no hay ninguna acción ejecutada.
+        </p>
+      </ng-template>
+    </aside>
+  </div>
 
   <app-confirm-dialog
     [visible]="confirmVisible"

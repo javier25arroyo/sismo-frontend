@@ -5,8 +5,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   selector: 'app-confirm-dialog',
   imports: [CommonModule],
-  templateUrl: './confirm-dialog.component.html',
-  styleUrl: './confirm-dialog.component.css'
+  templateUrl: './confirm-dialog.component.html'
 })
 export class ConfirmDialogComponent {
   @Input() visible = false;
