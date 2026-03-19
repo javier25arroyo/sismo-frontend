@@ -8,5 +8,5 @@ import { MainLayoutComponent } from './components/main-layout/main-layout.compon
   template: '<app-main-layout></app-main-layout>'
 })
 export class App {
-  protected readonly title = signal('sismo-frontend');
+  protected readonly title = signal('sismo');
 }
