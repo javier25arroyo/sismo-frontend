@@ -47,8 +47,8 @@
   <app-confirm-dialog
     [visible]="confirmVisible"
     [action]="pendingAction"
-    [title]="'Confirmar ' + (pendingAction === 'eliminar' ? 'eliminación' : pendingAction === 'actualizar' ? 'actualización' : 'modificación')"
-    [message]="'¿Estás seguro que quieres ' + (pendingAction === 'eliminar' ? 'eliminar' : pendingAction === 'actualizar' ? 'actualizar' : 'modificar') + ' este elemento?'"
+    [title]="confirmTitle"
+    [message]="confirmMessage"
     (confirm)="onConfirm()"
     (cancel)="onCancel()"
   ></app-confirm-dialog>
