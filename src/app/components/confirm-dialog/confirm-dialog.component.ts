@@ -11,7 +11,7 @@ export class ConfirmDialogComponent {
   @Input() visible = false;
   @Input() title = 'Confirmar acción';
   @Input() message = '¿Estás seguro?';
-  @Input() action: 'delete' | 'update' | 'modify' = 'delete';
+  @Input() action: 'eliminar' | 'actualizar' | 'modificar' = 'eliminar';
   @Input() confirmText?: string;
   @Input() cancelText = 'Cancelar';
   @Output() confirm = new EventEmitter<void>();
@@ -20,9 +20,9 @@ export class ConfirmDialogComponent {
   get confirmButtonText(): string {
     if (this.confirmText) return this.confirmText;
     switch (this.action) {
-      case 'delete': return 'Eliminar';
-      case 'update': return 'Actualizar';
-      case 'modify': return 'Modificar';
+      case 'eliminar': return 'Eliminar';
+      case 'actualizar': return 'Actualizar';
+      case 'modificar': return 'Modificar';
       default: return 'Confirmar';
     }
   }

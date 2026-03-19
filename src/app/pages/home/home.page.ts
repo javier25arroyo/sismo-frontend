@@ -11,22 +11,28 @@ import { ButtonComponent } from '../../components/button/button.component';
 })
 export class HomePage {
   confirmVisible = false;
-  pendingAction: 'delete' | 'update' | 'modify' = 'delete';
+  pendingAction: 'eliminar' | 'actualizar' | 'modificar' = 'eliminar';
   lastResult = '';
 
-  openConfirm(action: 'delete' | 'update' | 'modify') {
+  private actionLabel: Record<'eliminar' | 'actualizar' | 'modificar', string> = {
+    eliminar: 'Eliminación',
+    actualizar: 'Actualización',
+    modificar: 'Modificación'
+  };
+
+  openConfirm(action: 'eliminar' | 'actualizar' | 'modificar') {
     this.pendingAction = action;
     this.confirmVisible = true;
   }
 
   async onConfirm() {
     // Aquí iría la lógica real de eliminación/actualización/modificación
-    this.lastResult = `${this.pendingAction} confirmado`;
+    this.lastResult = `${this.actionLabel[this.pendingAction]} confirmada`;
     this.confirmVisible = false;
   }
 
   onCancel() {
-    this.lastResult = `${this.pendingAction} cancelado`;
+    this.lastResult = `${this.actionLabel[this.pendingAction]} cancelada`;
     this.confirmVisible = false;
   }
 }
