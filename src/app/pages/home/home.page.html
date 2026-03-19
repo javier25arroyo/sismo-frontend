@@ -1,5 +1,5 @@
 <section class="space-y-8">
-  <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 p-8 text-white shadow-xl sm:p-10">
+  <div class="rounded-3xl bg-linear-to-br from-slate-900 via-slate-800 to-sky-900 p-8 text-white shadow-xl sm:p-10">
     <span class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
       Panel principal
     </span>
@@ -17,9 +17,9 @@
       </p>
 
       <div class="mt-6 flex flex-wrap gap-3">
-        <app-button (click)="openConfirm('delete')" type="button">Eliminar item</app-button>
-        <app-button (click)="openConfirm('update')" type="button">Actualizar item</app-button>
-        <app-button (click)="openConfirm('modify')" type="button">Modificar item</app-button>
+        <app-button (click)="openConfirm('eliminar')" type="button">Eliminar item</app-button>
+        <app-button (click)="openConfirm('actualizar')" type="button">Actualizar item</app-button>
+        <app-button (click)="openConfirm('modificar')" type="button">Modificar item</app-button>
       </div>
     </div>
 
@@ -47,8 +47,8 @@
   <app-confirm-dialog
     [visible]="confirmVisible"
     [action]="pendingAction"
-    [title]="'Confirmar ' + (pendingAction === 'delete' ? 'eliminación' : pendingAction === 'update' ? 'actualización' : 'modificación')"
-    [message]="'¿Estás seguro que quieres ' + (pendingAction === 'delete' ? 'eliminar' : pendingAction === 'update' ? 'actualizar' : 'modificar') + ' este elemento?'"
+    [title]="'Confirmar ' + (pendingAction === 'eliminar' ? 'eliminación' : pendingAction === 'actualizar' ? 'actualización' : 'modificación')"
+    [message]="'¿Estás seguro que quieres ' + (pendingAction === 'eliminar' ? 'eliminar' : pendingAction === 'actualizar' ? 'actualizar' : 'modificar') + ' este elemento?'"
     (confirm)="onConfirm()"
     (cancel)="onCancel()"
   ></app-confirm-dialog>
