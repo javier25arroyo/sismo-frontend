@@ -14,11 +14,19 @@ export class HomePage {
   pendingAction: 'eliminar' | 'actualizar' | 'modificar' = 'eliminar';
   lastResult = '';
 
-  private actionLabel: Record<'eliminar' | 'actualizar' | 'modificar', string> = {
+  private readonly actionLabel: Record<'eliminar' | 'actualizar' | 'modificar', string> = {
     eliminar: 'Eliminación',
     actualizar: 'Actualización',
     modificar: 'Modificación'
   };
+
+  get confirmTitle(): string {
+    return `Confirmar ${this.actionLabel[this.pendingAction].toLowerCase()}`;
+  }
+
+  get confirmMessage(): string {
+    return `¿Estás seguro que quieres ${this.pendingAction} este elemento?`;
+  }
 
   openConfirm(action: 'eliminar' | 'actualizar' | 'modificar') {
     this.pendingAction = action;
