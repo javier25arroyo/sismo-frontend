@@ -1,0 +1,142 @@
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">Mapa de Sismos</h1>
+
+  <!-- Panel de filtros -->
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="flex flex-wrap gap-4 items-end">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Magnitud mínima
+        </label>
+        <select 
+          [(ngModel)]="magnitudMin" 
+          class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+        >
+          <option [value]="0">Todas</option>
+          <option [value]="3">≥ 3.0</option>
+          <option [value]="4">≥ 4.0</option>
+          <option [value]="5">≥ 5.0</option>
+          <option [value]="6">≥ 6.0</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Cantidad
+        </label>
+        <select 
+          [(ngModel)]="cantidadSismos" 
+          class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+        >
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+
+      <button 
+        (click)="aplicarFiltros()"
+        [disabled]="loading"
+        class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium px-4 py-2 rounded-md transition-colors"
+      >
+        @if (loading) {
+          <span>Cargando...</span>
+        } @else {
+          <span>Aplicar filtros</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  @if (error) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+      {{ error }}
+    </div>
+  }
+
+  <!-- Stats rápidos -->
+  @if (!loading && sismos.length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-sm font-medium text-gray-500">Total de sismos</h3>
+        <p class="text-2xl font-bold text-gray-800">{{ sismos.length }}</p>
+      </div>
+
+      @if (sismoMasReciente) {
+        <div class="bg-white rounded-lg shadow p-4">
+          <h3 class="text-sm font-medium text-gray-500">Más reciente</h3>
+          <p class="text-2xl font-bold text-blue-600">M {{ sismoMasReciente.magnitud.toFixed(1) }}</p>
+          <p class="text-sm text-gray-600">{{ sismoMasReciente.ubicacion }}</p>
+        </div>
+      }
+
+      @if (sismoMayorMagnitud) {
+        <div class="bg-white rounded-lg shadow p-4">
+          <h3 class="text-sm font-medium text-gray-500">Mayor magnitud</h3>
+          <p class="text-2xl font-bold text-red-600">M {{ sismoMayorMagnitud.magnitud.toFixed(1) }}</p>
+          <p class="text-sm text-gray-600">{{ sismoMayorMagnitud.ubicacion }}</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Mapa -->
+  <div class="bg-white rounded-lg shadow">
+    @if (loading) {
+      <div class="h-[500px] flex items-center justify-center">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Cargando sismos...</p>
+        </div>
+      </div>
+    } @else {
+      <app-sismo-map 
+        [sismos]="sismos" 
+        [height]="'600px'"
+        [showLegend]="true"
+      />
+    }
+  </div>
+
+  <!-- Lista de sismos recientes (opcional, colapsable) -->
+  @if (!loading && sismos.length > 0) {
+    <details class="mt-6 bg-white rounded-lg shadow">
+      <summary class="cursor-pointer p-4 font-medium text-gray-800 hover:bg-gray-50">
+        Ver lista de sismos ({{ sismos.length }})
+      </summary>
+      <div class="border-t max-h-96 overflow-y-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 sticky top-0">
+            <tr>
+              <th class="px-4 py-2 text-left">Fecha</th>
+              <th class="px-4 py-2 text-left">Magnitud</th>
+              <th class="px-4 py-2 text-left">Ubicación</th>
+              <th class="px-4 py-2 text-left">Profundidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (sismo of sismos; track sismo.feSismo) {
+              <tr class="border-t hover:bg-gray-50">
+                <td class="px-4 py-2">{{ sismo.feSismo | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="px-4 py-2">
+                  <span 
+                    class="font-bold"
+                    [class.text-green-600]="sismo.magnitud < 3"
+                    [class.text-yellow-600]="sismo.magnitud >= 3 && sismo.magnitud < 4"
+                    [class.text-orange-600]="sismo.magnitud >= 4 && sismo.magnitud < 5"
+                    [class.text-red-600]="sismo.magnitud >= 5"
+                  >
+                    {{ sismo.magnitud.toFixed(1) }}
+                  </span>
+                </td>
+                <td class="px-4 py-2">{{ sismo.ubicacion }}</td>
+                <td class="px-4 py-2">{{ sismo.profundidad }} km</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  }
+</div>

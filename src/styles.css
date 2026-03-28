@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 html,
 body {
@@ -12,4 +13,21 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* Estilos personalizados para popups de Leaflet */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+}
+
+.sismo-popup h3 {
+  margin: 0 0 4px 0;
+}
+
+.sismo-popup p {
+  margin: 2px 0;
 }
