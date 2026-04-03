@@ -9,10 +9,11 @@
 
   <form class="mt-8 space-y-5" (submit)="onSubmit($event)">
     <label class="block">
-      <span class="mb-2 block text-sm font-medium text-slate-700">Correo electrónico</span>
+      <span class="mb-2 block text-sm font-medium text-slate-700">Nombre de usuario</span>
       <input
-        type="email"
-        name="email"
+        type="text"
+        name="username"
+        autocomplete="username"
         required
         class="block w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
       />

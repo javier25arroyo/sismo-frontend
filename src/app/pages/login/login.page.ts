@@ -21,13 +21,13 @@ export class LoginPage {
     ev.preventDefault();
     const form = ev.target as HTMLFormElement;
     const data = new FormData(form);
-    const email = String(data.get('email') || '');
+    const username = String(data.get('username') || '');
     const password = String(data.get('password') || '');
 
     this.loading = true;
     this.error = '';
     try {
-      const res: any = await this.api.post('/auth/login', { email, password });
+      const res: any = await this.api.post('/auth/login', { email: username, password });
       if (res && res.token) {
         this.auth.login(res.token);
         await this.router.navigate(['/']);
