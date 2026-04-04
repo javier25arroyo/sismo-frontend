@@ -8,8 +8,9 @@ RUN corepack enable
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
+COPY scripts ./scripts
 
-RUN pnpm install --frozen-lockfile
+RUN chmod +x ./scripts/pnpm-install.sh && ./scripts/pnpm-install.sh
 
 COPY angular.json tsconfig*.json postcss.config.json tailwind.config.js ./
 COPY public ./public
