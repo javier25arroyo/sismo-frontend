@@ -4,6 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../components/button/button.component';
+import { SolicitudLogin, RespuestaLogin } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
@@ -14,6 +15,7 @@ import { ButtonComponent } from '../../components/button/button.component';
 export class LoginPage {
   error = '';
   loading = false;
+  debeCambiarPassword = false;
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
 
@@ -27,12 +29,16 @@ export class LoginPage {
     this.loading = true;
     this.error = '';
     try {
-      const res: any = await this.api.post('/auth/login', { email: username, password });
-      if (res && res.token) {
-        this.auth.login(res.token);
-        await this.router.navigate(['/']);
+      const solicitud: SolicitudLogin = { username, password };
+      const res = await this.api.post<RespuestaLogin>(
+        '/api/autenticacion/iniciar-sesion',
+        solicitud
+      );
+      this.auth.login(res);
+      if (res.debeCambiarPassword || res.esPrimerLogin) {
+        await this.router.navigate(['/cambiar-contrasena']);
       } else {
-        this.error = 'Credenciales inválidas';
+        await this.router.navigate(['/']);
       }
     } catch (err) {
       this.error = (err as Error).message || 'Error al iniciar sesión';
