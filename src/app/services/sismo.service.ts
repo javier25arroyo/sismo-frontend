@@ -36,6 +36,12 @@ export class SismoService {
     );
   }
 
+  /** Compatibilidad con vistas que filtran por magnitud mínima */
+  async getSismosPorMagnitud(magnitudMin: number, limit = 50): Promise<Sismo[]> {
+    const res = await this.getSismosPaginado({ magnitudMin, size: limit, page: 0 });
+    return res.content;
+  }
+
   /** GET /api/sismos — lista completa paginada de todos los sismos */
   async listarSismos(filtros: FiltroSismos = {}): Promise<PaginatedResponse<SismoRespuesta>> {
     const params = new URLSearchParams();
