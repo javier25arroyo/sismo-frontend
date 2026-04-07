@@ -1,39 +1,54 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Sismo, PaginatedResponse } from '../interfaces/sismo.interface';
+import {
+  SismoRespuesta,
+  SismoUltimoRespuesta,
+  FiltroSismos
+} from '../interfaces/api.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class SismoService {
   constructor(private api: ApiService) {}
 
-  /**
-   * Obtiene los sismos más recientes.
-   * @param limit Cantidad máxima de sismos a obtener (default: 50)
-   */
+  /** GET /api/sismos/ultimo/resumen — resumen paginado del último sismo por estación */
   async getUltimosSismos(limit = 50): Promise<Sismo[]> {
-    const response = await this.api.get<PaginatedResponse<Sismo>>(
-      `/api/sismos/resumen?size=${limit}&sort=feSismo,desc`
+    const res = await this.api.get<PaginatedResponse<Sismo>>(
+      `/api/sismos/ultimo/resumen?size=${limit}&sort=feSismo,desc`
     );
-    return response.content;
+    return res.content;
   }
 
-  /**
-   * Obtiene sismos filtrados por rango de fechas.
-   */
-  async getSismosPorFecha(desde: string, hasta: string): Promise<Sismo[]> {
-    const response = await this.api.get<PaginatedResponse<Sismo>>(
-      `/api/sismos/resumen?desde=${desde}&hasta=${hasta}&size=100`
+  /** GET /api/sismos/ultimo/resumen — con filtros y paginación */
+  async getSismosPaginado(filtros: FiltroSismos = {}): Promise<PaginatedResponse<Sismo>> {
+    const params = new URLSearchParams();
+    if (filtros.codCentroPrd) params.set('codCentroPrd', filtros.codCentroPrd);
+    if (filtros.codEstacion)  params.set('codEstacion', filtros.codEstacion);
+    if (filtros.desde)        params.set('desde', filtros.desde);
+    if (filtros.hasta)        params.set('hasta', filtros.hasta);
+    if (filtros.magnitudMin !== undefined) params.set('magnitudMin', String(filtros.magnitudMin));
+    if (filtros.magnitudMax !== undefined) params.set('magnitudMax', String(filtros.magnitudMax));
+    if (filtros.page !== undefined) params.set('page', String(filtros.page));
+    if (filtros.size !== undefined) params.set('size', String(filtros.size));
+    const query = params.toString();
+    return this.api.get<PaginatedResponse<Sismo>>(
+      `/api/sismos/ultimo/resumen${query ? '?' + query : ''}`
     );
-    return response.content;
   }
 
-  /**
-   * Obtiene sismos filtrados por magnitud mínima.
-   */
-  async getSismosPorMagnitud(magnitudMin: number): Promise<Sismo[]> {
-    const response = await this.api.get<PaginatedResponse<Sismo>>(
-      `/api/sismos/resumen?magnitudMin=${magnitudMin}&size=100`
+  /** GET /api/sismos — lista completa paginada de todos los sismos */
+  async listarSismos(filtros: FiltroSismos = {}): Promise<PaginatedResponse<SismoRespuesta>> {
+    const params = new URLSearchParams();
+    if (filtros.page !== undefined) params.set('page', String(filtros.page));
+    if (filtros.size !== undefined) params.set('size', String(filtros.size));
+    const query = params.toString();
+    return this.api.get<PaginatedResponse<SismoRespuesta>>(
+      `/api/sismos${query ? '?' + query : ''}`
     );
-    return response.content;
+  }
+
+  /** GET /api/sismos/ultimo — último sismo sentido */
+  async getUltimoSismo(): Promise<SismoUltimoRespuesta> {
+    return this.api.get<SismoUltimoRespuesta>('/api/sismos/ultimo');
   }
 }
