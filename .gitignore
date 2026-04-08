@@ -107,3 +107,8 @@ pnpm-debug.log*
 *.swo
 .codex
 /.claude
+/mockups
+/.github/agents
+/.github/instructions
+/.github/skills
+CLAUDE.md
