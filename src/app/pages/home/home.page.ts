@@ -1,38 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
-import { ButtonComponent } from '../../components/button/button.component';
+import { RouterLink } from '@angular/router';
+import { SismoService } from '../../services/sismo.service';
+import { SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, ConfirmDialogComponent, ButtonComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home.page.html'
 })
-export class HomePage {
-  confirmVisible = false;
-  pendingAction: 'eliminar' | 'actualizar' | 'modificar' = 'eliminar';
-  lastResult = '';
+export class HomePage implements OnInit {
+  ultimoSismo = signal<SismoUltimoRespuesta | null>(null);
+  cargando = signal(true);
 
-  private actionLabel: Record<'eliminar' | 'actualizar' | 'modificar', string> = {
-    eliminar: 'Eliminación',
-    actualizar: 'Actualización',
-    modificar: 'Modificación'
-  };
+  constructor(private sismoService: SismoService) {}
 
-  openConfirm(action: 'eliminar' | 'actualizar' | 'modificar') {
-    this.pendingAction = action;
-    this.confirmVisible = true;
+  ngOnInit(): void {
+    this.sismoService.getUltimoSismo()
+      .then(s => this.ultimoSismo.set(s))
+      .catch(() => {})
+      .finally(() => this.cargando.set(false));
   }
 
-  async onConfirm() {
-    // Aquí iría la lógica real de eliminación/actualización/modificación
-    this.lastResult = `${this.actionLabel[this.pendingAction]} confirmada`;
-    this.confirmVisible = false;
-  }
-
-  onCancel() {
-    this.lastResult = `${this.actionLabel[this.pendingAction]} cancelada`;
-    this.confirmVisible = false;
+  get magnitudColor(): string {
+    const m = this.ultimoSismo()?.magnitud ?? 0;
+    if (m < 3) return '#22c55e';
+    if (m < 4) return '#eab308';
+    if (m < 5) return '#f97316';
+    if (m < 6) return '#ef4444';
+    return '#7c2d12';
   }
 }

@@ -1,69 +1,91 @@
-<header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md">
-  <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-    <a
-      routerLink="/"
-      class="text-xl font-bold tracking-tight text-slate-900 transition hover:text-sky-700"
-    >
-      ICE - RED SISMOLÓGICA
+<!-- PUBLIC HEADER -->
+<header *ngIf="modo === 'publica'"
+  class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md">
+  <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <a routerLink="/"
+      class="text-base font-semibold tracking-tight text-slate-900 transition hover:text-sky-700">
+      Visualización Acelerográfica ICE
     </a>
 
-    <ul class="flex items-center gap-1 text-sm font-medium text-slate-600 sm:gap-2 lg:gap-4">
+    <ul class="flex items-center gap-1 text-sm font-medium text-slate-600 sm:gap-2">
       <li>
-        <a
-          routerLink="/"
-          routerLinkActive="bg-sky-50 text-sky-700"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="rounded-lg px-3 py-2 transition hover:bg-slate-50 hover:text-slate-900"
-        >
-          Inicio
-        </a>
+        <a routerLink="/sismos"
+          routerLinkActive="text-sky-700 font-semibold"
+          class="rounded-lg px-3 py-2 transition hover:text-slate-900">Sismos</a>
       </li>
       <li>
-        <a
-          routerLink="/mapa"
-          routerLinkActive="bg-sky-50 text-sky-700"
-          class="rounded-lg px-3 py-2 transition hover:bg-slate-50 hover:text-slate-900"
-        >
-          Monitoreo
-        </a>
+        <a routerLink="/historial"
+          routerLinkActive="text-sky-700 font-semibold"
+          class="rounded-lg px-3 py-2 transition hover:text-slate-900">Historial</a>
       </li>
       <li>
-        <a
-          routerLink="/estaciones"
-          routerLinkActive="bg-sky-50 text-sky-700"
-          class="rounded-lg px-3 py-2 transition hover:bg-slate-50 hover:text-slate-900"
-        >
-          Estaciones
-        </a>
+        <a routerLink="/estaciones"
+          routerLinkActive="text-sky-700 font-semibold"
+          class="rounded-lg px-3 py-2 transition hover:text-slate-900">Estaciones</a>
       </li>
       <li>
-        <a
-          routerLink="/consultas"
-          routerLinkActive="bg-sky-50 text-sky-700"
-          class="rounded-lg px-3 py-2 transition hover:bg-slate-50 hover:text-slate-900"
-        >
-          Consultas
-        </a>
-      </li>
-      <li>
-        <a
-          routerLink="/informes"
-          routerLinkActive="bg-sky-50 text-sky-700"
-          class="rounded-lg px-3 py-2 transition hover:bg-slate-50 hover:text-slate-900"
-        >
-          Informes
-        </a>
-      </li>
-      <li class="ml-2 h-6 w-px bg-slate-200"></li>
-      <li>
-        <a
-          routerLink="/login"
-          routerLinkActive="bg-sky-50 text-sky-700"
-          class="rounded-lg px-3 py-2 transition hover:bg-slate-50 hover:text-slate-900"
-        >
-          Acceso
-        </a>
+        <a routerLink="/repositorio"
+          routerLinkActive="text-sky-700 font-semibold"
+          class="rounded-lg px-3 py-2 transition hover:text-slate-900">Repositorio</a>
       </li>
     </ul>
+
+    <a routerLink="/acceso"
+      class="rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700">
+      Acceso Técnico
+    </a>
+  </nav>
+</header>
+
+<!-- TECHNICAL HEADER -->
+<header *ngIf="modo === 'tecnica'"
+  class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950">
+  <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <a routerLink="/"
+      class="flex items-center gap-2 text-base font-bold tracking-widest text-white transition hover:text-sky-400">
+      <span class="text-sky-400">◈</span>
+      <span>SISMOLOGÍA<span class="text-sky-400">.ICE</span></span>
+    </a>
+
+    <ul class="flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-slate-400">
+      <li>
+        <a routerLink="/sismos"
+          routerLinkActive="text-white"
+          class="rounded-lg px-3 py-2 transition hover:text-white">Sismos</a>
+      </li>
+      <li>
+        <a routerLink="/historial"
+          routerLinkActive="text-white"
+          class="rounded-lg px-3 py-2 transition hover:text-white">Historial</a>
+      </li>
+      <li>
+        <a routerLink="/estaciones"
+          routerLinkActive="text-white"
+          class="rounded-lg px-3 py-2 transition hover:text-white">Estaciones</a>
+      </li>
+      <li>
+        <a routerLink="/repositorio"
+          routerLinkActive="text-white"
+          class="rounded-lg px-3 py-2 transition hover:text-white">Repositorio</a>
+      </li>
+    </ul>
+
+    <div class="flex items-center gap-3">
+      <span class="hidden text-xs font-medium text-slate-400 sm:block">SOPORTE TÉCNICO</span>
+      <ng-container *ngIf="auth.isAuthenticated(); else loginLink">
+        <div class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5">
+          <div class="flex h-7 w-7 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">
+            {{ auth.getRole()?.charAt(0) ?? 'U' }}
+          </div>
+          <span class="text-xs font-medium text-slate-300">Admin Técnico</span>
+        </div>
+      </ng-container>
+      <ng-template #loginLink>
+        <a routerLink="/acceso"
+          class="rounded-xl border border-slate-600 bg-slate-800 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-slate-700">
+          Acceso Técnico
+        </a>
+      </ng-template>
+    </div>
   </nav>
 </header>
