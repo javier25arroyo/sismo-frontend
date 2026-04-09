@@ -1,55 +1,135 @@
-<section class="space-y-8">
-  <div class="rounded-3xl bg-linear-to-br from-slate-900 via-slate-800 to-sky-900 p-8 text-white shadow-xl sm:p-10">
-    <span class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
-      Panel principal
-    </span>
-    <h1 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Bienvenido</h1>
-    <p class="mt-4 max-w-2xl text-sm leading-6 text-slate-200 sm:text-base">
-      Esta es la página principal. Las acciones siguientes muestran el flujo de confirmación usando componentes ya migrados a Tailwind.
-    </p>
-  </div>
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 class="text-xl font-semibold tracking-tight text-slate-900">Acciones rápidas</h2>
-      <p class="mt-2 text-sm leading-6 text-slate-600">
-        Cada botón abre el mismo modal con un contexto distinto.
+  <!-- HERO -->
+  <section class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 py-4">
+    <div>
+      <span class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-sky-700">
+        Red Acelerográfica Nacional · ICE
+      </span>
+      <h1 class="mt-6 text-5xl font-bold leading-tight tracking-tight text-slate-900 sm:text-6xl">
+        Dinámica Sísmica<br>
+        <span class="text-sky-600">Global.</span>
+      </h1>
+      <p class="mt-6 max-w-lg text-base leading-7 text-slate-600">
+        Infraestructura tecnológica para el análisis y la visualización de datos en tiempo real del ICE.
       </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a routerLink="/historial"
+          class="rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700">
+          Consultar Ahora
+        </a>
+        <a routerLink="/repositorio"
+          class="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+          Repositorio
+        </a>
+      </div>
+    </div>
+    <div class="flex items-center justify-center">
+      <div class="h-72 w-full max-w-md rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center overflow-hidden shadow-2xl">
+        <!-- Waveform abstract -->
+        <svg viewBox="0 0 400 200" class="w-full opacity-60" fill="none">
+          <polyline
+            points="0,100 20,80 40,120 60,60 80,140 100,50 120,130 140,70 160,110 180,85 200,115 220,75 240,125 260,65 280,135 300,55 320,145 340,90 360,105 380,80 400,100"
+            stroke="#38bdf8" stroke-width="2" fill="none"/>
+          <polyline
+            points="0,100 20,90 40,110 60,75 80,125 100,65 120,120 140,80 160,115 180,90 200,105 220,85 240,115 260,70 280,130 300,60 320,140 340,95 360,100 380,85 400,100"
+            stroke="#0ea5e9" stroke-width="1" fill="none" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+  </section>
 
-      <div class="mt-6 flex flex-wrap gap-3">
-        <app-button (click)="openConfirm('eliminar')" type="button">Eliminar item</app-button>
-        <app-button (click)="openConfirm('actualizar')" type="button">Actualizar item</app-button>
-        <app-button (click)="openConfirm('modificar')" type="button">Modificar item</app-button>
+  <!-- ÚLTIMO EVENTO SIGNIFICATIVO -->
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-slate-900">Último Evento Significativo</h2>
+      <a routerLink="/historial" class="text-sm font-medium text-sky-600 hover:text-sky-700 transition">
+        Catálogo Completo →
+      </a>
+    </div>
+
+    <div *ngIf="cargando()" class="rounded-2xl bg-slate-100 h-40 animate-pulse"></div>
+
+    <div *ngIf="!cargando() && ultimoSismo()" class="rounded-2xl bg-slate-900 text-white overflow-hidden shadow-xl">
+      <div class="grid lg:grid-cols-[auto_1fr_auto] gap-0">
+        <!-- Magnitude block -->
+        <div class="flex flex-col items-center justify-center px-8 py-6 border-r border-slate-700"
+          [style.background]="magnitudColor + '22'">
+          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">MAGNITUD Mw</span>
+          <span class="text-6xl font-bold tabular-nums" [style.color]="magnitudColor">
+            {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
+          </span>
+          <span class="mt-1 text-xs text-slate-400">{{ ultimoSismo()!.profundidad }} km prof.</span>
+        </div>
+
+        <!-- Info center -->
+        <div class="px-8 py-6">
+          <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion }}</p>
+          <div class="mt-4 flex flex-wrap gap-6 text-sm">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Coordenadas</p>
+              <p class="mt-1 font-mono text-slate-200">
+                {{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}°N /
+                {{ ultimoSismo()!.coordenadaX | number:'1.3-3' }}°W
+              </p>
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Profundidad</p>
+              <p class="mt-1 font-semibold text-slate-200">{{ ultimoSismo()!.profundidad }} km</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date/time right -->
+        <div class="flex flex-col items-end justify-center px-8 py-6 border-l border-slate-700">
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">FECHA UTC</p>
+          <p class="font-mono text-sm text-slate-200">{{ ultimoSismo()!.feSismo | date:'dd MMM yyyy' }}</p>
+          <p class="font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | date:'HH:mm:ss' }} UTC</p>
+          <a routerLink="/sismos"
+            class="mt-4 rounded-lg bg-sky-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-500">
+            Ver análisis
+          </a>
+        </div>
       </div>
     </div>
 
-    <aside class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 class="text-lg font-semibold text-slate-900">Estado</h2>
+    <div *ngIf="!cargando() && !ultimoSismo()"
+      class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
+      No hay datos del último evento disponibles.
+    </div>
+  </section>
+
+  <!-- FEATURE CARDS -->
+  <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <a routerLink="/historial"
+      class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-2xl">📊</div>
+      <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Catálogo Histórico</h3>
       <p class="mt-2 text-sm leading-6 text-slate-600">
-        El resultado de la última acción aparecerá aquí.
+        Consulta el registro completo de eventos sísmicos con filtros avanzados y acceso a acelerogramas.
       </p>
+      <span class="mt-4 inline-block text-xs font-semibold text-sky-600">EXPLORAR HISTORIAL →</span>
+    </a>
 
-      <p
-        class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700"
-        *ngIf="lastResult; else emptyState"
-      >
-        {{ lastResult }}
+    <a routerLink="/estaciones"
+      class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-green-200">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-2xl">📡</div>
+      <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-green-700 transition">Estado de Red</h3>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Monitorea el estado operativo y telemetría en tiempo real de todas las estaciones acelerográficas.
       </p>
+      <span class="mt-4 inline-block text-xs font-semibold text-green-600">VER RED EN VIVO →</span>
+    </a>
 
-      <ng-template #emptyState>
-        <p class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-          Aún no hay ninguna acción ejecutada.
-        </p>
-      </ng-template>
-    </aside>
-  </div>
+    <a routerLink="/repositorio"
+      class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-2xl">📁</div>
+      <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Repositorio Raw</h3>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Accede a informes técnicos, manuales de instrumentación y protocolos de la Red Nacional de Sismicidad.
+      </p>
+      <span class="mt-4 inline-block text-xs font-semibold text-sky-600">ACCEDER REPOSITORIO →</span>
+    </a>
+  </section>
 
-  <app-confirm-dialog
-    [visible]="confirmVisible"
-    [action]="pendingAction"
-    [title]="'Confirmar ' + (pendingAction === 'eliminar' ? 'eliminación' : pendingAction === 'actualizar' ? 'actualización' : 'modificación')"
-    [message]="'¿Estás seguro que quieres ' + (pendingAction === 'eliminar' ? 'eliminar' : pendingAction === 'actualizar' ? 'actualizar' : 'modificar') + ' este elemento?'"
-    (confirm)="onConfirm()"
-    (cancel)="onCancel()"
-  ></app-confirm-dialog>
-</section>
+</div>
