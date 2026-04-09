@@ -8,6 +8,23 @@ export class ApiService {
 
   constructor(private auth: AuthService) {}
 
+  private extractErrorMessage(body: unknown, fallback: string): string {
+    if (!body || typeof body !== 'object') {
+      return fallback;
+    }
+
+    const payload = body as Record<string, unknown>;
+    const candidates = [payload['mensaje'], payload['detail'], payload['message'], payload['title']];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim().length > 0) {
+        return candidate;
+      }
+    }
+
+    return fallback;
+  }
+
   private buildHeaders(extra?: Record<string, string>): Record<string, string> {
     const headers: Record<string, string> = { ...(extra || {}) };
     if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
@@ -28,9 +45,10 @@ export class ApiService {
       let mensaje = `${res.status} ${res.statusText}`;
       try {
         const body = await res.json();
-        if (body?.mensaje) mensaje = body.mensaje;
-        else if (body?.message) mensaje = body.message;
-      } catch { /* ignore */ }
+        mensaje = this.extractErrorMessage(body, mensaje);
+      } catch {
+        // ignore JSON parsing errors and keep the HTTP status text
+      }
       throw new Error(mensaje);
     }
     const text = await res.text();

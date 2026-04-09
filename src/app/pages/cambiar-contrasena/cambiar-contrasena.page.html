@@ -1,0 +1,121 @@
+<div class="flex min-h-screen flex-col bg-slate-950">
+  <main class="flex flex-1 items-center justify-center px-4 py-12">
+    <section class="w-full max-w-2xl rounded-3xl bg-white p-8 shadow-2xl sm:p-10">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+        <div class="max-w-xl">
+          <p class="text-xs font-bold uppercase tracking-[0.35em] text-sky-600">Acceso técnico</p>
+          <h1 class="mt-3 text-3xl font-bold tracking-tight text-slate-900">Cambiar contraseña</h1>
+          <p class="mt-3 text-sm leading-6 text-slate-600">
+            Define una nueva contraseña para continuar en el portal institucional.
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-sky-50 px-4 py-3 text-sm font-medium text-sky-700 ring-1 ring-sky-200">
+          {{ sessionActiva ? 'Sesión activa' : 'Acceso temporal' }}
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+        La nueva contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y símbolo.
+      </div>
+
+      @if (error()) {
+        <div class="mt-6 rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700" aria-live="polite">
+          {{ error() }}
+        </div>
+      }
+
+      @if (success()) {
+        <div class="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700" aria-live="polite">
+          {{ success() }}
+        </div>
+      }
+
+      <form class="mt-8 grid gap-5" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="grid gap-5 md:grid-cols-2">
+          <label class="block">
+            <span class="mb-1.5 block text-xs font-bold uppercase tracking-widest text-slate-500">
+              Contraseña actual
+            </span>
+            <input
+              type="password"
+              formControlName="passwordActual"
+              autocomplete="current-password"
+              class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+            />
+
+            @if (form.controls.passwordActual.touched && form.controls.passwordActual.hasError('required')) {
+              <p class="mt-1.5 text-xs font-medium text-rose-600">La contraseña actual es obligatoria.</p>
+            }
+          </label>
+
+          <label class="block">
+            <span class="mb-1.5 block text-xs font-bold uppercase tracking-widest text-slate-500">
+              Nueva contraseña
+            </span>
+            <input
+              type="password"
+              formControlName="passwordNueva"
+              autocomplete="new-password"
+              class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+            />
+
+            @if (form.controls.passwordNueva.touched && form.controls.passwordNueva.hasError('required')) {
+              <p class="mt-1.5 text-xs font-medium text-rose-600">La nueva contraseña es obligatoria.</p>
+            }
+            @if (form.controls.passwordNueva.touched && form.controls.passwordNueva.hasError('minlength')) {
+              <p class="mt-1.5 text-xs font-medium text-rose-600">Debe tener al menos 8 caracteres.</p>
+            }
+            @if (form.controls.passwordNueva.touched && form.controls.passwordNueva.hasError('pattern')) {
+              <p class="mt-1.5 text-xs font-medium text-rose-600">
+                Debe incluir mayúscula, minúscula, número y símbolo.
+              </p>
+            }
+          </label>
+        </div>
+
+        <label class="block">
+          <span class="mb-1.5 block text-xs font-bold uppercase tracking-widest text-slate-500">
+            Confirmar nueva contraseña
+          </span>
+          <input
+            type="password"
+            formControlName="confirmarPassword"
+            autocomplete="new-password"
+            class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+          />
+
+          @if (form.controls.confirmarPassword.touched && form.controls.confirmarPassword.hasError('required')) {
+            <p class="mt-1.5 text-xs font-medium text-rose-600">Confirma la nueva contraseña.</p>
+          }
+          @if (form.touched && form.hasError('passwordMismatch')) {
+            <p class="mt-1.5 text-xs font-medium text-rose-600">Las contraseñas no coinciden.</p>
+          }
+        </label>
+
+        <div class="mt-2 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="submit"
+            [disabled]="loading()"
+            class="flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-60"
+          >
+            @if (loading()) {
+              <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            }
+            {{ loading() ? 'Actualizando...' : 'Actualizar contraseña' }}
+          </button>
+
+          <a
+            routerLink="/acceso"
+            class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+          >
+            Volver al acceso
+          </a>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>

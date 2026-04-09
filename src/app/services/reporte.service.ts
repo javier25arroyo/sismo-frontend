@@ -48,10 +48,10 @@ export class ReporteService {
   // ─── Generación de reportes ───────────────────────────────────────────────
 
   /** POST /api/admin/reportes/generacion — solicitar generación automática */
-  async solicitarGeneracion(feSismo: string): Promise<GeneracionReporteRespuesta> {
+  async solicitarGeneracion(feSismo: string, magnitud: number): Promise<GeneracionReporteRespuesta> {
     return this.api.post<GeneracionReporteRespuesta>(
       '/api/admin/reportes/generacion',
-      { feSismo }
+      { feSismo, magnitud }
     );
   }
 

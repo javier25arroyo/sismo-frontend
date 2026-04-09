@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 import { HomePage } from './pages/home/home.page';
 import { LoginPage } from './pages/login/login.page';
+import { CambiarContrasenaPage } from './pages/cambiar-contrasena/cambiar-contrasena.page';
 import { SismosPage } from './pages/sismos/sismos.page';
 import { HistorialPage } from './pages/historial/historial.page';
 import { EstacionesPage } from './pages/estaciones/estaciones.page';
@@ -27,6 +28,7 @@ export const routes: Routes = [
     ]
   },
   { path: 'acceso', component: LoginPage },
+  { path: 'cambiar-contrasena', component: CambiarContrasenaPage, canActivate: [AuthGuard] },
   { path: 'login', redirectTo: 'acceso', pathMatch: 'full' },
   { path: '**', redirectTo: '' }
 ];
