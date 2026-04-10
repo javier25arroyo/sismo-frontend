@@ -16,21 +16,25 @@ export class StatusBadgeComponent {
 
   get badgeClass(): string {
     switch ((this.estado ?? '').toUpperCase()) {
+      case 'NIVEL 1':
       case 'ACTIVO':
       case 'ACTIVA':
       case 'OPERATIVO':
       case 'EN LÍNEA':
         return 'bg-green-100 text-green-700';
+      case 'NIVEL 2':
+      case 'MANTENIMIENTO':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'NIVEL 3':
+      case 'PRIORIDAD ALTA':
+        return 'bg-orange-100 text-orange-700';
+      case 'NIVEL 4':
       case 'INACTIVO':
       case 'INACTIVA':
       case 'FALLA RED':
       case 'CRÍTICO':
       case 'OFFLINE':
         return 'bg-rose-100 text-rose-700';
-      case 'MANTENIMIENTO':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'PRIORIDAD ALTA':
-        return 'bg-orange-100 text-orange-700';
       default:
         return 'bg-slate-100 text-slate-600';
     }
@@ -38,21 +42,25 @@ export class StatusBadgeComponent {
 
   get dotClass(): string {
     switch ((this.estado ?? '').toUpperCase()) {
+      case 'NIVEL 1':
       case 'ACTIVO':
       case 'ACTIVA':
       case 'OPERATIVO':
       case 'EN LÍNEA':
         return 'bg-green-500';
+      case 'NIVEL 2':
+      case 'MANTENIMIENTO':
+        return 'bg-yellow-500';
+      case 'NIVEL 3':
+      case 'PRIORIDAD ALTA':
+        return 'bg-orange-500';
+      case 'NIVEL 4':
       case 'INACTIVO':
       case 'INACTIVA':
       case 'FALLA RED':
       case 'CRÍTICO':
       case 'OFFLINE':
         return 'bg-rose-500';
-      case 'MANTENIMIENTO':
-        return 'bg-yellow-500';
-      case 'PRIORIDAD ALTA':
-        return 'bg-orange-500';
       default:
         return 'bg-slate-400';
     }

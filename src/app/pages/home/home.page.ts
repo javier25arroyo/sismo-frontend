@@ -30,10 +30,9 @@ export class HomePage implements OnInit {
 
   get magnitudColor(): string {
     const m = this.ultimoSismo()?.magnitud ?? 0;
-    if (m < 3) return '#22c55e';
-    if (m < 4) return '#eab308';
-    if (m < 5) return '#f97316';
-    if (m < 6) return '#ef4444';
-    return '#7c2d12';
+    if (m < 3.0) return '#22c55e'; // Verde - Nivel 1
+    if (m < 4.5) return '#eab308'; // Amarillo - Nivel 2
+    if (m < 6.0) return '#f97316'; // Naranja - Nivel 3
+    return '#ef4444';             // Rojo - Nivel 4
   }
 }

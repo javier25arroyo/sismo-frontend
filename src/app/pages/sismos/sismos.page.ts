@@ -247,19 +247,25 @@ export class SismosPage implements OnInit, OnDestroy {
   }
 
   getEstadoRed(evento: ResumenHistoricoRespuesta): string {
+    const m = evento.magnitud;
+    const d = evento.distanciaHipocentral ?? 0;
+
+    if (m >= 6.0 && d <= 600) return 'NIVEL 4';
+    if (m >= 5.0 && d <= 400) return 'NIVEL 3';
+    if (m >= 4.0 && d <= 70)  return 'NIVEL 2';
+    if (m >= 3.5 && d <= 20)  return 'NIVEL 1';
+
     if (!evento.vaAceleracion) return 'INACTIVO';
     if (evento.vaAceleracion > 50) return 'FALLA RED';
-    if (evento.magnitud >= 5.5) return 'PRIORIDAD ALTA';
     return 'ACTIVO';
   }
 
   get magnitudColor(): string {
     const m = this.ultimoSismo()?.magnitud ?? 0;
-    if (m < 3) return '#22c55e';
-    if (m < 4) return '#eab308';
-    if (m < 5) return '#f97316';
-    if (m < 6) return '#ef4444';
-    return '#7c2d12';
+    if (m < 3.0) return '#22c55e'; // Verde - Nivel 1
+    if (m < 4.5) return '#eab308'; // Amarillo - Nivel 2
+    if (m < 6.0) return '#f97316'; // Naranja - Nivel 3
+    return '#ef4444';             // Rojo - Nivel 4
   }
 
   get precision(): number {
