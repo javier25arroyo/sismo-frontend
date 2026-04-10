@@ -12,6 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
+import { SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
@@ -37,8 +38,12 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   /** Si se debe mostrar la leyenda de magnitudes */
   @Input() showLegend = true;
 
+  /** Sismo a marcar como epicentro destacado (anillo pulsante + crosshair) */
+  @Input() epicentro: SismoUltimoRespuesta | null = null;
+
   private map!: L.Map;
   private markersLayer!: L.LayerGroup;
+  private epicentroLayer!: L.LayerGroup;
 
   /** Estilos según magnitud del sismo */
   private readonly magnitudStyles: Record<string, MagnitudStyle> = {
@@ -56,11 +61,15 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   ngAfterViewInit(): void {
     this.initMap();
     this.addSismos();
+    this.addEpicentroMarker();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sismos'] && !changes['sismos'].firstChange) {
       this.addSismos();
+    }
+    if (changes['epicentro'] && !changes['epicentro'].firstChange) {
+      this.addEpicentroMarker();
     }
   }
 
@@ -99,6 +108,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
 
     // Capa para los marcadores de sismos
     this.markersLayer = L.layerGroup().addTo(this.map);
+
+    // Capa para el marcador del epicentro (encima de los demás)
+    this.epicentroLayer = L.layerGroup().addTo(this.map);
 
     // Agregar leyenda si está habilitada
     if (this.showLegend) {
@@ -157,6 +169,58 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     if (magnitud < 5.0) return this.magnitudStyles['moderado'];
     if (magnitud < 6.0) return this.magnitudStyles['fuerte'];
     return this.magnitudStyles['mayor'];
+  }
+
+  private addEpicentroMarker(): void {
+    if (!this.epicentroLayer) return;
+    this.epicentroLayer.clearLayers();
+    if (!this.epicentro) return;
+
+    const s = this.epicentro;
+    const color = this.getStyleForMagnitud(s.magnitud).color;
+    const fechaFormateada = new Date(s.feSismo).toLocaleString('es-CR', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
+    const icon = L.divIcon({
+      className: '',
+      html: `
+        <style>
+          @keyframes epicentro-ring {
+            0%   { transform: scale(1); opacity: 0.9; }
+            100% { transform: scale(3.2); opacity: 0; }
+          }
+        </style>
+        <div style="position:relative;width:48px;height:48px;transform:translate(-50%,-50%);">
+          <div style="position:absolute;inset:0;border-radius:50%;border:3px solid ${color};
+            animation:epicentro-ring 2s ease-out infinite;"></div>
+          <div style="position:absolute;inset:0;border-radius:50%;border:3px solid ${color};
+            animation:epicentro-ring 2s ease-out infinite 0.7s;"></div>
+          <div style="position:absolute;inset:15px;border-radius:50%;background:${color};box-shadow:0 0 0 2px #fff;"></div>
+          <div style="position:absolute;top:0;bottom:0;left:calc(50% - 1px);width:2px;background:${color};opacity:0.6;"></div>
+          <div style="position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;background:${color};opacity:0.6;"></div>
+        </div>
+      `,
+      iconSize: [48, 48],
+      iconAnchor: [24, 24],
+      popupAnchor: [0, -28]
+    });
+
+    const marker = L.marker([s.coordenadaY, s.coordenadaX], { icon, zIndexOffset: 1000 });
+    marker.bindPopup(`
+      <div style="min-width:170px;">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;
+          letter-spacing:.07em;color:#64748b;">Epicentro</p>
+        <h3 style="margin:0 0 4px;font-size:17px;font-weight:800;color:${color};">
+          M ${s.magnitud.toFixed(1)}
+        </h3>
+        <p style="margin:0 0 2px;font-size:12px;color:#475569;">${fechaFormateada}</p>
+        <p style="margin:0 0 2px;font-size:12px;">${s.ubicacion}</p>
+        <p style="margin:0;font-size:12px;color:#64748b;">Profundidad: ${s.profundidad} km</p>
+      </div>
+    `);
+    marker.addTo(this.epicentroLayer);
   }
 
   private addLegend(): void {

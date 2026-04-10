@@ -15,7 +15,7 @@ export class StatusBadgeComponent {
   @Input() estado = '';
 
   get badgeClass(): string {
-    switch (this.estado.toUpperCase()) {
+    switch ((this.estado ?? '').toUpperCase()) {
       case 'ACTIVO':
       case 'ACTIVA':
       case 'OPERATIVO':
@@ -37,7 +37,7 @@ export class StatusBadgeComponent {
   }
 
   get dotClass(): string {
-    switch (this.estado.toUpperCase()) {
+    switch ((this.estado ?? '').toUpperCase()) {
       case 'ACTIVO':
       case 'ACTIVA':
       case 'OPERATIVO':

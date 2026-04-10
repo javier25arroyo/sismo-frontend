@@ -53,12 +53,13 @@
   <!-- MAP + STATS PANEL -->
   <div *ngIf="cargando()" class="h-96 rounded-2xl bg-slate-100 animate-pulse"></div>
 
-  <div *ngIf="!cargando()" class="grid gap-6 lg:grid-cols-[3fr_2fr]">
+  <div *ngIf="!cargando()" class="grid gap-6 lg:grid-cols-[3fr_2fr] lg:items-stretch" style="min-height:480px">
 
     <!-- MAP -->
-    <div class="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+    <div class="rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-full min-h-[440px]">
       <app-sismo-map
         [sismos]="sismosMapa()"
+        [epicentro]="ultimoSismo()"
         [height]="'440px'"
         [zoom]="7">
       </app-sismo-map>
