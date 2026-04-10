@@ -4,6 +4,7 @@ import { StatCardComponent } from '../../components/stat-card/stat-card.componen
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { EstacionRespuesta } from '../../interfaces/api.interfaces';
 import { CentroService } from '../../services/centro.service';
+import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert } from 'lucide-angular';
 
 interface EstacionVista extends EstacionRespuesta {
   tipoSensor: string;
@@ -22,7 +23,7 @@ const SENSORES: Record<string, string> = {
 @Component({
   standalone: true,
   selector: 'app-estaciones',
-  imports: [CommonModule, StatCardComponent, StatusBadgeComponent],
+  imports: [CommonModule, StatCardComponent, StatusBadgeComponent, LucideAngularModule],
   templateUrl: './estaciones.page.html'
 })
 export class EstacionesPage implements OnInit {
@@ -30,6 +31,10 @@ export class EstacionesPage implements OnInit {
   cargando = signal(true);
   estacionSeleccionada = signal<EstacionVista | null>(null);
   busqueda = signal('');
+  readonly serverIcon = Server;
+  readonly satelliteIcon = Satellite;
+  readonly warningIcon = TriangleAlert;
+  readonly mapPinIcon = MapPin;
 
   constructor(private centroService: CentroService) {}
 

@@ -1,34 +1,23 @@
 import { Routes } from '@angular/router';
-import { MainLayoutComponent } from './components/main-layout/main-layout.component';
-import { HomePage } from './pages/home/home.page';
-import { LoginPage } from './pages/login/login.page';
-import { CambiarContrasenaPage } from './pages/cambiar-contrasena/cambiar-contrasena.page';
-import { SismosPage } from './pages/sismos/sismos.page';
-import { HistorialPage } from './pages/historial/historial.page';
-import { EstacionesPage } from './pages/estaciones/estaciones.page';
-import { RepositorioPage } from './pages/repositorio/repositorio.page';
-import { AboutPage } from './pages/about/about.page';
-import { ProfilePage } from './pages/profile/profile.page';
-import { MapaPage } from './pages/mapa/mapa.page';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    component: MainLayoutComponent,
+    loadComponent: () => import('./components/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [
-      { path: '', component: HomePage },
-      { path: 'sismos', component: SismosPage, data: { headerModo: 'tecnica' } },
-      { path: 'historial', component: HistorialPage },
-      { path: 'estaciones', component: EstacionesPage, data: { headerModo: 'tecnica' } },
-      { path: 'repositorio', component: RepositorioPage },
-      { path: 'mapa', component: MapaPage },
-      { path: 'about', component: AboutPage },
-      { path: 'profile', component: ProfilePage, canActivate: [AuthGuard] },
+      { path: '', loadComponent: () => import('./pages/home/home.page').then(m => m.HomePage) },
+      { path: 'sismos', loadComponent: () => import('./pages/sismos/sismos.page').then(m => m.SismosPage), data: { headerModo: 'tecnica' } },
+      { path: 'historial', loadComponent: () => import('./pages/historial/historial.page').then(m => m.HistorialPage) },
+      { path: 'estaciones', loadComponent: () => import('./pages/estaciones/estaciones.page').then(m => m.EstacionesPage), data: { headerModo: 'tecnica' } },
+      { path: 'repositorio', loadComponent: () => import('./pages/repositorio/repositorio.page').then(m => m.RepositorioPage) },
+      { path: 'mapa', loadComponent: () => import('./pages/mapa/mapa.page').then(m => m.MapaPage) },
+      { path: 'about', loadComponent: () => import('./pages/about/about.page').then(m => m.AboutPage) },
+      { path: 'profile', loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage), canActivate: [AuthGuard] },
     ]
   },
-  { path: 'acceso', component: LoginPage },
-  { path: 'cambiar-contrasena', component: CambiarContrasenaPage, canActivate: [AuthGuard] },
-  { path: 'login', redirectTo: 'acceso', pathMatch: 'full' },
-  { path: '**', redirectTo: '' }
+   { path: 'acceso', loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage) },
+   { path: 'cambiar-contrasena', loadComponent: () => import('./pages/cambiar-contrasena/cambiar-contrasena.page').then(m => m.CambiarContrasenaPage), canActivate: [AuthGuard] },
+   { path: 'login', redirectTo: 'acceso', pathMatch: 'full' },
+   { path: '**', redirectTo: '' }
 ];

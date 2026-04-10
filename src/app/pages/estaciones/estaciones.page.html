@@ -6,13 +6,13 @@
       label="Infraestructura Total"
       [value]="total"
       unit="nodos"
-      icon="🏗️">
+      [icon]="serverIcon">
     </app-stat-card>
     <app-stat-card
       label="Estado Operativo"
       [value]="enLinea"
       unit="En línea"
-      icon="📡"
+      [icon]="satelliteIcon"
       variant="success">
     </app-stat-card>
     <app-stat-card
@@ -20,7 +20,7 @@
       [value]="incidencias"
       unit=""
       sublabel="Acción requerida"
-      icon="⚠️"
+      [icon]="warningIcon"
       [variant]="incidencias > 0 ? 'danger' : 'default'">
     </app-stat-card>
   </div>
@@ -99,12 +99,12 @@
           <h3 class="text-2xl font-bold tracking-tight text-slate-900">{{ est.codEstacion }}</h3>
           <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
 
-          <!-- GPS Map placeholder -->
-          <div class="mt-4 h-36 w-full rounded-xl bg-slate-900 flex items-center justify-center overflow-hidden">
-            <p class="text-xs text-slate-500 font-medium">
-              📍 {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
-            </p>
-          </div>
+            <!-- GPS Map placeholder -->
+            <div class="mt-4 h-36 w-full rounded-xl bg-slate-900 flex items-center justify-center overflow-hidden">
+              <p class="text-xs text-slate-500 font-medium">
+                <i-lucide [img]="mapPinIcon" size="14" class="inline-block mr-1 align-text-bottom text-slate-400"></i-lucide> {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
+              </p>
+            </div>
           <p class="mt-1 text-xs text-slate-400 text-right">LOCALIZACIÓN GPS</p>
 
           <!-- Telemetry -->
