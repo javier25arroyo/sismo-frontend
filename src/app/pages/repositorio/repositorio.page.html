@@ -40,7 +40,10 @@
         <p class="text-xs text-slate-400 mt-0.5">Red Nacional · Técnico · Operacional</p>
       </div>
       <a routerLink="/historial" class="text-xs font-semibold text-sky-600 hover:text-sky-700 transition">
-        VER TODO EL ARCHIVO →
+        <span class="inline-flex items-center gap-1">
+          VER TODO EL ARCHIVO
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+        </span>
       </a>
     </div>
 
@@ -54,7 +57,7 @@
         <div class="h-44 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center relative overflow-hidden">
           <div class="absolute inset-0 opacity-20"
             style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)"></div>
-          <span class="text-4xl opacity-60">📊</span>
+          <i-lucide [img]="documentIcon" size="40" class="opacity-60 text-white"></i-lucide>
         </div>
         <div class="p-5">
           <div class="flex items-center gap-2 mb-2">
@@ -71,9 +74,7 @@
             <span class="text-xs text-slate-400">Por {{ r.autor ?? 'ICE – Sismología' }}</span>
             <a *ngIf="r.url" [href]="r.url" target="_blank"
               class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-sky-300 hover:text-sky-600">
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-              </svg>
+              <i-lucide [img]="downloadIcon" size="14"></i-lucide>
             </a>
           </div>
         </div>
@@ -92,8 +93,8 @@
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div *ngFor="let m of manuales"
         class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-sky-200">
-        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-2xl">
-          {{ m.icono }}
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
+          <i-lucide [img]="m.icono" size="20" class="text-slate-600"></i-lucide>
         </div>
         <h3 class="mt-3 text-sm font-semibold text-slate-900 group-hover:text-sky-700 transition line-clamp-2">
           {{ m.titulo }}
@@ -102,9 +103,7 @@
         <div class="mt-3 flex items-center justify-between">
           <span class="text-xs text-slate-400">{{ m.etiqueta }}</span>
           <button class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-sky-300 hover:text-sky-600">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-            </svg>
+            <i-lucide [img]="downloadIcon" size="14"></i-lucide>
           </button>
         </div>
       </div>
