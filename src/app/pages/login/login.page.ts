@@ -1,21 +1,22 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { ArrowRight, LucideAngularModule } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../components/button/button.component';
 import { SolicitudLogin, RespuestaLogin } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './login.page.html'
 })
 export class LoginPage {
   error = '';
   loading = false;
-  debeCambiarPassword = false;
+  showPassword = false;
+  readonly arrowRightIcon = ArrowRight;
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
 
@@ -38,10 +39,10 @@ export class LoginPage {
       if (res.debeCambiarPassword || res.esPrimerLogin) {
         await this.router.navigate(['/cambiar-contrasena']);
       } else {
-        await this.router.navigate(['/']);
+        await this.router.navigate(['/estaciones']);
       }
     } catch (err) {
-      this.error = (err as Error).message || 'Error al iniciar sesión';
+      this.error = (err as Error).message || 'Credenciales incorrectas. Intente de nuevo.';
     } finally {
       this.loading = false;
     }

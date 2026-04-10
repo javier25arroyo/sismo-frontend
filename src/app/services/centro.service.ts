@@ -48,6 +48,20 @@ export class CentroService {
 
   // ─── Estaciones ───────────────────────────────────────────────────────────
 
+  /** GET /api/estaciones — listado global de todas las estaciones */
+  async getTodasEstaciones(
+    filtros: { nombre?: string; page?: number; size?: number } = {}
+  ): Promise<PaginatedResponse<EstacionRespuesta>> {
+    const params = new URLSearchParams();
+    if (filtros.nombre)          params.set('nombre', filtros.nombre);
+    if (filtros.page !== undefined) params.set('page', String(filtros.page));
+    if (filtros.size !== undefined)  params.set('size', String(filtros.size));
+    const query = params.toString();
+    return this.api.get<PaginatedResponse<EstacionRespuesta>>(
+      `/api/estaciones${query ? '?' + query : ''}`
+    );
+  }
+
   /** GET /api/centros/{codigoCentro}/estaciones */
   async getEstaciones(
     codigoCentro: string,
