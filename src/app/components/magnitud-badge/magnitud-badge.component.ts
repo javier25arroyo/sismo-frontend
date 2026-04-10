@@ -17,9 +17,8 @@ export class MagnitudBadgeComponent {
 
   get badgeClass(): string {
     if (this.magnitud < 3.0) return 'bg-green-100 text-green-700';
-    if (this.magnitud < 4.0) return 'bg-yellow-100 text-yellow-700';
-    if (this.magnitud < 5.0) return 'bg-orange-100 text-orange-700';
-    if (this.magnitud < 6.0) return 'bg-red-100 text-red-700';
-    return 'bg-red-950 text-red-200';
+    if (this.magnitud < 4.5) return 'bg-yellow-100 text-yellow-700';
+    if (this.magnitud < 6.0) return 'bg-orange-100 text-orange-700';
+    return 'bg-red-100 text-red-700';
   }
 }

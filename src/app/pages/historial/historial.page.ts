@@ -81,9 +81,16 @@ export class HistorialPage implements OnInit {
   cambiarPagina(p: number): void { this.cargar(p); }
 
   getEstadoRed(e: ResumenHistoricoRespuesta): string {
+    const m = e.magnitud;
+    const d = e.distanciaHipocentral ?? 0;
+
+    if (m >= 6.0 && d <= 600) return 'NIVEL 4';
+    if (m >= 5.0 && d <= 400) return 'NIVEL 3';
+    if (m >= 4.0 && d <= 70)  return 'NIVEL 2';
+    if (m >= 3.5 && d <= 20)  return 'NIVEL 1';
+
     if (!e.vaAceleracion) return 'INACTIVO';
     if (e.vaAceleracion > 50) return 'FALLA RED';
-    if (e.magnitud >= 5.5) return 'PRIORIDAD ALTA';
     return 'ACTIVO';
   }
 

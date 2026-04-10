@@ -47,11 +47,10 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
 
   /** Estilos según magnitud del sismo */
   private readonly magnitudStyles: Record<string, MagnitudStyle> = {
-    menor: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },      // < 3.0 verde
-    leve: { color: '#eab308', radius: 8, fillOpacity: 0.7 },       // 3.0-4.0 amarillo
-    moderado: { color: '#f97316', radius: 10, fillOpacity: 0.8 },  // 4.0-5.0 naranja
-    fuerte: { color: '#ef4444', radius: 12, fillOpacity: 0.8 },    // 5.0-6.0 rojo
-    mayor: { color: '#7c2d12', radius: 16, fillOpacity: 0.9 }      // > 6.0 rojo oscuro
+    nivel1: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },      // 3.5-4.0 Mw (Nivel 1)
+    nivel2: { color: '#eab308', radius: 8, fillOpacity: 0.7 },      // 4.0-5.0 Mw (Nivel 2)
+    nivel3: { color: '#f97316', radius: 10, fillOpacity: 0.8 },     // 5.0-6.0 Mw (Nivel 3)
+    nivel4: { color: '#ef4444', radius: 14, fillOpacity: 0.9 }      // >= 6.0 Mw (Nivel 4)
   };
 
   ngOnInit(): void {
@@ -164,11 +163,11 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   }
 
   private getStyleForMagnitud(magnitud: number): MagnitudStyle {
-    if (magnitud < 3.0) return this.magnitudStyles['menor'];
-    if (magnitud < 4.0) return this.magnitudStyles['leve'];
-    if (magnitud < 5.0) return this.magnitudStyles['moderado'];
-    if (magnitud < 6.0) return this.magnitudStyles['fuerte'];
-    return this.magnitudStyles['mayor'];
+    if (magnitud >= 6.0) return this.magnitudStyles['nivel4'];
+    if (magnitud >= 5.0) return this.magnitudStyles['nivel3'];
+    if (magnitud >= 4.0) return this.magnitudStyles['nivel2'];
+    if (magnitud >= 3.5) return this.magnitudStyles['nivel1'];
+    return { color: '#94a3b8', radius: 4, fillOpacity: 0.6 }; // Sismos menores (<3.5) en gris
   }
 
   private addEpicentroMarker(): void {
@@ -230,26 +229,22 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
       const div = L.DomUtil.create('div', 'leaflet-legend');
       div.innerHTML = `
         <div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-          <h4 style="margin: 0 0 8px 0; font-weight: bold;">Magnitud</h4>
+          <h4 style="margin: 0 0 8px 0; font-weight: bold;">Criterios</h4>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 12px; height: 12px; background: #22c55e; border-radius: 50%; margin-right: 8px;"></span>
-            <span>&lt; 3.0</span>
+            <span>Nivel 1</span>
           </div>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 14px; height: 14px; background: #eab308; border-radius: 50%; margin-right: 8px;"></span>
-            <span>3.0 - 4.0</span>
+            <span>Nivel 2</span>
           </div>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 16px; height: 16px; background: #f97316; border-radius: 50%; margin-right: 8px;"></span>
-            <span>4.0 - 5.0</span>
+            <span>Nivel 3</span>
           </div>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 18px; height: 18px; background: #ef4444; border-radius: 50%; margin-right: 8px;"></span>
-            <span>5.0 - 6.0</span>
-          </div>
-          <div style="display: flex; align-items: center; margin: 4px 0;">
-            <span style="width: 22px; height: 22px; background: #7c2d12; border-radius: 50%; margin-right: 8px;"></span>
-            <span>&gt; 6.0</span>
+            <span>Nivel 4</span>
           </div>
         </div>
       `;
