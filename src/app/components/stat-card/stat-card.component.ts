@@ -1,12 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 
 export type StatCardVariant = 'default' | 'success' | 'warning' | 'danger';
 
 @Component({
   standalone: true,
   selector: 'app-stat-card',
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   template: `
     <div [class]="cardClass" class="rounded-xl p-5 flex items-center justify-between gap-4">
       <div class="min-w-0">
@@ -17,7 +18,7 @@ export type StatCardVariant = 'default' | 'success' | 'warning' | 'danger';
         <p *ngIf="sublabel" class="mt-1 text-xs" [class]="sublabelClass">{{ sublabel }}</p>
       </div>
       <div *ngIf="icon" [class]="iconWrapClass" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl">
-        {{ icon }}
+        <i-lucide [img]="icon" size="20" class="text-current"></i-lucide>
       </div>
     </div>
   `
@@ -27,7 +28,7 @@ export class StatCardComponent {
   @Input() value: string | number = '';
   @Input() unit = '';
   @Input() sublabel = '';
-  @Input() icon = '';
+  @Input() icon?: LucideIconData;
   @Input() variant: StatCardVariant = 'default';
 
   get cardClass(): string {
