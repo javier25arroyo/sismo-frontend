@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 
@@ -9,7 +9,7 @@ export type StatCardVariant = 'default' | 'success' | 'warning' | 'danger';
   selector: 'app-stat-card',
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div [class]="cardClass" class="rounded-xl p-5 flex items-center justify-between gap-4">
+    <div [class]="cardClass" class="rounded-xl p-5 flex items-center justify-between gap-4 h-full">
       <div class="min-w-0">
         <p class="text-xs font-semibold uppercase tracking-widest" [class]="labelClass">{{ label }}</p>
         <p class="mt-1 text-3xl font-bold tabular-nums" [class]="valueClass">
@@ -24,6 +24,8 @@ export type StatCardVariant = 'default' | 'success' | 'warning' | 'danger';
   `
 })
 export class StatCardComponent {
+  @HostBinding('class') hostClass = 'block';
+
   @Input() label = '';
   @Input() value: string | number = '';
   @Input() unit = '';

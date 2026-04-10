@@ -33,6 +33,7 @@ export class EstacionesPage implements OnInit {
   estacionSeleccionada = signal<EstacionVista | null>(null);
   busqueda = signal('');
   cambiandoEstado = signal(false);
+  mostrarDropdown = signal(false);
   mensajeEstado = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
   readonly serverIcon = Server;
   readonly satelliteIcon = Satellite;
@@ -98,8 +99,13 @@ export class EstacionesPage implements OnInit {
     this.busqueda.set((ev.target as HTMLInputElement).value);
   }
 
-  async cambiarEstado(est: EstacionVista, ev: Event): Promise<void> {
-    const nuevoEstado = (ev.target as HTMLSelectElement).value as EstadoEstacion;
+  toggleDropdown(): void {
+    if (this.cambiandoEstado()) return;
+    this.mostrarDropdown.update(v => !v);
+  }
+
+  async seleccionarNuevoEstado(est: EstacionVista, nuevoEstado: EstadoEstacion): Promise<void> {
+    this.mostrarDropdown.set(false);
     if (nuevoEstado === est.estado) return;
 
     this.cambiandoEstado.set(true);
