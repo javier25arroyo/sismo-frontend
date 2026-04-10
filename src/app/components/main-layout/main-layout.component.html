@@ -1,6 +1,6 @@
 <div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-  <app-header></app-header>
-  <main class="mx-auto w-full max-w-7xl grow px-4 py-8 sm:px-6 lg:px-8">
+  <app-header [modo]="headerModo()"></app-header>
+  <main class="grow">
     <router-outlet></router-outlet>
   </main>
   <app-footer></app-footer>

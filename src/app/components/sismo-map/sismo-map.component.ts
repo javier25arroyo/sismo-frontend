@@ -12,6 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
+import { SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
@@ -37,16 +38,19 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   /** Si se debe mostrar la leyenda de magnitudes */
   @Input() showLegend = true;
 
+  /** Sismo a marcar como epicentro destacado (anillo pulsante + crosshair) */
+  @Input() epicentro: SismoUltimoRespuesta | null = null;
+
   private map!: L.Map;
   private markersLayer!: L.LayerGroup;
+  private epicentroLayer!: L.LayerGroup;
 
   /** Estilos según magnitud del sismo */
   private readonly magnitudStyles: Record<string, MagnitudStyle> = {
-    menor: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },      // < 3.0 verde
-    leve: { color: '#eab308', radius: 8, fillOpacity: 0.7 },       // 3.0-4.0 amarillo
-    moderado: { color: '#f97316', radius: 10, fillOpacity: 0.8 },  // 4.0-5.0 naranja
-    fuerte: { color: '#ef4444', radius: 12, fillOpacity: 0.8 },    // 5.0-6.0 rojo
-    mayor: { color: '#7c2d12', radius: 16, fillOpacity: 0.9 }      // > 6.0 rojo oscuro
+    nivel1: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },      // 3.5-4.0 Mw (Nivel 1)
+    nivel2: { color: '#eab308', radius: 8, fillOpacity: 0.7 },      // 4.0-5.0 Mw (Nivel 2)
+    nivel3: { color: '#f97316', radius: 10, fillOpacity: 0.8 },     // 5.0-6.0 Mw (Nivel 3)
+    nivel4: { color: '#ef4444', radius: 14, fillOpacity: 0.9 }      // >= 6.0 Mw (Nivel 4)
   };
 
   ngOnInit(): void {
@@ -56,11 +60,15 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   ngAfterViewInit(): void {
     this.initMap();
     this.addSismos();
+    this.addEpicentroMarker();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sismos'] && !changes['sismos'].firstChange) {
       this.addSismos();
+    }
+    if (changes['epicentro'] && !changes['epicentro'].firstChange) {
+      this.addEpicentroMarker();
     }
   }
 
@@ -99,6 +107,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
 
     // Capa para los marcadores de sismos
     this.markersLayer = L.layerGroup().addTo(this.map);
+
+    // Capa para el marcador del epicentro (encima de los demás)
+    this.epicentroLayer = L.layerGroup().addTo(this.map);
 
     // Agregar leyenda si está habilitada
     if (this.showLegend) {
@@ -152,11 +163,63 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   }
 
   private getStyleForMagnitud(magnitud: number): MagnitudStyle {
-    if (magnitud < 3.0) return this.magnitudStyles['menor'];
-    if (magnitud < 4.0) return this.magnitudStyles['leve'];
-    if (magnitud < 5.0) return this.magnitudStyles['moderado'];
-    if (magnitud < 6.0) return this.magnitudStyles['fuerte'];
-    return this.magnitudStyles['mayor'];
+    if (magnitud >= 6.0) return this.magnitudStyles['nivel4'];
+    if (magnitud >= 5.0) return this.magnitudStyles['nivel3'];
+    if (magnitud >= 4.0) return this.magnitudStyles['nivel2'];
+    if (magnitud >= 3.5) return this.magnitudStyles['nivel1'];
+    return { color: '#94a3b8', radius: 4, fillOpacity: 0.6 }; // Sismos menores (<3.5) en gris
+  }
+
+  private addEpicentroMarker(): void {
+    if (!this.epicentroLayer) return;
+    this.epicentroLayer.clearLayers();
+    if (!this.epicentro) return;
+
+    const s = this.epicentro;
+    const color = this.getStyleForMagnitud(s.magnitud).color;
+    const fechaFormateada = new Date(s.feSismo).toLocaleString('es-CR', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
+    const icon = L.divIcon({
+      className: '',
+      html: `
+        <style>
+          @keyframes epicentro-ring {
+            0%   { transform: scale(1); opacity: 0.9; }
+            100% { transform: scale(3.2); opacity: 0; }
+          }
+        </style>
+        <div style="position:relative;width:48px;height:48px;transform:translate(-50%,-50%);">
+          <div style="position:absolute;inset:0;border-radius:50%;border:3px solid ${color};
+            animation:epicentro-ring 2s ease-out infinite;"></div>
+          <div style="position:absolute;inset:0;border-radius:50%;border:3px solid ${color};
+            animation:epicentro-ring 2s ease-out infinite 0.7s;"></div>
+          <div style="position:absolute;inset:15px;border-radius:50%;background:${color};box-shadow:0 0 0 2px #fff;"></div>
+          <div style="position:absolute;top:0;bottom:0;left:calc(50% - 1px);width:2px;background:${color};opacity:0.6;"></div>
+          <div style="position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;background:${color};opacity:0.6;"></div>
+        </div>
+      `,
+      iconSize: [48, 48],
+      iconAnchor: [24, 24],
+      popupAnchor: [0, -28]
+    });
+
+    const marker = L.marker([s.coordenadaY, s.coordenadaX], { icon, zIndexOffset: 1000 });
+    marker.bindPopup(`
+      <div style="min-width:170px;">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;
+          letter-spacing:.07em;color:#64748b;">Epicentro</p>
+        <h3 style="margin:0 0 4px;font-size:17px;font-weight:800;color:${color};">
+          M ${s.magnitud.toFixed(1)}
+        </h3>
+        <p style="margin:0 0 2px;font-size:12px;color:#475569;">${fechaFormateada}</p>
+        <p style="margin:0 0 2px;font-size:12px;">${s.ubicacion}</p>
+        <p style="margin:0;font-size:12px;color:#64748b;">Profundidad: ${s.profundidad} km</p>
+      </div>
+    `);
+    marker.addTo(this.epicentroLayer);
   }
 
   private addLegend(): void {
@@ -166,26 +229,22 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
       const div = L.DomUtil.create('div', 'leaflet-legend');
       div.innerHTML = `
         <div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-          <h4 style="margin: 0 0 8px 0; font-weight: bold;">Magnitud</h4>
+          <h4 style="margin: 0 0 8px 0; font-weight: bold;">Criterios</h4>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 12px; height: 12px; background: #22c55e; border-radius: 50%; margin-right: 8px;"></span>
-            <span>&lt; 3.0</span>
+            <span>Nivel 1</span>
           </div>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 14px; height: 14px; background: #eab308; border-radius: 50%; margin-right: 8px;"></span>
-            <span>3.0 - 4.0</span>
+            <span>Nivel 2</span>
           </div>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 16px; height: 16px; background: #f97316; border-radius: 50%; margin-right: 8px;"></span>
-            <span>4.0 - 5.0</span>
+            <span>Nivel 3</span>
           </div>
           <div style="display: flex; align-items: center; margin: 4px 0;">
             <span style="width: 18px; height: 18px; background: #ef4444; border-radius: 50%; margin-right: 8px;"></span>
-            <span>5.0 - 6.0</span>
-          </div>
-          <div style="display: flex; align-items: center; margin: 4px 0;">
-            <span style="width: 22px; height: 22px; background: #7c2d12; border-radius: 50%; margin-right: 8px;"></span>
-            <span>&gt; 6.0</span>
+            <span>Nivel 4</span>
           </div>
         </div>
       `;

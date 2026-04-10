@@ -112,3 +112,7 @@ pnpm-debug.log*
 /.github/instructions
 /.github/skills
 CLAUDE.md
+/.agents
+/.augment
+skills-lock.json
+/.junie

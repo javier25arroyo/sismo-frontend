@@ -14,10 +14,11 @@ Frontend en Angular con componentes standalone, autenticacion basada en JWT y es
 ## Funcionalidad actual
 
 - Layout principal con header y footer
-- Paginas `Home`, `About`, `Login` y `Profile`
+- Paginas `Home`, `About`, `Login`, `CambiarContrasena` y `Profile`
 - Ruta protegida en `/profile`
 - Servicio de autenticacion con almacenamiento de token en `localStorage`
 - Servicio API con envio automatico de header `Authorization`
+- Flujo de cambio de contrasena para el primer acceso
 - Modal de confirmacion reutilizable
 - UI refactorizada para usar Tailwind en los templates
 
@@ -28,6 +29,7 @@ Frontend en Angular con componentes standalone, autenticacion basada en JWT y es
 | `/` | Publico | Pagina principal con acciones de ejemplo |
 | `/about` | Publico | Informacion general de la aplicacion |
 | `/login` | Publico | Formulario de autenticacion |
+| `/cambiar-contrasena` | Protegido | Cambio de contraseña tras el primer acceso |
 | `/profile` | Protegido | Vista solo para usuarios autenticados |
 
 La configuracion de rutas esta en [src/app/app.routes.ts](src/app/app.routes.ts).
@@ -135,6 +137,7 @@ src/
       auth.guard.ts
     pages/
       about/
+      cambiar-contrasena/
       home/
       login/
       profile/

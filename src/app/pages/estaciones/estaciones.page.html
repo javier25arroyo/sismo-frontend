@@ -1,0 +1,245 @@
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+
+  <!-- STATS ROW -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <app-stat-card
+      label="Infraestructura Total"
+      [value]="total"
+      unit="nodos"
+      [icon]="serverIcon">
+    </app-stat-card>
+    <app-stat-card
+      label="Estado Operativo"
+      [value]="enLinea"
+      unit="En línea"
+      [icon]="satelliteIcon"
+      variant="success">
+    </app-stat-card>
+    <app-stat-card
+      label="En Mantenimiento"
+      [value]="enMantenimiento"
+      unit=""
+      sublabel="Fuera de servicio temporal"
+      [icon]="wrenchIcon"
+      [variant]="enMantenimiento > 0 ? 'warning' : 'default'">
+    </app-stat-card>
+    <app-stat-card
+      label="Incidencias Críticas"
+      [value]="incidencias"
+      unit=""
+      sublabel="Estaciones inactivas"
+      [icon]="warningIcon"
+      [variant]="incidencias > 0 ? 'danger' : 'default'">
+    </app-stat-card>
+  </div>
+
+  <!-- MAIN GRID: tabla + detalle -->
+  <div class="grid gap-6 lg:grid-cols-[3fr_2fr]">
+
+    <!-- LEFT: inventory table -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">
+          Inventario Maestro de Estaciones
+        </h2>
+        <div class="relative w-56">
+          <input
+            type="text"
+            placeholder="Filtrar por ID o estación..."
+            (input)="setBusqueda($event)"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-8 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+        </div>
+      </div>
+
+      <div *ngIf="cargando()" class="p-6 space-y-3">
+        <div *ngFor="let i of [1,2,3,4,5]" class="h-12 rounded-xl bg-slate-100 animate-pulse"></div>
+      </div>
+
+      <table *ngIf="!cargando()" class="w-full text-xs">
+        <thead>
+          <tr class="border-b border-slate-100 bg-slate-50">
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">ID Estación</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Ubicación Geográfica</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Tipo Sensor</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estado</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Latencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of filtradas"
+            (click)="seleccionar(e)"
+            [class.bg-sky-50]="estacionSeleccionada()?.codEstacion === e.codEstacion"
+            class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50 last:border-0">
+            <td class="px-4 py-3">
+              <p class="font-bold text-sky-700">{{ e.codEstacion }}</p>
+              <p class="text-slate-400">{{ e.codCentroPrd }}</p>
+            </td>
+            <td class="px-4 py-3">
+              <p class="font-medium text-slate-900">{{ e.nomEstacion }}</p>
+              <p class="text-slate-400">{{ e.ubicacionDetalle }}</p>
+            </td>
+            <td class="px-4 py-3 text-slate-600">{{ e.tipoSensor }}</td>
+            <td class="px-4 py-3">
+              <app-status-badge [estado]="e.estado"></app-status-badge>
+            </td>
+            <td class="px-4 py-3">
+              <span [class]="e.latencia === 'OFFLINE' ? 'font-bold text-rose-600' : 'text-slate-600'">
+                {{ e.latencia }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!cargando() && filtradas.length === 0"
+        class="p-10 text-center text-sm text-slate-400">Sin resultados para "{{ busqueda() }}"</div>
+    </div>
+
+    <!-- RIGHT: node detail panel -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <ng-container *ngIf="estacionSeleccionada() as est; else sinSeleccion">
+        <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Detalle de Nodo</span>
+          <app-status-badge [estado]="est.estado"></app-status-badge>
+        </div>
+
+        <div class="px-6 py-4">
+          <h3 class="text-2xl font-bold tracking-tight text-slate-900">{{ est.codEstacion }}</h3>
+          <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
+
+            <!-- Mapa de ubicación -->
+            <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
+              <app-estacion-mini-map
+                [lat]="est.coordenadaY"
+                [lng]="est.coordenadaX"
+                [label]="est.nomEstacion">
+              </app-estacion-mini-map>
+            </div>
+          <p class="mt-1 text-xs text-slate-400 text-right">
+            <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>
+            {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
+          </p>
+
+          <!-- Telemetry -->
+          <div class="mt-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Telemetría Crítica</span>
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+                [class]="telemetriaBadgeClass(est.estado)">
+                <span class="h-1.5 w-1.5 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
+                {{ telemetriaLabel(est.estado) }}
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-xl bg-slate-50 p-3">
+                <p class="text-xs text-slate-400">ESTADO</p>
+                <app-status-badge [estado]="est.estado"></app-status-badge>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-3">
+                <p class="text-xs text-slate-400">CENTRO</p>
+                <p class="text-sm font-bold text-slate-900 truncate">{{ est.codCentroPrd }}</p>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-3">
+                <p class="text-xs text-slate-400">LATENCIA</p>
+                <p class="text-sm font-bold"
+                  [class]="est.latencia === 'OFFLINE' ? 'text-rose-600' : 'text-slate-900'">
+                  {{ est.latencia }}
+                </p>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-3">
+                <p class="text-xs text-slate-400">CLOCK NAI</p>
+                <p class="text-sm font-bold" [class]="gpsClass(est.estado)">{{ gpsLabel(est.estado) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cambiar estado -->
+          <div class="mt-5">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
+            
+            <div class="relative">
+              <button
+                type="button"
+                (click)="toggleDropdown()"
+                [disabled]="cambiandoEstado()"
+                class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 outline-none transition hover:border-sky-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
+                  <span>{{ est.estado }}</span>
+                </div>
+                <svg class="h-4 w-4 text-slate-400 transition-transform" [class.rotate-180]="mostrarDropdown()" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div *ngIf="mostrarDropdown()" 
+                class="absolute z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+                
+                <button (click)="seleccionarNuevoEstado(est, 'ACTIVO')"
+                  class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
+                  <div class="flex items-center gap-2 text-slate-700">
+                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                    <span class="font-medium">ACTIVO</span>
+                  </div>
+                  <i-lucide *ngIf="est.estado === 'ACTIVO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
+                </button>
+
+                <button (click)="seleccionarNuevoEstado(est, 'MANTENIMIENTO')"
+                  class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
+                  <div class="flex items-center gap-2 text-slate-700">
+                    <span class="h-2 w-2 rounded-full bg-yellow-500"></span>
+                    <span class="font-medium">MANTENIMIENTO</span>
+                  </div>
+                  <i-lucide *ngIf="est.estado === 'MANTENIMIENTO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
+                </button>
+
+                <button (click)="seleccionarNuevoEstado(est, 'INACTIVO')"
+                  class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
+                  <div class="flex items-center gap-2 text-slate-700">
+                    <span class="h-2 w-2 rounded-full bg-rose-500"></span>
+                    <span class="font-medium">INACTIVO (OFFLINE)</span>
+                  </div>
+                  <i-lucide *ngIf="est.estado === 'INACTIVO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="cambiandoEstado()"
+              class="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5">
+              <svg class="h-4 w-4 animate-spin text-sky-500 shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+              <span class="text-xs font-medium text-slate-600">Guardando cambios...</span>
+            </div>
+
+            <div *ngIf="mensajeEstado() as msg"
+              class="mt-3 flex items-center gap-2 rounded-xl border px-4 py-2.5"
+              [class]="msg.tipo === 'ok'
+                ? 'border-green-200 bg-green-50'
+                : 'border-rose-200 bg-rose-50'">
+              <i-lucide
+                [img]="msg.tipo === 'ok' ? checkIcon : xIcon"
+                size="15"
+                class="shrink-0"
+                [class]="msg.tipo === 'ok' ? 'text-green-600' : 'text-rose-600'">
+              </i-lucide>
+              <span class="text-xs font-medium"
+                [class]="msg.tipo === 'ok' ? 'text-green-700' : 'text-rose-700'">
+                {{ msg.texto }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </ng-container>
+      <ng-template #sinSeleccion>
+        <div class="flex h-full min-h-60 items-center justify-center text-sm text-slate-400">
+          Selecciona una estación para ver el detalle
+        </div>
+      </ng-template>
+    </div>
+
+  </div>
+</div>
