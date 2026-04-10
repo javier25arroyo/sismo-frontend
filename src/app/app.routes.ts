@@ -12,7 +12,6 @@ export const routes: Routes = [
       { path: 'estaciones', loadComponent: () => import('./pages/estaciones/estaciones.page').then(m => m.EstacionesPage), data: { headerModo: 'tecnica' } },
       { path: 'repositorio', loadComponent: () => import('./pages/repositorio/repositorio.page').then(m => m.RepositorioPage) },
       { path: 'mapa', loadComponent: () => import('./pages/mapa/mapa.page').then(m => m.MapaPage) },
-      { path: 'about', loadComponent: () => import('./pages/about/about.page').then(m => m.AboutPage) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage), canActivate: [AuthGuard] },
     ]
   },

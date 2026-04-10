@@ -44,7 +44,10 @@
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-semibold text-slate-900">Último Evento Significativo</h2>
       <a routerLink="/historial" class="text-sm font-medium text-sky-600 hover:text-sky-700 transition">
-        Catálogo Completo →
+        <span class="inline-flex items-center gap-1">
+          Catálogo Completo
+          <i-lucide [img]="arrowRightIcon" size="14" class="shrink-0"></i-lucide>
+        </span>
       </a>
     </div>
 
@@ -103,32 +106,47 @@
   <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     <a routerLink="/historial"
       class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
-      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-2xl">📊</div>
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
+        <i-lucide [img]="historyIcon" size="24" class="text-sky-600"></i-lucide>
+      </div>
       <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Catálogo Histórico</h3>
       <p class="mt-2 text-sm leading-6 text-slate-600">
         Consulta el registro completo de eventos sísmicos con filtros avanzados y acceso a acelerogramas.
       </p>
-      <span class="mt-4 inline-block text-xs font-semibold text-sky-600">EXPLORAR HISTORIAL →</span>
+      <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-600">
+        EXPLORAR HISTORIAL
+        <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+      </span>
     </a>
 
     <a routerLink="/estaciones"
       class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-green-200">
-      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-2xl">📡</div>
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
+        <i-lucide [img]="networkIcon" size="24" class="text-green-600"></i-lucide>
+      </div>
       <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-green-700 transition">Estado de Red</h3>
       <p class="mt-2 text-sm leading-6 text-slate-600">
         Monitorea el estado operativo y telemetría en tiempo real de todas las estaciones acelerográficas.
       </p>
-      <span class="mt-4 inline-block text-xs font-semibold text-green-600">VER RED EN VIVO →</span>
+      <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-green-600">
+        VER RED EN VIVO
+        <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+      </span>
     </a>
 
     <a routerLink="/repositorio"
       class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
-      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-2xl">📁</div>
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
+        <i-lucide [img]="repositoryIcon" size="24" class="text-sky-600"></i-lucide>
+      </div>
       <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Repositorio Raw</h3>
       <p class="mt-2 text-sm leading-6 text-slate-600">
         Accede a informes técnicos, manuales de instrumentación y protocolos de la Red Nacional de Sismicidad.
       </p>
-      <span class="mt-4 inline-block text-xs font-semibold text-sky-600">ACCEDER REPOSITORIO →</span>
+      <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-600">
+        ACCEDER REPOSITORIO
+        <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+      </span>
     </a>
   </section>
 

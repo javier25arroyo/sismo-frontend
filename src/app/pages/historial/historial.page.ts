@@ -1,15 +1,16 @@
-import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
 import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { HistoricoService } from '../../services/historico.service';
 import { ResumenHistoricoRespuesta } from '../../interfaces/api.interfaces';
+import { ArrowLeft, ArrowUp, ArrowUpRight, ClipboardList, LucideAngularModule, TriangleAlert } from 'lucide-angular';
 
 @Component({
   standalone: true,
   selector: 'app-historial',
-  imports: [CommonModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent],
+  imports: [CommonModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule],
   templateUrl: './historial.page.html'
 })
 export class HistorialPage implements OnInit {
@@ -29,6 +30,11 @@ export class HistorialPage implements OnInit {
   // Sidebar stats
   magnitudPromedio = signal(0);
   eventoCritico = signal<ResumenHistoricoRespuesta | null>(null);
+  readonly arrowLeftIcon = ArrowLeft;
+  readonly arrowUpIcon = ArrowUp;
+  readonly arrowUpRightIcon = ArrowUpRight;
+  readonly reportIcon = ClipboardList;
+  readonly warningIcon = TriangleAlert;
 
   constructor(private historicoService: HistoricoService) {}
 

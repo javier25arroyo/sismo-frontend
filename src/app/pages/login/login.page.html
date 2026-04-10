@@ -96,7 +96,13 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
-            {{ loading ? 'Verificando...' : 'Iniciar Sesión Técnica →' }}
+            <ng-container *ngIf="loading; else loginLabel">Verificando...</ng-container>
+            <ng-template #loginLabel>
+              <span class="inline-flex items-center gap-1">
+                <span>Iniciar Sesión Técnica</span>
+                <i-lucide [img]="arrowRightIcon" size="14" class="shrink-0"></i-lucide>
+              </span>
+            </ng-template>
           </button>
 
           <!-- SSL badge -->
