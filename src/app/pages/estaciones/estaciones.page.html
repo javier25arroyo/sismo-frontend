@@ -1,7 +1,7 @@
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
   <!-- STATS ROW -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <app-stat-card
       label="Infraestructura Total"
       [value]="total"
@@ -16,10 +16,18 @@
       variant="success">
     </app-stat-card>
     <app-stat-card
+      label="En Mantenimiento"
+      [value]="enMantenimiento"
+      unit=""
+      sublabel="Fuera de servicio temporal"
+      [icon]="wrenchIcon"
+      [variant]="enMantenimiento > 0 ? 'warning' : 'default'">
+    </app-stat-card>
+    <app-stat-card
       label="Incidencias Críticas"
       [value]="incidencias"
       unit=""
-      sublabel="Acción requerida"
+      sublabel="Estaciones inactivas"
       [icon]="warningIcon"
       [variant]="incidencias > 0 ? 'danger' : 'default'">
     </app-stat-card>
@@ -99,66 +107,99 @@
           <h3 class="text-2xl font-bold tracking-tight text-slate-900">{{ est.codEstacion }}</h3>
           <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
 
-            <!-- GPS Map placeholder -->
-            <div class="mt-4 h-36 w-full rounded-xl bg-slate-900 flex items-center justify-center overflow-hidden">
-              <p class="text-xs text-slate-500 font-medium">
-                <i-lucide [img]="mapPinIcon" size="14" class="inline-block mr-1 align-text-bottom text-slate-400"></i-lucide> {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
-              </p>
+            <!-- Mapa de ubicación -->
+            <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
+              <app-estacion-mini-map
+                [lat]="est.coordenadaY"
+                [lng]="est.coordenadaX"
+                [label]="est.nomEstacion">
+              </app-estacion-mini-map>
             </div>
-          <p class="mt-1 text-xs text-slate-400 text-right">LOCALIZACIÓN GPS</p>
+          <p class="mt-1 text-xs text-slate-400 text-right">
+            <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>
+            {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
+          </p>
 
           <!-- Telemetry -->
           <div class="mt-5">
             <div class="flex items-center justify-between mb-3">
               <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Telemetría Crítica</span>
-              <span class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
-                <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                TRANSMITIENDO
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+                [class]="telemetriaBadgeClass(est.estado)">
+                <span class="h-1.5 w-1.5 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
+                {{ telemetriaLabel(est.estado) }}
               </span>
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div class="rounded-xl bg-slate-50 p-3">
-                <p class="text-xs text-slate-400">ENERGÍA</p>
-                <p class="text-xl font-bold text-slate-900">13.8<span class="text-sm font-medium">v</span></p>
+                <p class="text-xs text-slate-400">ESTADO</p>
+                <app-status-badge [estado]="est.estado"></app-status-badge>
               </div>
               <div class="rounded-xl bg-slate-50 p-3">
-                <p class="text-xs text-slate-400">TÉRMICO</p>
-                <p class="text-xl font-bold text-slate-900">24.2<span class="text-sm font-medium">°C</span></p>
+                <p class="text-xs text-slate-400">CENTRO</p>
+                <p class="text-sm font-bold text-slate-900 truncate">{{ est.codCentroPrd }}</p>
               </div>
               <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-xs text-slate-400">LATENCIA</p>
-                <p class="text-xl font-bold text-slate-900">{{ est.latencia }}</p>
+                <p class="text-sm font-bold"
+                  [class]="est.latencia === 'OFFLINE' ? 'text-rose-600' : 'text-slate-900'">
+                  {{ est.latencia }}
+                </p>
               </div>
               <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-xs text-slate-400">CLOCK NAI</p>
-                <p class="text-sm font-bold text-green-600">GPS LOCK</p>
+                <p class="text-sm font-bold" [class]="gpsClass(est.estado)">{{ gpsLabel(est.estado) }}</p>
               </div>
             </div>
           </div>
 
-          <!-- Waveform -->
+          <!-- Cambiar estado -->
           <div class="mt-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Señal Activa [Z-AXIS]</span>
-              <span class="text-xs text-sky-600 font-semibold">MMMA · kHz</span>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado</p>
+            <div class="relative">
+              <select
+                [value]="est.estado"
+                (change)="cambiarEstado(est, $event)"
+                [disabled]="cambiandoEstado()"
+                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-9 text-sm font-medium text-slate-700 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50 cursor-pointer">
+                <option value="ACTIVO">Activo</option>
+                <option value="MANTENIMIENTO">Mantenimiento</option>
+                <option value="INACTIVO">Fuera de Servicio</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
             </div>
-            <div class="h-20 w-full rounded-xl bg-slate-900 p-2 overflow-hidden">
-              <svg viewBox="0 0 300 60" class="w-full h-full" fill="none">
-                <polyline
-                  points="0,30 15,22 30,38 45,15 60,45 75,20 90,35 105,25 120,40 135,28 150,35 165,22 180,40 195,18 210,42 225,26 240,38 255,20 270,35 285,28 300,30"
-                  stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+
+            <div *ngIf="cambiandoEstado()"
+              class="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5">
+              <svg class="h-4 w-4 animate-spin text-sky-500 shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
               </svg>
+              <span class="text-xs font-medium text-slate-600">Guardando cambios...</span>
             </div>
-            <p class="mt-1 text-xs text-slate-400 text-center">VISUALIZACIÓN EN TIEMPO REAL · CAPFPS: 120</p>
+
+            <div *ngIf="mensajeEstado() as msg"
+              class="mt-3 flex items-center gap-2 rounded-xl border px-4 py-2.5"
+              [class]="msg.tipo === 'ok'
+                ? 'border-green-200 bg-green-50'
+                : 'border-rose-200 bg-rose-50'">
+              <i-lucide
+                [img]="msg.tipo === 'ok' ? checkIcon : xIcon"
+                size="15"
+                class="shrink-0"
+                [class]="msg.tipo === 'ok' ? 'text-green-600' : 'text-rose-600'">
+              </i-lucide>
+              <span class="text-xs font-medium"
+                [class]="msg.tipo === 'ok' ? 'text-green-700' : 'text-rose-700'">
+                {{ msg.texto }}
+              </span>
+            </div>
           </div>
 
-          <!-- Diagnostic button -->
-          <button class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/>
-            </svg>
-            Ejecutar Diagnóstico Remoto
-          </button>
         </div>
       </ng-container>
       <ng-template #sinSeleccion>
