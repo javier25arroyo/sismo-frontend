@@ -7,15 +7,24 @@ import { Component, Input } from '@angular/core';
     <span [class]="badgeClass"
       class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide">
       <span [class]="dotClass" class="h-1.5 w-1.5 rounded-full"></span>
-      {{ estado }}
+      {{ estadoLabel }}
     </span>
   `
 })
 export class StatusBadgeComponent {
   @Input() estado = '';
 
+  private get estadoNormalizado(): string {
+    return (this.estado ?? '').toUpperCase().trim().replace(/\s+/g, '_');
+  }
+
+  get estadoLabel(): string {
+    if (this.estadoNormalizado === 'FUERA_DE_SERVICIO') return 'FUERA DE SERVICIO';
+    return this.estado;
+  }
+
   get badgeClass(): string {
-    switch ((this.estado ?? '').toUpperCase()) {
+    switch (this.estadoNormalizado) {
       case 'NIVEL 1':
       case 'ACTIVO':
       case 'ACTIVA':
@@ -29,6 +38,7 @@ export class StatusBadgeComponent {
       case 'PRIORIDAD ALTA':
         return 'bg-orange-100 text-orange-700';
       case 'NIVEL 4':
+      case 'FUERA_DE_SERVICIO':
       case 'INACTIVO':
       case 'INACTIVA':
       case 'FALLA RED':
@@ -41,7 +51,7 @@ export class StatusBadgeComponent {
   }
 
   get dotClass(): string {
-    switch ((this.estado ?? '').toUpperCase()) {
+    switch (this.estadoNormalizado) {
       case 'NIVEL 1':
       case 'ACTIVO':
       case 'ACTIVA':
@@ -55,6 +65,7 @@ export class StatusBadgeComponent {
       case 'PRIORIDAD ALTA':
         return 'bg-orange-500';
       case 'NIVEL 4':
+      case 'FUERA_DE_SERVICIO':
       case 'INACTIVO':
       case 'INACTIVA':
       case 'FALLA RED':
