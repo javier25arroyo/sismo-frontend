@@ -3,7 +3,7 @@
   <!-- HEADER -->
   <div class="mb-6">
     <h1 class="text-3xl font-bold tracking-tight text-slate-900">Historial de Eventos Sísmicos</h1>
-    <p class="mt-2 text-sm text-slate-600">Análisis y consulta de registros históricos con acceso a acelerogramas de alta resolución.</p>
+    <p class="mt-2 text-sm text-slate-600">Catálogo completo de sismos registrados por la Red Acelerográfica Nacional, ordenados del más reciente al más antiguo.</p>
   </div>
 
   <!-- FILTERS -->
@@ -13,22 +13,23 @@
       <div>
         <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Período de Tiempo</label>
         <div class="flex items-center gap-2">
-          <input type="date" [value]="desde()" (change)="desde.set($any($event.target).value)"
+          <input #inputDesde type="date" [value]="desde()"
             class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
           <span class="text-slate-400 text-xs">–</span>
-          <input type="date" [value]="hasta()" (change)="hasta.set($any($event.target).value)"
+          <input #inputHasta type="date" [value]="hasta()"
             class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
         </div>
       </div>
-      <!-- Magnitud -->
+      <!-- Magnitud mínima -->
       <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Magnitud (Mw)</label>
-        <select class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200">
-          <option>Todas las magnitudes</option>
-          <option>≥ 3.0</option>
-          <option>≥ 4.0</option>
-          <option>≥ 5.0</option>
-          <option>≥ 6.0</option>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Magnitud mínima (Mw)</label>
+        <select #selectMagnitud [value]="magnitudMin()"
+          class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200">
+          <option value="">Todas las magnitudes</option>
+          <option value="3">≥ 3.0</option>
+          <option value="4">≥ 4.0</option>
+          <option value="5">≥ 5.0</option>
+          <option value="6">≥ 6.0</option>
         </select>
       </div>
       <!-- Localización -->
@@ -41,11 +42,30 @@
           <option>Zona Pacífica</option>
         </select>
       </div>
-      <!-- Estación local -->
+      <!-- Sentido -->
       <div>
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Estación Local</label>
-        <input type="text" placeholder="Código de estación..."
-          class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Sentido</label>
+        <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <span class="text-xs text-slate-400 select-none">¿Fue sentido?</span>
+          <div class="ml-auto flex items-center rounded-full bg-slate-200 p-0.5 text-xs font-semibold">
+            <button type="button"
+              (click)="cambiarSentido('sentido')"
+              [class]="filtroSentido() === 'sentido'
+                ? 'bg-green-500 text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'"
+              class="rounded-full px-4 py-1 transition-all duration-200">
+              Sí
+            </button>
+            <button type="button"
+              (click)="cambiarSentido('no_sentido')"
+              [class]="filtroSentido() === 'no_sentido'
+                ? 'bg-slate-600 text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'"
+              class="rounded-full px-4 py-1 transition-all duration-200">
+              No
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
@@ -66,40 +86,67 @@
 
     <!-- TABLE -->
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div *ngIf="cargando()" class="p-6 space-y-3">
+      <!-- Skeleton: solo en carga inicial (sin datos aún) -->
+      <div *ngIf="cargando() && eventos().length === 0" class="p-6 space-y-3">
         <div *ngFor="let i of [1,2,3,4]" class="h-12 rounded-xl bg-slate-100 animate-pulse"></div>
       </div>
 
-      <table *ngIf="!cargando()" class="w-full text-xs">
+      <!-- Tabla: siempre visible una vez hay datos; se atenúa al paginar -->
+      <table *ngIf="!cargando() || eventos().length > 0"
+        class="w-full text-xs transition-opacity duration-300"
+        [class.opacity-40]="cargando()"
+        [class.pointer-events-none]="cargando()">
         <thead>
           <tr class="border-b border-slate-100 bg-slate-50">
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Fecha</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Hora UTC</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Mag (Mw)</th>
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Epicentro</th>
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estado de Red</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Ubicación</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Prof.</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Nivel</th>
+            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Sentido</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Detalle</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let e of eventos()" class="border-b border-slate-100 hover:bg-slate-50 last:border-0">
-            <td class="px-4 py-3 font-medium text-slate-900">{{ e.feSismo | date:'dd MMM yyyy' }}</td>
+          <tr *ngFor="let e of eventosFiltrados; let first = first"
+            class="border-b border-slate-100 hover:bg-slate-50 last:border-0"
+            [class.bg-sky-50]="first">
+            <td class="px-4 py-3 font-medium text-slate-900">
+              <span *ngIf="first" class="mr-1 inline-flex items-center rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-700">Último</span>
+              {{ e.feSismo | date:'dd MMM yyyy' }}
+            </td>
             <td class="px-4 py-3 font-mono text-slate-600">{{ e.feSismo | date:'HH:mm:ss' }}</td>
             <td class="px-4 py-3">
               <app-magnitud-badge [magnitud]="e.magnitud"></app-magnitud-badge>
             </td>
-            <td class="px-4 py-3 text-slate-700">{{ getEpicentro(e) }}</td>
+            <td class="px-4 py-3 text-slate-700 max-w-[200px] truncate">{{ e.ubicacion }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ e.profundidad }} km</td>
             <td class="px-4 py-3">
               <app-status-badge [estado]="getEstadoRed(e)"></app-status-badge>
             </td>
             <td class="px-4 py-3">
-              <button class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-sky-300 hover:text-sky-600">
+              <span *ngIf="e.sentido; else noSentido"
+                class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                Sí
+              </span>
+              <ng-template #noSentido>
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                  <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                  No
+                </span>
+              </ng-template>
+            </td>
+            <td class="px-4 py-3">
+              <a routerLink="/sismos"
+                class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-sky-300 hover:text-sky-600">
                 <i-lucide [img]="arrowUpRightIcon" size="16"></i-lucide>
-              </button>
+              </a>
             </td>
           </tr>
-          <tr *ngIf="eventos().length === 0">
-            <td colspan="6" class="px-4 py-10 text-center text-slate-400">
+          <tr *ngIf="eventosFiltrados.length === 0">
+            <td colspan="8" class="px-4 py-10 text-center text-slate-400">
               No hay eventos para los filtros seleccionados.
             </td>
           </tr>
@@ -122,19 +169,27 @@
 
     <!-- SIDEBAR -->
     <div class="space-y-4">
-      <!-- Mini map -->
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div class="border-b border-slate-100 px-4 py-3 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-widest text-slate-600">Visor de Epicentros</span>
-          <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/>
-          </svg>
+      <!-- Último sismo registrado -->
+      <div *ngIf="eventos().length > 0"
+        class="rounded-2xl border border-sky-200 bg-sky-50 shadow-sm p-4 transition-opacity duration-300"
+        [class.opacity-40]="cargando()">
+        <p class="text-xs font-bold uppercase tracking-widest text-sky-600 mb-3">Último Sismo Registrado</p>
+        <div class="flex items-end gap-2">
+          <span class="text-4xl font-bold tabular-nums text-slate-900">
+            {{ eventos()[0].magnitud | number:'1.1-1' }}
+          </span>
+          <span class="text-sm text-slate-500 mb-1">Mw</span>
         </div>
-        <div class="h-40 bg-linear-to-br from-green-900 via-emerald-800 to-green-950 flex items-end p-3">
-          <button class="w-full rounded-lg bg-sky-600/90 px-3 py-2 text-xs font-semibold text-white backdrop-blur-sm transition hover:bg-sky-500">
-            Explorar sismicidad regional
-          </button>
-        </div>
+        <p class="mt-1 text-xs font-medium text-slate-700 leading-snug">{{ eventos()[0].ubicacion }}</p>
+        <p class="mt-1 text-[11px] font-mono text-slate-400">
+          {{ eventos()[0].feSismo | date:'dd MMM yyyy · HH:mm' }} UTC
+        </p>
+        <p class="mt-1 text-[11px] text-slate-400">{{ eventos()[0].profundidad }} km de profundidad</p>
+        <a routerLink="/sismos"
+          class="mt-3 flex w-full items-center justify-center gap-1 rounded-xl bg-sky-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-sky-700">
+          <i-lucide [img]="arrowUpRightIcon" size="12" class="shrink-0"></i-lucide>
+          Ver análisis completo
+        </a>
       </div>
 
       <!-- Resumen estadístico -->
@@ -155,22 +210,23 @@
           <div *ngIf="eventoCritico()" class="rounded-xl bg-rose-50 p-3">
             <div class="flex items-center gap-1 mb-1">
               <i-lucide [img]="warningIcon" size="12" class="text-rose-400"></i-lucide>
-              <p class="text-xs text-rose-500">Evento Crítico</p>
+              <p class="text-xs text-rose-500">Mayor Magnitud</p>
             </div>
             <div class="flex items-end gap-1">
-              <span class="text-3xl font-bold tabular-nums text-rose-700">
+              <span class="text-3xl font-bold tabular-nums" [class]="magnitudColor">
                 {{ eventoCritico()!.magnitud | number:'1.1-1' }}
               </span>
               <span class="text-sm text-rose-400 mb-1">Mw</span>
             </div>
-            <p class="text-xs text-rose-500 mt-1">TÓXICO · MÁXIMA</p>
+            <p class="text-xs text-slate-500 mt-1 truncate">{{ eventoCritico()!.ubicacion }}</p>
           </div>
         </div>
 
-        <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-amber-600">
+        <a routerLink="/sismos"
+          class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-amber-600">
           <i-lucide [img]="reportIcon" size="14" class="shrink-0"></i-lucide>
-          <span>Generar Reporte Técnico</span>
-        </button>
+          <span>Análisis Detallado</span>
+        </a>
       </div>
     </div>
   </div>

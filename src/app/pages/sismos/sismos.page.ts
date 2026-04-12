@@ -7,7 +7,7 @@ import { SismoService } from '../../services/sismo.service';
 import {
   GeneracionReporteRespuesta,
   ResumenHistoricoRespuesta,
-  SismoUltimoRespuesta
+  SismoRespuesta
 } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
 import { HistoricoService } from '../../services/historico.service';
@@ -21,7 +21,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './sismos.page.html'
 })
 export class SismosPage implements OnInit, OnDestroy {
-  ultimoSismo = signal<SismoUltimoRespuesta | null>(null);
+  ultimoSismo = signal<SismoRespuesta | null>(null);
   sismosMapa = signal<Sismo[]>([]);
   detalleEstaciones = signal<ResumenHistoricoRespuesta[]>([]);
   cargando = signal(true);
@@ -57,13 +57,14 @@ export class SismosPage implements OnInit, OnDestroy {
   private async cargar(): Promise<void> {
     this.errorCarga.set('');
     try {
-      const [ultimo, resumenes] = await Promise.all([
-        this.sismoService.getUltimoSismo(),
+      const [listaUltimo, resumenes] = await Promise.all([
+        this.sismoService.listarSismos({ page: 0, size: 1 }),
         this.sismoService.getUltimosSismos(50),
       ]);
+      const ultimo = listaUltimo.content[0] ?? null;
       this.ultimoSismo.set(ultimo);
       this.sismosMapa.set(resumenes);
-      await this.cargarDetalleEstaciones(1, ultimo.feSismo);
+      if (ultimo) await this.cargarDetalleEstaciones(1, ultimo.feSismo);
     } catch (error) {
       this.ultimoSismo.set(null);
       this.sismosMapa.set([]);

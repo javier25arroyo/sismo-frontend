@@ -468,6 +468,7 @@ export interface FiltroSismos {
   hasta?: string;
   magnitudMin?: number;
   magnitudMax?: number;
+  sentido?: string;
   page?: number;
   size?: number;
 }
