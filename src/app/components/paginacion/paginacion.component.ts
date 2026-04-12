@@ -6,15 +6,15 @@ import { CommonModule } from '@angular/common';
   selector: 'app-paginacion',
   imports: [CommonModule],
   template: `
-    <nav aria-label="Paginación" class="flex items-center justify-between text-sm text-slate-600">
-      <span class="text-xs text-slate-400">
+    <nav aria-label="Paginación" class="flex items-center justify-between text-body-md text-text-primary">
+      <span class="text-label-sm uppercase tracking-wide text-slate-500">
         Página {{ paginaActual }} de {{ totalPaginas }}
       </span>
       <div class="flex items-center gap-1">
         <button
           (click)="ir(paginaActual - 1)"
           [disabled]="paginaActual <= 1"
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          class="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-surface-container-highest disabled:opacity-40"
           aria-label="Página anterior">
           ‹
         </button>
@@ -22,16 +22,16 @@ import { CommonModule } from '@angular/common';
           <button
             (click)="ir(p)"
             [class]="p === paginaActual
-              ? 'bg-sky-600 text-white border-sky-600'
-              : 'border-slate-200 hover:bg-slate-50'"
-            class="flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-medium transition">
+              ? 'gradient-cta text-white'
+              : 'hover:bg-surface-container-highest'"
+            class="flex h-8 w-8 items-center justify-center rounded-lg text-label-sm font-semibold transition">
             {{ p }}
           </button>
         </ng-container>
         <button
           (click)="ir(paginaActual + 1)"
           [disabled]="paginaActual >= totalPaginas"
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          class="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-surface-container-highest disabled:opacity-40"
           aria-label="Página siguiente">
           ›
         </button>
