@@ -1,40 +1,40 @@
-<header class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950">
+<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md">
   <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
 
     <!-- BRAND -->
     <a routerLink="/"
-      class="flex items-center gap-2 text-base font-bold tracking-widest text-white transition hover:text-sky-400">
-      <i-lucide [img]="brandIcon" size="16" class="text-sky-400"></i-lucide>
-      <span>SISMOLOGÍA<span class="text-sky-400">.ICE</span></span>
+      class="flex items-center gap-2 text-headline-sm font-bold tracking-tight text-primary transition hover:text-primary-container">
+      <i-lucide [img]="brandIcon" size="20" class="text-secondary"></i-lucide>
+      <span>SISMOLOGÍA<span class="text-secondary">.ICE</span></span>
     </a>
 
     <!-- NAV LINKS -->
-    <ul class="flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-slate-400">
+    <ul class="flex items-center gap-1 text-label-sm font-semibold uppercase tracking-wide text-text-primary">
       <li>
         <a routerLink="/sismos"
-          routerLinkActive="text-white bg-slate-800"
-          class="rounded-lg px-3 py-2 transition hover:text-white hover:bg-slate-800/60">
+          routerLinkActive="bg-surface-container-highest text-secondary"
+          class="rounded-lg px-3 py-2 transition hover:bg-surface-container-highest">
           Sismos
         </a>
       </li>
       <li>
         <a routerLink="/historial"
-          routerLinkActive="text-white bg-slate-800"
-          class="rounded-lg px-3 py-2 transition hover:text-white hover:bg-slate-800/60">
+          routerLinkActive="bg-surface-container-highest text-secondary"
+          class="rounded-lg px-3 py-2 transition hover:bg-surface-container-highest">
           Historial
         </a>
       </li>
       <li>
         <a routerLink="/estaciones"
-          routerLinkActive="text-white bg-slate-800"
-          class="rounded-lg px-3 py-2 transition hover:text-white hover:bg-slate-800/60">
+          routerLinkActive="bg-surface-container-highest text-secondary"
+          class="rounded-lg px-3 py-2 transition hover:bg-surface-container-highest">
           Estaciones
         </a>
       </li>
       <li>
         <a routerLink="/repositorio"
-          routerLinkActive="text-white bg-slate-800"
-          class="rounded-lg px-3 py-2 transition hover:text-white hover:bg-slate-800/60">
+          routerLinkActive="bg-surface-container-highest text-secondary"
+          class="rounded-lg px-3 py-2 transition hover:bg-surface-container-highest">
           Repositorio
         </a>
       </li>
@@ -44,16 +44,16 @@
     <div class="flex items-center gap-3">
       <ng-container *ngIf="auth.isAuthenticated(); else loginLink">
         <a routerLink="/profile"
-          class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 transition hover:border-slate-600">
-          <div class="flex h-7 w-7 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">
+          class="flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-1.5 transition hover:bg-surface-container-highest">
+          <div class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-label-sm font-bold text-white">
             {{ auth.getRole()?.charAt(0) ?? 'U' }}
           </div>
-          <span class="text-xs font-medium text-slate-300">Admin Técnico</span>
+          <span class="text-label-sm font-medium text-text-primary">Admin Técnico</span>
         </a>
       </ng-container>
       <ng-template #loginLink>
         <a routerLink="/acceso"
-          class="rounded-xl border border-slate-600 bg-slate-800 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-slate-700 hover:border-slate-500">
+          class="rounded-xl gradient-cta px-4 py-2 text-label-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-110">
           Acceso Técnico
         </a>
       </ng-template>

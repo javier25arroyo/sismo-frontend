@@ -5,7 +5,7 @@ import { Component, Input } from '@angular/core';
   selector: 'app-status-badge',
   template: `
     <span [class]="badgeClass"
-      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide">
+      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-label-sm font-semibold uppercase tracking-wide">
       <span [class]="dotClass" class="h-1.5 w-1.5 rounded-full"></span>
       {{ estadoLabel }}
     </span>

@@ -11,11 +11,11 @@ export type StatCardVariant = 'default' | 'success' | 'warning' | 'danger';
   template: `
     <div [class]="cardClass" class="rounded-xl p-5 flex items-center justify-between gap-4 h-full">
       <div class="min-w-0">
-        <p class="text-xs font-semibold uppercase tracking-widest" [class]="labelClass">{{ label }}</p>
-        <p class="mt-1 text-3xl font-bold tabular-nums" [class]="valueClass">
+        <p class="text-label-sm font-semibold uppercase tracking-wide" [class]="labelClass">{{ label }}</p>
+        <p class="mt-1 text-display-lg font-bold tabular-nums tracking-tight" [class]="valueClass">
           {{ value }}<span *ngIf="unit" class="ml-1 text-base font-medium">{{ unit }}</span>
         </p>
-        <p *ngIf="sublabel" class="mt-1 text-xs" [class]="sublabelClass">{{ sublabel }}</p>
+        <p *ngIf="sublabel" class="mt-1 text-body-md" [class]="sublabelClass">{{ sublabel }}</p>
       </div>
       <div *ngIf="icon" [class]="iconWrapClass" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl">
         <i-lucide [img]="icon" size="20" class="text-current"></i-lucide>
@@ -35,46 +35,46 @@ export class StatCardComponent {
 
   get cardClass(): string {
     switch (this.variant) {
-      case 'success': return 'bg-green-50 border border-green-200';
-      case 'warning': return 'bg-yellow-50 border border-yellow-200';
-      case 'danger':  return 'bg-rose-50 border border-rose-200';
-      default:        return 'bg-white border border-slate-200 shadow-sm';
+      case 'success': return 'bg-green-100/50';
+      case 'warning': return 'bg-yellow-100/50';
+      case 'danger':  return 'bg-rose-100/50';
+      default:        return 'bg-surface';
     }
   }
 
   get labelClass(): string {
     switch (this.variant) {
-      case 'success': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'danger':  return 'text-rose-600';
+      case 'success': return 'text-green-800';
+      case 'warning': return 'text-yellow-800';
+      case 'danger':  return 'text-rose-800';
       default:        return 'text-slate-500';
     }
   }
 
   get valueClass(): string {
     switch (this.variant) {
-      case 'success': return 'text-green-900';
-      case 'warning': return 'text-yellow-900';
-      case 'danger':  return 'text-rose-900';
-      default:        return 'text-slate-900';
+      case 'success': return 'text-green-950';
+      case 'warning': return 'text-yellow-950';
+      case 'danger':  return 'text-rose-950';
+      default:        return 'text-text-primary';
     }
   }
 
   get sublabelClass(): string {
     switch (this.variant) {
-      case 'success': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'danger':  return 'text-rose-600';
-      default:        return 'text-slate-500';
+      case 'success': return 'text-green-700';
+      case 'warning': return 'text-yellow-700';
+      case 'danger':  return 'text-rose-700';
+      default:        return 'text-slate-600';
     }
   }
 
   get iconWrapClass(): string {
     switch (this.variant) {
-      case 'success': return 'bg-green-100 text-green-600';
-      case 'warning': return 'bg-yellow-100 text-yellow-600';
-      case 'danger':  return 'bg-rose-100 text-rose-600';
-      default:        return 'bg-slate-100 text-slate-500';
+      case 'success': return 'bg-green-200/50 text-green-800';
+      case 'warning': return 'bg-yellow-200/50 text-yellow-800';
+      case 'danger':  return 'bg-rose-200/50 text-rose-800';
+      default:        return 'bg-surface-container-highest text-primary';
     }
   }
 }
