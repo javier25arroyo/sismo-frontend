@@ -234,11 +234,11 @@
                     No
                   </span>
                 </ng-template>
-                <a [routerLink]="['/sismos']" [queryParams]="{ id: e.feSismo }"
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-sky-300 hover:text-sky-600"
-                  aria-label="Ver análisis del sismo">
+                <button type="button" (click)="verDetalle(e)"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-600"
+                  aria-label="Ver detalle del sismo">
                   <i-lucide [img]="arrowUpRightIcon" size="16"></i-lucide>
-                </a>
+                </button>
               </div>
             </div>
           </li>
@@ -289,11 +289,6 @@
           {{ eventos()[0].feSismo | date:'dd MMM yyyy · HH:mm' }} UTC
         </p>
         <p class="mt-1 text-xs text-slate-400">{{ eventos()[0].profundidad }} km de profundidad</p>
-        <a routerLink="/sismos"
-          class="mt-4 flex w-full items-center justify-center gap-1 rounded-xl bg-sky-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-sky-700">
-          <i-lucide [img]="arrowUpRightIcon" size="12" class="shrink-0"></i-lucide>
-          Ver análisis completo
-        </a>
       </div>
 
       <!-- Resumen estadístico -->
@@ -328,14 +323,130 @@
             <p class="mt-1 truncate text-xs text-slate-500">{{ eventoCritico()!.ubicacion }}</p>
           </div>
         </div>
-
-        <a routerLink="/sismos"
-          class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-amber-600">
-          <i-lucide [img]="reportIcon" size="14" class="shrink-0"></i-lucide>
-          <span>Análisis detallado</span>
-        </a>
       </div>
     </aside>
   </div>
 
 </div>
+
+<!-- PANEL DETALLE SISMO -->
+<ng-container *ngIf="sismoDetalle() as s">
+  <!-- Backdrop -->
+  <div
+    class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm"
+    (click)="cerrarDetalle()"
+    aria-hidden="true">
+  </div>
+
+  <!-- Panel lateral -->
+  <aside
+    class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-2xl"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'Detalle: ' + s.ubicacion">
+
+    <!-- Cabecera del panel -->
+    <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-bold uppercase tracking-widest text-sky-600">Detalle del evento</p>
+        <h2 class="mt-1 truncate text-base font-bold text-slate-900">{{ s.ubicacion }}</h2>
+      </div>
+      <button type="button"
+        (click)="cerrarDetalle()"
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-rose-50 hover:text-rose-500"
+        aria-label="Cerrar panel">
+        <i-lucide [img]="closeIcon" size="16"></i-lucide>
+      </button>
+    </div>
+
+    <!-- Contenido scrolleable -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- Bloque de magnitud -->
+      <div class="border-b border-slate-100 px-6 py-5">
+        <div class="flex items-end gap-3">
+          <span class="text-6xl font-black tabular-nums leading-none"
+            [style.color]="colorMagnitud(s.magnitud)">
+            {{ s.magnitud | number:'1.1-1' }}
+          </span>
+          <div class="mb-1 flex flex-col gap-1">
+            <span class="text-sm font-semibold text-slate-500">Mw</span>
+            <app-status-badge [estado]="getEstadoRed(s)"></app-status-badge>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metadatos -->
+      <div class="grid grid-cols-2 gap-px border-b border-slate-100 bg-slate-100">
+        <div class="bg-white px-6 py-4">
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Fecha y hora UTC</p>
+          <p class="mt-1 font-mono text-sm font-semibold text-slate-800">
+            {{ s.feSismo | date:'dd MMM yyyy' }}
+          </p>
+          <p class="font-mono text-xs text-slate-500">
+            {{ s.feSismo | date:'HH:mm:ss' }}
+          </p>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Profundidad</p>
+          <p class="mt-1 text-sm font-semibold text-slate-800">{{ s.profundidad }} km</p>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">¿Fue sentido?</p>
+          <div class="mt-1">
+            <span *ngIf="esEventoSentido(s); else noSentidoDetalle"
+              class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+              <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+              Sí, fue sentido
+            </span>
+            <ng-template #noSentidoDetalle>
+              <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                No sentido
+              </span>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="bg-white px-6 py-4">
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Coordenadas</p>
+          <p class="mt-1 font-mono text-xs text-slate-700">
+            {{ s.coordenadaY | number:'1.4-4' }}°N
+          </p>
+          <p class="font-mono text-xs text-slate-700">
+            {{ s.coordenadaX | number:'1.4-4' }}°W
+          </p>
+        </div>
+      </div>
+
+      <!-- Mapa -->
+      <div class="px-6 py-5">
+        <div class="mb-3 flex items-center gap-2">
+          <i-lucide [img]="mapPinIcon" size="14" class="text-sky-500"></i-lucide>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Localización del epicentro</p>
+        </div>
+        <div class="overflow-hidden rounded-xl border border-slate-200" style="height: 320px;">
+          <app-sismo-map
+            [sismos]="[]"
+            [epicentro]="$any(s)"
+            [center]="[s.coordenadaY, s.coordenadaX]"
+            [zoom]="9"
+            height="320px"
+            [showLegend]="false">
+          </app-sismo-map>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie del panel -->
+    <div class="border-t border-slate-100 px-6 py-4">
+      <a routerLink="/sismos"
+        class="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700">
+        <i-lucide [img]="arrowUpRightIcon" size="14" class="shrink-0"></i-lucide>
+        Ver análisis completo
+      </a>
+    </div>
+  </aside>
+</ng-container>
