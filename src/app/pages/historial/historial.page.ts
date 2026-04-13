@@ -5,7 +5,7 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
 import { SismoRespuesta } from '../../interfaces/api.interfaces';
-import { ArrowLeft, ArrowUp, ArrowUpRight, ClipboardList, LucideAngularModule, TriangleAlert } from 'lucide-angular';
+import { ArrowLeft, ArrowUp, ArrowUpRight, Check, ChevronDown, ClipboardList, LucideAngularModule, TriangleAlert } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -43,6 +43,10 @@ export class HistorialPage implements OnInit {
   filtroSentidoDraft = signal<FiltroSentido>('');
   localizacionDraft = signal<FiltroLocalizacion>('');
 
+  // Dropdown states
+  showMagnitudDropdown = signal(false);
+  showLocalizacionDropdown = signal(false);
+
   // Sidebar stats
   magnitudPromedio = signal(0);
   eventoCritico = signal<SismoRespuesta | null>(null);
@@ -52,11 +56,52 @@ export class HistorialPage implements OnInit {
   readonly arrowUpRightIcon = ArrowUpRight;
   readonly reportIcon = ClipboardList;
   readonly warningIcon = TriangleAlert;
+  readonly chevronDownIcon = ChevronDown;
+  readonly checkIcon = Check;
 
   constructor(private sismoService: SismoService) {}
 
   ngOnInit(): void {
     void this.cargarEventos();
+  }
+
+  toggleMagnitudDropdown(): void {
+    this.showMagnitudDropdown.set(!this.showMagnitudDropdown());
+    this.showLocalizacionDropdown.set(false);
+  }
+
+  toggleLocalizacionDropdown(): void {
+    this.showLocalizacionDropdown.set(!this.showLocalizacionDropdown());
+    this.showMagnitudDropdown.set(false);
+  }
+
+  setMagnitudDraft(val: string): void {
+    this.magnitudMinDraft.set(val);
+    this.showMagnitudDropdown.set(false);
+  }
+
+  setLocalizacionDraft(val: FiltroLocalizacion): void {
+    this.localizacionDraft.set(val);
+    this.showLocalizacionDropdown.set(false);
+  }
+
+  getMagnitudLabel(val: string): string {
+    switch (val) {
+      case '3': return '≥ 3.0';
+      case '4': return '≥ 4.0';
+      case '5': return '≥ 5.0';
+      case '6': return '≥ 6.0';
+      default: return 'Todas las magnitudes';
+    }
+  }
+
+  getLocalizacionLabel(val: string): string {
+    switch (val) {
+      case 'valle_central': return 'Valle Central';
+      case 'zona_atlantica': return 'Zona Atlántica';
+      case 'zona_pacifica': return 'Zona Pacífica';
+      default: return 'Todo el territorio';
+    }
   }
 
   onLocalizacionDraftChange(valor: string): void {
@@ -179,9 +224,14 @@ export class HistorialPage implements OnInit {
 
   private esSentido(valor: unknown): boolean {
     if (typeof valor === 'boolean') return valor;
+    if (typeof valor === 'number') return valor === 1;
     if (typeof valor !== 'string') return false;
     const normalizado = this.normalizarTexto(valor.trim());
-    return normalizado === 'si' || normalizado === 's' || normalizado === 'true' || normalizado === '1';
+    return normalizado === 'si'
+      || normalizado === 's'
+      || normalizado === 'true'
+      || normalizado === '1'
+      || normalizado === 'sentido';
   }
 
   esEventoSentido(evento: SismoRespuesta): boolean {
@@ -197,6 +247,9 @@ export class HistorialPage implements OnInit {
     this.filtroSentido.set(this.filtroSentidoDraft());
     this.localizacion.set(this.localizacionDraft());
     this.aplicarFiltrosEnMemoria(1);
+
+    this.showMagnitudDropdown.set(false);
+    this.showLocalizacionDropdown.set(false);
   }
 
   cambiarSentido(valor: FiltroSentido): void {
@@ -216,6 +269,9 @@ export class HistorialPage implements OnInit {
     this.filtroSentido.set('');
     this.localizacion.set('');
     this.aplicarFiltrosEnMemoria(1);
+
+    this.showMagnitudDropdown.set(false);
+    this.showLocalizacionDropdown.set(false);
   }
 
   cambiarPagina(p: number): void {
