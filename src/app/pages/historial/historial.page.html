@@ -234,7 +234,7 @@
                     No
                   </span>
                 </ng-template>
-                <a routerLink="/sismos"
+                <a [routerLink]="['/sismos']" [queryParams]="{ id: e.feSismo }"
                   class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:border-sky-300 hover:text-sky-600"
                   aria-label="Ver análisis del sismo">
                   <i-lucide [img]="arrowUpRightIcon" size="16"></i-lucide>
