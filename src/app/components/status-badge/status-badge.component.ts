@@ -15,7 +15,12 @@ export class StatusBadgeComponent {
   @Input() estado = '';
 
   private get estadoNormalizado(): string {
-    return (this.estado ?? '').toUpperCase().trim().replace(/\s+/g, '_');
+    return (this.estado ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .trim()
+      .replace(/[\s-]+/g, '_');
   }
 
   get estadoLabel(): string {
@@ -25,24 +30,24 @@ export class StatusBadgeComponent {
 
   get badgeClass(): string {
     switch (this.estadoNormalizado) {
-      case 'NIVEL 1':
+      case 'NIVEL_1':
       case 'ACTIVO':
       case 'ACTIVA':
       case 'OPERATIVO':
-      case 'EN LÍNEA':
+      case 'EN_LINEA':
         return 'bg-green-100 text-green-700';
-      case 'NIVEL 2':
+      case 'NIVEL_2':
       case 'MANTENIMIENTO':
         return 'bg-yellow-100 text-yellow-700';
-      case 'NIVEL 3':
-      case 'PRIORIDAD ALTA':
+      case 'NIVEL_3':
+      case 'PRIORIDAD_ALTA':
         return 'bg-orange-100 text-orange-700';
-      case 'NIVEL 4':
+      case 'NIVEL_4':
       case 'FUERA_DE_SERVICIO':
       case 'INACTIVO':
       case 'INACTIVA':
-      case 'FALLA RED':
-      case 'CRÍTICO':
+      case 'FALLA_RED':
+      case 'CRITICO':
       case 'OFFLINE':
         return 'bg-rose-100 text-rose-700';
       default:
@@ -52,24 +57,24 @@ export class StatusBadgeComponent {
 
   get dotClass(): string {
     switch (this.estadoNormalizado) {
-      case 'NIVEL 1':
+      case 'NIVEL_1':
       case 'ACTIVO':
       case 'ACTIVA':
       case 'OPERATIVO':
-      case 'EN LÍNEA':
+      case 'EN_LINEA':
         return 'bg-green-500';
-      case 'NIVEL 2':
+      case 'NIVEL_2':
       case 'MANTENIMIENTO':
         return 'bg-yellow-500';
-      case 'NIVEL 3':
-      case 'PRIORIDAD ALTA':
+      case 'NIVEL_3':
+      case 'PRIORIDAD_ALTA':
         return 'bg-orange-500';
-      case 'NIVEL 4':
+      case 'NIVEL_4':
       case 'FUERA_DE_SERVICIO':
       case 'INACTIVO':
       case 'INACTIVA':
-      case 'FALLA RED':
-      case 'CRÍTICO':
+      case 'FALLA_RED':
+      case 'CRITICO':
       case 'OFFLINE':
         return 'bg-rose-500';
       default:
