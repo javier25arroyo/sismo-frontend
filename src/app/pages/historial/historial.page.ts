@@ -5,9 +5,10 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
 import { SismoRespuesta } from '../../interfaces/api.interfaces';
-import { ArrowLeft, ArrowUp, ArrowUpRight, Check, ChevronDown, ClipboardList, LucideAngularModule, TriangleAlert } from 'lucide-angular';
+import { ArrowLeft, ArrowUp, ArrowUpRight, Check, ChevronDown, ClipboardList, LucideAngularModule, MapPin, TriangleAlert, X } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 
 type FiltroSentido = '' | 'sentido' | 'no_sentido';
 type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica';
@@ -15,7 +16,7 @@ type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifi
 @Component({
   standalone: true,
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink],
+  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink, SismoMapComponent],
   templateUrl: './historial.page.html'
 })
 export class HistorialPage implements OnInit {
@@ -47,17 +48,22 @@ export class HistorialPage implements OnInit {
   showMagnitudDropdown = signal(false);
   showLocalizacionDropdown = signal(false);
 
+  // Panel de detalle
+  sismoDetalle = signal<SismoRespuesta | null>(null);
+
   // Sidebar stats
   magnitudPromedio = signal(0);
   eventoCritico = signal<SismoRespuesta | null>(null);
 
-  readonly arrowLeftIcon = ArrowLeft;
-  readonly arrowUpIcon = ArrowUp;
+  readonly arrowLeftIcon   = ArrowLeft;
+  readonly arrowUpIcon     = ArrowUp;
   readonly arrowUpRightIcon = ArrowUpRight;
-  readonly reportIcon = ClipboardList;
-  readonly warningIcon = TriangleAlert;
+  readonly reportIcon      = ClipboardList;
+  readonly warningIcon     = TriangleAlert;
   readonly chevronDownIcon = ChevronDown;
-  readonly checkIcon = Check;
+  readonly checkIcon       = Check;
+  readonly closeIcon       = X;
+  readonly mapPinIcon      = MapPin;
 
   constructor(private sismoService: SismoService) {}
 
@@ -276,6 +282,22 @@ export class HistorialPage implements OnInit {
 
   cambiarPagina(p: number): void {
     this.aplicarFiltrosEnMemoria(p);
+  }
+
+  verDetalle(e: SismoRespuesta): void {
+    this.sismoDetalle.set(e);
+  }
+
+  cerrarDetalle(): void {
+    this.sismoDetalle.set(null);
+  }
+
+  colorMagnitud(m: number): string {
+    if (m >= 6.0) return '#ef4444';
+    if (m >= 5.0) return '#f97316';
+    if (m >= 4.0) return '#eab308';
+    if (m >= 3.5) return '#22c55e';
+    return '#94a3b8';
   }
 
   getEstadoRed(e: SismoRespuesta): string {
