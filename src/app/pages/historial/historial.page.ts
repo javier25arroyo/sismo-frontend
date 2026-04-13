@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
@@ -7,110 +7,220 @@ import { SismoService } from '../../services/sismo.service';
 import { SismoRespuesta } from '../../interfaces/api.interfaces';
 import { ArrowLeft, ArrowUp, ArrowUpRight, ClipboardList, LucideAngularModule, TriangleAlert } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
+type FiltroSentido = '' | 'sentido' | 'no_sentido';
+type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica';
 
 @Component({
   standalone: true,
   selector: 'app-historial',
-  imports: [CommonModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink],
+  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink],
   templateUrl: './historial.page.html'
 })
 export class HistorialPage implements OnInit {
-  @ViewChild('inputDesde')     private inputDesde!:     ElementRef<HTMLInputElement>;
-  @ViewChild('inputHasta')     private inputHasta!:     ElementRef<HTMLInputElement>;
-  @ViewChild('selectMagnitud') private selectMagnitud!: ElementRef<HTMLSelectElement>;
+  private readonly allEventos = signal<SismoRespuesta[]>([]);
 
-  eventos      = signal<SismoRespuesta[]>([]);
-  cargando     = signal(true);
-  pagina       = signal(1);
+  eventos = signal<SismoRespuesta[]>([]);
+  cargando = signal(true);
+  pagina = signal(1);
   totalPaginas = signal(1);
   totalElementos = signal(0);
   readonly pageSize = 10;
+  private readonly fetchPageSize = 200;
 
-  // Filtros (valores comprometidos al aplicar)
-  desde        = signal('');
-  hasta        = signal('');
-  magnitudMin  = signal('');
-  filtroSentido = signal<'' | 'sentido' | 'no_sentido'>('');
+  // Filtros aplicados
+  desde = signal('');
+  hasta = signal('');
+  magnitudMin = signal('');
+  filtroSentido = signal<FiltroSentido>('');
+  localizacion = signal<FiltroLocalizacion>('');
+
+  // Filtros en edición (se aplican al tocar "Aplicar Filtros")
+  desdeDraft = signal('');
+  hastaDraft = signal('');
+  magnitudMinDraft = signal('');
+  filtroSentidoDraft = signal<FiltroSentido>('');
+  localizacionDraft = signal<FiltroLocalizacion>('');
 
   // Sidebar stats
   magnitudPromedio = signal(0);
-  eventoCritico    = signal<SismoRespuesta | null>(null);
+  eventoCritico = signal<SismoRespuesta | null>(null);
 
-  readonly arrowLeftIcon   = ArrowLeft;
-  readonly arrowUpIcon     = ArrowUp;
+  readonly arrowLeftIcon = ArrowLeft;
+  readonly arrowUpIcon = ArrowUp;
   readonly arrowUpRightIcon = ArrowUpRight;
-  readonly reportIcon      = ClipboardList;
-  readonly warningIcon     = TriangleAlert;
+  readonly reportIcon = ClipboardList;
+  readonly warningIcon = TriangleAlert;
 
   constructor(private sismoService: SismoService) {}
 
-  ngOnInit(): void { this.cargar(); }
-
-  private sentidoParam(): string | undefined {
-    if (this.filtroSentido() === 'sentido')    return 'SI';
-    if (this.filtroSentido() === 'no_sentido') return 'NO';
-    return undefined;
+  ngOnInit(): void {
+    void this.cargarEventos();
   }
 
-  async cargar(p = 1): Promise<void> {
-    this.cargando.set(true);
-    this.pagina.set(p);
-    try {
-      const res = await this.sismoService.listarSismos({
-        desde:       this.desde()       || undefined,
-        hasta:       this.hasta()       || undefined,
-        magnitudMin: this.magnitudMin() ? Number(this.magnitudMin()) : undefined,
-        sentido:     this.sentidoParam(),
-        page:        p - 1,
-        size:        this.pageSize,
-      });
-      this.eventos.set(res.content);
-      this.totalPaginas.set(res.totalPages   || 1);
-      this.totalElementos.set(res.totalElements || res.content.length);
+  onLocalizacionDraftChange(valor: string): void {
+    if (valor === 'valle_central' || valor === 'zona_atlantica' || valor === 'zona_pacifica') {
+      this.localizacionDraft.set(valor);
+      return;
+    }
+    this.localizacionDraft.set('');
+  }
 
-      if (res.content.length > 0) {
-        const mags = res.content.map(e => e.magnitud);
-        this.magnitudPromedio.set(mags.reduce((a, b) => a + b, 0) / mags.length);
-        this.eventoCritico.set(res.content.reduce((prev, cur) =>
-          cur.magnitud > prev.magnitud ? cur : prev));
-      } else {
-        this.magnitudPromedio.set(0);
-        this.eventoCritico.set(null);
-      }
+  private async cargarEventos(): Promise<void> {
+    this.cargando.set(true);
+    try {
+      const eventos = await this.cargarTodosLosEventos();
+      this.allEventos.set(eventos);
+      this.aplicarFiltrosEnMemoria(1);
     } catch {
+      this.allEventos.set([]);
       this.eventos.set([]);
+      this.totalPaginas.set(1);
+      this.totalElementos.set(0);
+      this.magnitudPromedio.set(0);
+      this.eventoCritico.set(null);
     } finally {
       this.cargando.set(false);
     }
   }
 
-  get eventosFiltrados(): SismoRespuesta[] { return this.eventos(); }
+  private async cargarTodosLosEventos(): Promise<SismoRespuesta[]> {
+    const acumulados: SismoRespuesta[] = [];
+    let page = 0;
+    let totalPages = 1;
 
-  /** Lee los valores actuales del DOM y lanza la búsqueda. */
-  aplicarFiltros(): void {
-    this.desde.set(this.inputDesde.nativeElement.value);
-    this.hasta.set(this.inputHasta.nativeElement.value);
-    this.magnitudMin.set(this.selectMagnitud.nativeElement.value);
-    this.cargar(1);
+    do {
+      const res = await this.sismoService.listarSismos({
+        page,
+        size: this.fetchPageSize,
+      });
+      acumulados.push(...res.content);
+      totalPages = res.totalPages || 1;
+      page += 1;
+    } while (page < totalPages);
+
+    return acumulados;
   }
 
-  cambiarSentido(valor: '' | 'sentido' | 'no_sentido'): void {
-    this.filtroSentido.set(this.filtroSentido() === valor ? '' : valor);
-    this.cargar(1);
+  private aplicarFiltrosEnMemoria(paginaSolicitada = 1): void {
+    const filtrados = this.filtrarEventos(this.allEventos());
+    const total = filtrados.length;
+    const totalPaginas = Math.max(1, Math.ceil(total / this.pageSize));
+    const paginaValida = Math.min(Math.max(1, paginaSolicitada), totalPaginas);
+    const inicio = (paginaValida - 1) * this.pageSize;
+
+    this.eventos.set(filtrados.slice(inicio, inicio + this.pageSize));
+    this.pagina.set(paginaValida);
+    this.totalPaginas.set(totalPaginas);
+    this.totalElementos.set(total);
+
+    if (filtrados.length > 0) {
+      const mags = filtrados.map((e) => e.magnitud);
+      this.magnitudPromedio.set(mags.reduce((a, b) => a + b, 0) / mags.length);
+      this.eventoCritico.set(
+        filtrados.reduce((prev, cur) => (cur.magnitud > prev.magnitud ? cur : prev))
+      );
+      return;
+    }
+
+    this.magnitudPromedio.set(0);
+    this.eventoCritico.set(null);
+  }
+
+  private filtrarEventos(eventos: SismoRespuesta[]): SismoRespuesta[] {
+    const desde = this.desde() ? new Date(`${this.desde()}T00:00:00`) : null;
+    const hasta = this.hasta() ? new Date(`${this.hasta()}T23:59:59.999`) : null;
+    const magnitudMin = this.magnitudMin() ? Number(this.magnitudMin()) : null;
+    const sentido = this.filtroSentido();
+    const localizacion = this.localizacion();
+
+    return eventos.filter((evento) => {
+      const fechaEvento = new Date(evento.feSismo);
+      if (desde && fechaEvento < desde) return false;
+      if (hasta && fechaEvento > hasta) return false;
+      if (magnitudMin !== null && !Number.isNaN(magnitudMin) && evento.magnitud < magnitudMin) return false;
+
+      const fueSentido = this.esSentido(evento.sentido);
+      if (sentido === 'sentido' && !fueSentido) return false;
+      if (sentido === 'no_sentido' && fueSentido) return false;
+
+      if (localizacion && !this.coincideLocalizacion(evento.ubicacion, localizacion)) return false;
+      return true;
+    });
+  }
+
+  private coincideLocalizacion(ubicacion: string, filtro: FiltroLocalizacion): boolean {
+    const valor = this.normalizarTexto(ubicacion);
+    if (!valor) return false;
+
+    switch (filtro) {
+      case 'valle_central':
+        return this.contieneAlguno(valor, ['san jose', 'alajuela', 'cartago', 'heredia', 'valle central']);
+      case 'zona_atlantica':
+        return this.contieneAlguno(valor, ['limon', 'caribe', 'atlantica', 'atlantico', 'talamanca', 'siquirres']);
+      case 'zona_pacifica':
+        return this.contieneAlguno(valor, ['pacifica', 'pacifico', 'puntarenas', 'guanacaste', 'nicoya', 'golfito', 'osa']);
+      default:
+        return true;
+    }
+  }
+
+  private contieneAlguno(valor: string, palabras: string[]): boolean {
+    return palabras.some((palabra) => valor.includes(palabra));
+  }
+
+  private normalizarTexto(valor: string): string {
+    return valor
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
+  private esSentido(valor: unknown): boolean {
+    if (typeof valor === 'boolean') return valor;
+    if (typeof valor !== 'string') return false;
+    const normalizado = this.normalizarTexto(valor.trim());
+    return normalizado === 'si' || normalizado === 's' || normalizado === 'true' || normalizado === '1';
+  }
+
+  esEventoSentido(evento: SismoRespuesta): boolean {
+    return this.esSentido(evento.sentido);
+  }
+
+  get eventosFiltrados(): SismoRespuesta[] { return this.eventos(); }
+
+  aplicarFiltros(): void {
+    this.desde.set(this.desdeDraft());
+    this.hasta.set(this.hastaDraft());
+    this.magnitudMin.set(this.magnitudMinDraft());
+    this.filtroSentido.set(this.filtroSentidoDraft());
+    this.localizacion.set(this.localizacionDraft());
+    this.aplicarFiltrosEnMemoria(1);
+  }
+
+  cambiarSentido(valor: FiltroSentido): void {
+    this.filtroSentidoDraft.set(this.filtroSentidoDraft() === valor ? '' : valor);
   }
 
   limpiarFiltros(): void {
-    this.inputDesde.nativeElement.value     = '';
-    this.inputHasta.nativeElement.value     = '';
-    this.selectMagnitud.nativeElement.value = '';
+    this.desdeDraft.set('');
+    this.hastaDraft.set('');
+    this.magnitudMinDraft.set('');
+    this.filtroSentidoDraft.set('');
+    this.localizacionDraft.set('');
+
     this.desde.set('');
     this.hasta.set('');
     this.magnitudMin.set('');
     this.filtroSentido.set('');
-    this.cargar(1);
+    this.localizacion.set('');
+    this.aplicarFiltrosEnMemoria(1);
   }
 
-  cambiarPagina(p: number): void { this.cargar(p); }
+  cambiarPagina(p: number): void {
+    this.aplicarFiltrosEnMemoria(p);
+  }
 
   getEstadoRed(e: SismoRespuesta): string {
     const m = e.magnitud;
