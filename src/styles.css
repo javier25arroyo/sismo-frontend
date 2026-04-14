@@ -1,18 +1,54 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+@theme {
+  --font-inter: "Inter", sans-serif;
+
+  /* Colors */
+  --color-primary: #006193;
+  --color-primary-container: #1B7AB5;
+  --color-secondary: #6F5D00;
+  --color-secondary-dim: #E6C528;
+  --color-surface: #FFFFFF;
+  --color-surface-container-low: #F8F1FF;
+  --color-surface-container-highest: #E6E0F0;
+  --color-text-primary: #1D1A25;
+
+  /* Typography */
+  --text-display-lg: 3.5rem;
+  --text-headline-sm: 1.5rem;
+  --text-body-md: 0.875rem;
+  --text-label-sm: 0.6875rem;
+
+  /* Shadows/Effects */
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.05em;
+}
+
 html,
 body {
   min-height: 100%;
+  background-color: var(--color-surface-container-low);
+  color: var(--color-text-primary);
+  font-family: var(--font-inter);
 }
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Utilities */
+.glass {
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.gradient-cta {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
 }
 
 /* Estilos personalizados para popups de Leaflet */
@@ -22,12 +58,4 @@ body {
 
 .leaflet-popup-content {
   margin: 12px;
-}
-
-.sismo-popup h3 {
-  margin: 0 0 4px 0;
-}
-
-.sismo-popup p {
-  margin: 2px 0;
 }

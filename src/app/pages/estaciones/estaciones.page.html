@@ -165,7 +165,7 @@
                 class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 outline-none transition hover:border-sky-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50">
                 <div class="flex items-center gap-2">
                   <span class="h-2 w-2 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
-                  <span>{{ est.estado }}</span>
+                  <span>{{ estadoTexto(est.estado) }}</span>
                 </div>
                 <svg class="h-4 w-4 text-slate-400 transition-transform" [class.rotate-180]="mostrarDropdown()" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
@@ -176,13 +176,13 @@
               <div *ngIf="mostrarDropdown()" 
                 class="absolute z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
                 
-                <button (click)="seleccionarNuevoEstado(est, 'ACTIVO')"
+                <button (click)="seleccionarNuevoEstado(est, 'ACTIVA')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
                     <span class="h-2 w-2 rounded-full bg-green-500"></span>
-                    <span class="font-medium">ACTIVO</span>
+                    <span class="font-medium">ACTIVA</span>
                   </div>
-                  <i-lucide *ngIf="est.estado === 'ACTIVO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
+                  <i-lucide *ngIf="est.estado === 'ACTIVA'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
 
                 <button (click)="seleccionarNuevoEstado(est, 'MANTENIMIENTO')"
@@ -194,13 +194,13 @@
                   <i-lucide *ngIf="est.estado === 'MANTENIMIENTO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
 
-                <button (click)="seleccionarNuevoEstado(est, 'INACTIVO')"
+                <button (click)="seleccionarNuevoEstado(est, 'FUERA_DE_SERVICIO')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
                     <span class="h-2 w-2 rounded-full bg-rose-500"></span>
-                    <span class="font-medium">INACTIVO (OFFLINE)</span>
+                    <span class="font-medium">FUERA DE SERVICIO</span>
                   </div>
-                  <i-lucide *ngIf="est.estado === 'INACTIVO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
+                  <i-lucide *ngIf="est.estado === 'FUERA_DE_SERVICIO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
               </div>
             </div>

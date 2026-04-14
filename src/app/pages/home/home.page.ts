@@ -3,7 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ArrowRight, BarChart3, FolderOpen, LucideAngularModule, RadioTower } from 'lucide-angular';
 import { SismoService } from '../../services/sismo.service';
-import { SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
+import { SismoRespuesta } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
@@ -12,7 +12,7 @@ import { SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
   templateUrl: './home.page.html'
 })
 export class HomePage implements OnInit {
-  ultimoSismo = signal<SismoUltimoRespuesta | null>(null);
+  ultimoSismo = signal<SismoRespuesta | null>(null);
   cargando = signal(true);
   readonly arrowRightIcon = ArrowRight;
   readonly historyIcon = BarChart3;
@@ -22,8 +22,8 @@ export class HomePage implements OnInit {
   constructor(private sismoService: SismoService) {}
 
   ngOnInit(): void {
-    this.sismoService.getUltimoSismo()
-      .then(s => this.ultimoSismo.set(s))
+    this.sismoService.listarSismos({ page: 0, size: 1 })
+      .then(res => this.ultimoSismo.set(res.content[0] ?? null))
       .catch(() => {})
       .finally(() => this.cargando.set(false));
   }

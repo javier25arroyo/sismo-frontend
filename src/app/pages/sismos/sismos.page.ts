@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
@@ -7,7 +8,7 @@ import { SismoService } from '../../services/sismo.service';
 import {
   GeneracionReporteRespuesta,
   ResumenHistoricoRespuesta,
-  SismoUltimoRespuesta
+  SismoRespuesta
 } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
 import { HistoricoService } from '../../services/historico.service';
@@ -21,7 +22,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './sismos.page.html'
 })
 export class SismosPage implements OnInit, OnDestroy {
-  ultimoSismo = signal<SismoUltimoRespuesta | null>(null);
+  ultimoSismo = signal<SismoRespuesta | null>(null);
   sismosMapa = signal<Sismo[]>([]);
   detalleEstaciones = signal<ResumenHistoricoRespuesta[]>([]);
   cargando = signal(true);
@@ -42,11 +43,15 @@ export class SismosPage implements OnInit, OnDestroy {
     private sismoService: SismoService,
     private historicoService: HistoricoService,
     private reporteService: ReporteService,
-    readonly auth: AuthService
+    readonly auth: AuthService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    void this.cargar();
+    this.route.queryParams.subscribe(params => {
+      const id = params['id'];
+      void this.cargar(id);
+    });
   }
 
   ngOnDestroy(): void {
@@ -54,16 +59,39 @@ export class SismosPage implements OnInit, OnDestroy {
     this.cancelarPolling();
   }
 
-  private async cargar(): Promise<void> {
+  private async cargar(id?: string): Promise<void> {
+    this.cargando.set(true);
     this.errorCarga.set('');
     try {
-      const [ultimo, resumenes] = await Promise.all([
-        this.sismoService.getUltimoSismo(),
-        this.sismoService.getUltimosSismos(50),
-      ]);
-      this.ultimoSismo.set(ultimo);
+      // Si tenemos un ID, intentamos obtener ese evento específico primero
+      let sismo: SismoRespuesta | null = null;
+      if (id) {
+        // Asumiendo que el ID es el feSismo (timestamp/fecha)
+        const res = await this.sismoService.listarSismos({
+          desde: id,
+          hasta: id,
+          size: 1
+        });
+        sismo = res.content[0] || null;
+      }
+
+      // Si no hay ID o no se encontró, cargamos el más reciente
+      if (!sismo) {
+        const res = await this.sismoService.listarSismos({ page: 0, size: 1 });
+        sismo = res.content[0] || null;
+      }
+
+      // Cargamos el resumen de los últimos para el mapa
+      const resumenes = await this.sismoService.getUltimosSismos(50);
+
+      this.ultimoSismo.set(sismo);
       this.sismosMapa.set(resumenes);
-      await this.cargarDetalleEstaciones(1, ultimo.feSismo);
+
+      if (sismo) {
+        await this.cargarDetalleEstaciones(1, sismo.feSismo);
+      } else {
+        this.detalleEstaciones.set([]);
+      }
     } catch (error) {
       this.ultimoSismo.set(null);
       this.sismosMapa.set([]);

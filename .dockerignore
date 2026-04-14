@@ -1,8 +1,51 @@
+# Dependencies
 node_modules
+
+# Build output
 dist
+
+# Version control
 .git
+
+# IDE
 .vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Angular cache
 .angular
+.cache
+
+# Docker files (not needed in build context)
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+
+# Documentation
 README.md
 LICENSE
-.dockerignore
+*.md
+
+# Environment files (should not be in image)
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Augmented/AI folders
+.agents
+.augment
+.claude
