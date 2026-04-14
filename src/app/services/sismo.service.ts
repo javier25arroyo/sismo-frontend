@@ -42,11 +42,19 @@ export class SismoService {
     return res.content;
   }
 
-  /** GET /api/sismos — lista completa paginada de todos los sismos */
+  /** GET /api/sismos — lista completa paginada de todos los sismos, ordenada por fecha descendente */
   async listarSismos(filtros: FiltroSismos = {}): Promise<PaginatedResponse<SismoRespuesta>> {
     const params = new URLSearchParams();
+    if (filtros.codCentroPrd) params.set('codCentroPrd', filtros.codCentroPrd);
+    if (filtros.codEstacion)  params.set('codEstacion', filtros.codEstacion);
+    if (filtros.desde)        params.set('desde', filtros.desde);
+    if (filtros.hasta)        params.set('hasta', filtros.hasta);
+    if (filtros.magnitudMin !== undefined) params.set('magnitudMin', String(filtros.magnitudMin));
+    if (filtros.magnitudMax !== undefined) params.set('magnitudMax', String(filtros.magnitudMax));
+    if (filtros.sentido)      params.set('sentido', filtros.sentido);
     if (filtros.page !== undefined) params.set('page', String(filtros.page));
     if (filtros.size !== undefined) params.set('size', String(filtros.size));
+    params.set('sort', 'feSismo,desc');
     const query = params.toString();
     return this.api.get<PaginatedResponse<SismoRespuesta>>(
       `/api/sismos${query ? '?' + query : ''}`

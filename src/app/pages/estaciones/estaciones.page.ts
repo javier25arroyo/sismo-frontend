@@ -58,7 +58,7 @@ export class EstacionesPage implements OnInit {
           ...e,
           estado,
           tipoSensor: SENSORES[e.codEstacion] ?? 'Triaxial',
-          latencia: estado === 'INACTIVO' ? 'OFFLINE' : (Math.random() * 10 + 1).toFixed(1) + 'ms',
+          latencia: estado === 'FUERA_DE_SERVICIO' ? 'OFFLINE' : (Math.random() * 10 + 1).toFixed(1) + 'ms',
           ubicacionDetalle: e.codCentroPrd,
         };
       });
@@ -81,9 +81,9 @@ export class EstacionesPage implements OnInit {
   }
 
   get total(): number { return this.estaciones().length; }
-  get enLinea(): number { return this.estaciones().filter(e => e.estado === 'ACTIVO').length; }
+  get enLinea(): number { return this.estaciones().filter(e => e.estado === 'ACTIVA').length; }
   get enMantenimiento(): number { return this.estaciones().filter(e => e.estado === 'MANTENIMIENTO').length; }
-  get incidencias(): number { return this.estaciones().filter(e => e.estado === 'INACTIVO').length; }
+  get incidencias(): number { return this.estaciones().filter(e => e.estado === 'FUERA_DE_SERVICIO').length; }
 
   get filtradas(): EstacionVista[] {
     const q = this.busqueda().toLowerCase();
@@ -113,6 +113,8 @@ export class EstacionesPage implements OnInit {
 
     try {
       await this.centroService.actualizarEstacion(est.codCentroPrd, est.codEstacion, {
+        codCentroPrd: est.codCentroPrd,
+        codEstacion: est.codEstacion,
         nomEstacion: est.nomEstacion,
         coordenadaX: est.coordenadaX,
         coordenadaY: est.coordenadaY,
@@ -121,11 +123,11 @@ export class EstacionesPage implements OnInit {
 
       const actualizadas = this.estaciones().map(e =>
         e.codEstacion === est.codEstacion && e.codCentroPrd === est.codCentroPrd
-          ? { ...e, estado: nuevoEstado, latencia: nuevoEstado === 'INACTIVO' ? 'OFFLINE' : e.latencia }
+          ? { ...e, estado: nuevoEstado, latencia: nuevoEstado === 'FUERA_DE_SERVICIO' ? 'OFFLINE' : e.latencia }
           : e
       );
       this.estaciones.set(actualizadas);
-      const actualizada = { ...est, estado: nuevoEstado, latencia: nuevoEstado === 'INACTIVO' ? 'OFFLINE' : est.latencia };
+      const actualizada = { ...est, estado: nuevoEstado, latencia: nuevoEstado === 'FUERA_DE_SERVICIO' ? 'OFFLINE' : est.latencia };
       this.estacionSeleccionada.set(actualizada);
       this.mensajeEstado.set({ tipo: 'ok', texto: 'Estado actualizado correctamente' });
     } catch {
@@ -137,18 +139,19 @@ export class EstacionesPage implements OnInit {
   }
 
   private normalizarEstado(raw: string | null | undefined): EstacionVista['estado'] {
-    switch ((raw ?? '').toUpperCase()) {
-      case 'ACTIVO':
-      case 'ACTIVA':   return 'ACTIVO';
-      case 'INACTIVO':
-      case 'INACTIVA': return 'INACTIVO';
-      default:         return 'MANTENIMIENTO';
-    }
+    const s = (raw ?? '').toUpperCase().trim().replace(/\s+/g, '_');
+    if (s.includes('FUERA_DE_SERVICIO') || s.includes('INACTIVO') || s.includes('INACTIVA') || s.includes('OFFLINE') || s.includes('DESACTIVADO')) return 'FUERA_DE_SERVICIO';
+    if (s.includes('ACTIVO') || s.includes('ACTIVA')) return 'ACTIVA';
+    return 'MANTENIMIENTO';
+  }
+
+  estadoTexto(estado: EstadoEstacion): string {
+    return estado === 'FUERA_DE_SERVICIO' ? 'FUERA DE SERVICIO' : estado;
   }
 
   telemetriaLabel(estado: string): string {
     switch (estado) {
-      case 'ACTIVO':        return 'TRANSMITIENDO';
+      case 'ACTIVA':        return 'TRANSMITIENDO';
       case 'MANTENIMIENTO': return 'EN MANTENIMIENTO';
       default:              return 'SIN SEÑAL';
     }
@@ -156,7 +159,7 @@ export class EstacionesPage implements OnInit {
 
   telemetriaBadgeClass(estado: string): string {
     switch (estado) {
-      case 'ACTIVO':        return 'bg-green-100 text-green-700';
+      case 'ACTIVA':        return 'bg-green-100 text-green-700';
       case 'MANTENIMIENTO': return 'bg-yellow-100 text-yellow-700';
       default:              return 'bg-rose-100 text-rose-700';
     }
@@ -164,7 +167,7 @@ export class EstacionesPage implements OnInit {
 
   telemetriaDotClass(estado: string): string {
     switch (estado) {
-      case 'ACTIVO':        return 'bg-green-500';
+      case 'ACTIVA':        return 'bg-green-500';
       case 'MANTENIMIENTO': return 'bg-yellow-500';
       default:              return 'bg-rose-500';
     }
@@ -172,7 +175,7 @@ export class EstacionesPage implements OnInit {
 
   gpsLabel(estado: string): string {
     switch (estado) {
-      case 'ACTIVO':        return 'GPS LOCK';
+      case 'ACTIVA':        return 'GPS LOCK';
       case 'MANTENIMIENTO': return 'SUSPENDIDO';
       default:              return 'SIN SEÑAL';
     }
@@ -180,7 +183,7 @@ export class EstacionesPage implements OnInit {
 
   gpsClass(estado: string): string {
     switch (estado) {
-      case 'ACTIVO':        return 'text-green-600';
+      case 'ACTIVA':        return 'text-green-600';
       case 'MANTENIMIENTO': return 'text-yellow-600';
       default:              return 'text-rose-600';
     }
@@ -188,11 +191,11 @@ export class EstacionesPage implements OnInit {
 
   private mockEstaciones(): EstacionVista[] {
     return [
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-001', nomEstacion: 'Represa Arenal', coordenadaX: -84.9, coordenadaY: 10.3, estado: 'ACTIVO', tipoSensor: 'Triaxial Monitoreo', latencia: '3.1ms', ubicacionDetalle: 'Alajuela' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-009', nomEstacion: 'Volcán Poás', coordenadaX: -84.2, coordenadaY: 10.2, estado: 'ACTIVO', tipoSensor: 'Digital High-Res', latencia: '5.2ms', ubicacionDetalle: 'Sector 4' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-099', nomEstacion: 'Puerto Limón Terminal', coordenadaX: -83.0, coordenadaY: 9.99, estado: 'INACTIVO', tipoSensor: 'Triaxial Alto Sismo', latencia: 'OFFLINE', ubicacionDetalle: 'Limón' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-001', nomEstacion: 'Represa Arenal', coordenadaX: -84.9, coordenadaY: 10.3, estado: 'ACTIVA', tipoSensor: 'Triaxial Monitoreo', latencia: '3.1ms', ubicacionDetalle: 'Alajuela' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-009', nomEstacion: 'Volcán Poás', coordenadaX: -84.2, coordenadaY: 10.2, estado: 'ACTIVA', tipoSensor: 'Digital High-Res', latencia: '5.2ms', ubicacionDetalle: 'Sector 4' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-099', nomEstacion: 'Puerto Limón Terminal', coordenadaX: -83.0, coordenadaY: 9.99, estado: 'FUERA_DE_SERVICIO', tipoSensor: 'Triaxial Alto Sismo', latencia: 'OFFLINE', ubicacionDetalle: 'Limón' },
       { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-112', nomEstacion: 'Golfito Muelle Técnico', coordenadaX: -83.1, coordenadaY: 8.64, estado: 'MANTENIMIENTO', tipoSensor: 'Digital High-Res', latencia: '11.9ms', ubicacionDetalle: 'Golfito' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-115', nomEstacion: 'San José Edificio Sabana', coordenadaX: -84.1, coordenadaY: 9.93, estado: 'ACTIVO', tipoSensor: 'Fuerza Balanceada', latencia: '6.8ms', ubicacionDetalle: 'San José' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-115', nomEstacion: 'San José Edificio Sabana', coordenadaX: -84.1, coordenadaY: 9.93, estado: 'ACTIVA', tipoSensor: 'Fuerza Balanceada', latencia: '6.8ms', ubicacionDetalle: 'San José' },
     ];
   }
 }
