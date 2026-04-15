@@ -5,8 +5,8 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
 import { SismoRespuesta } from '../../interfaces/api.interfaces';
-import { ArrowLeft, ArrowUp, ArrowUpRight, Check, ChevronDown, ClipboardList, LucideAngularModule, MapPin, TriangleAlert, X } from 'lucide-angular';
-import { RouterLink } from '@angular/router';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Calendar, Check, ChevronDown, ClipboardList, LucideAngularModule, MapPin, SlidersHorizontal, TriangleAlert, X } from 'lucide-angular';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 
@@ -55,17 +55,38 @@ export class HistorialPage implements OnInit {
   magnitudPromedio = signal(0);
   eventoCritico = signal<SismoRespuesta | null>(null);
 
-  readonly arrowLeftIcon   = ArrowLeft;
-  readonly arrowUpIcon     = ArrowUp;
+  readonly arrowLeftIcon    = ArrowLeft;
+  readonly arrowRightIcon   = ArrowRight;
+  readonly arrowUpIcon      = ArrowUp;
   readonly arrowUpRightIcon = ArrowUpRight;
-  readonly reportIcon      = ClipboardList;
-  readonly warningIcon     = TriangleAlert;
-  readonly chevronDownIcon = ChevronDown;
-  readonly checkIcon       = Check;
-  readonly closeIcon       = X;
-  readonly mapPinIcon      = MapPin;
+  readonly calendarIcon     = Calendar;
+  readonly reportIcon       = ClipboardList;
+  readonly warningIcon      = TriangleAlert;
+  readonly chevronDownIcon  = ChevronDown;
+  readonly checkIcon        = Check;
+  readonly closeIcon        = X;
+  readonly mapPinIcon       = MapPin;
+  readonly filterIcon       = SlidersHorizontal;
 
-  constructor(private sismoService: SismoService) {}
+  readonly magnitudOpciones: { valor: string; label: string }[] = [
+    { valor: '', label: 'Todas' },
+    { valor: '3', label: '≥ 3.0' },
+    { valor: '4', label: '≥ 4.0' },
+    { valor: '5', label: '≥ 5.0' },
+    { valor: '6', label: '≥ 6.0' },
+  ];
+
+  get filtrosActivos(): number {
+    let n = 0;
+    if (this.desdeDraft()) n++;
+    if (this.hastaDraft()) n++;
+    if (this.magnitudMinDraft()) n++;
+    if (this.filtroSentidoDraft()) n++;
+    if (this.localizacionDraft()) n++;
+    return n;
+  }
+
+  constructor(private sismoService: SismoService, private router: Router) {}
 
   ngOnInit(): void {
     void this.cargarEventos();
@@ -286,6 +307,13 @@ export class HistorialPage implements OnInit {
 
   verDetalle(e: SismoRespuesta): void {
     this.sismoDetalle.set(e);
+  }
+
+  irAAnalisis(s: SismoRespuesta): void {
+    void this.router.navigate(['/sismos'], {
+      queryParams: { id: s.feSismo },
+      state: { sismo: s }
+    });
   }
 
   cerrarDetalle(): void {
