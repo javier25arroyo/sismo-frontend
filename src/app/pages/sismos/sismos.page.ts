@@ -48,9 +48,10 @@ export class SismosPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    const sismoFromState = (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null;
     this.route.queryParams.subscribe(params => {
       const id = params['id'];
-      void this.cargar(id);
+      void this.cargar(id, sismoFromState);
     });
   }
 
@@ -59,23 +60,18 @@ export class SismosPage implements OnInit, OnDestroy {
     this.cancelarPolling();
   }
 
-  private async cargar(id?: string): Promise<void> {
+  private async cargar(id?: string, sismoFromState: SismoRespuesta | null = null): Promise<void> {
     this.cargando.set(true);
     this.errorCarga.set('');
     try {
-      // Si tenemos un ID, intentamos obtener ese evento específico primero
       let sismo: SismoRespuesta | null = null;
-      if (id) {
-        // Asumiendo que el ID es el feSismo (timestamp/fecha)
-        const res = await this.sismoService.listarSismos({
-          desde: id,
-          hasta: id,
-          size: 1
-        });
-        sismo = res.content[0] || null;
+
+      // Usar el sismo pasado por estado de navegación (desde historial)
+      if (sismoFromState && id && sismoFromState.feSismo === id) {
+        sismo = sismoFromState;
       }
 
-      // Si no hay ID o no se encontró, cargamos el más reciente
+      // Si no hay sismo desde estado, cargar el más reciente
       if (!sismo) {
         const res = await this.sismoService.listarSismos({ page: 0, size: 1 });
         sismo = res.content[0] || null;

@@ -14,11 +14,11 @@ interface EstacionVista extends EstacionRespuesta {
 }
 
 const SENSORES: Record<string, string> = {
-  'ICE-ACC-001': 'Triaxial Monitoreo',
-  'ICE-ACC-009': 'Digital High-Res',
-  'ICE-ACC-099': 'Triaxial Alto Sismo',
-  'ICE-ACC-112': 'Digital High-Res',
-  'ICE-ACC-115': 'Fuerza Balanceada',
+  'ICE-ACC-001': 'RefTek',
+  'ICE-ACC-009': 'RefTek',
+  'ICE-ACC-099': 'RefTek',
+  'ICE-ACC-112': 'RefTek',
+  'ICE-ACC-115': 'RefTek',
 };
 
 @Component({
@@ -57,7 +57,7 @@ export class EstacionesPage implements OnInit {
         return {
           ...e,
           estado,
-          tipoSensor: SENSORES[e.codEstacion] ?? 'Triaxial',
+          tipoSensor: SENSORES[e.codEstacion] ?? 'RefTek',
           latencia: estado === 'FUERA_DE_SERVICIO' ? 'OFFLINE' : (Math.random() * 10 + 1).toFixed(1) + 'ms',
           ubicacionDetalle: e.codCentroPrd,
         };
@@ -191,11 +191,11 @@ export class EstacionesPage implements OnInit {
 
   private mockEstaciones(): EstacionVista[] {
     return [
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-001', nomEstacion: 'Represa Arenal', coordenadaX: -84.9, coordenadaY: 10.3, estado: 'ACTIVA', tipoSensor: 'Triaxial Monitoreo', latencia: '3.1ms', ubicacionDetalle: 'Alajuela' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-009', nomEstacion: 'Volcán Poás', coordenadaX: -84.2, coordenadaY: 10.2, estado: 'ACTIVA', tipoSensor: 'Digital High-Res', latencia: '5.2ms', ubicacionDetalle: 'Sector 4' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-099', nomEstacion: 'Puerto Limón Terminal', coordenadaX: -83.0, coordenadaY: 9.99, estado: 'FUERA_DE_SERVICIO', tipoSensor: 'Triaxial Alto Sismo', latencia: 'OFFLINE', ubicacionDetalle: 'Limón' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-112', nomEstacion: 'Golfito Muelle Técnico', coordenadaX: -83.1, coordenadaY: 8.64, estado: 'MANTENIMIENTO', tipoSensor: 'Digital High-Res', latencia: '11.9ms', ubicacionDetalle: 'Golfito' },
-      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-115', nomEstacion: 'San José Edificio Sabana', coordenadaX: -84.1, coordenadaY: 9.93, estado: 'ACTIVA', tipoSensor: 'Fuerza Balanceada', latencia: '6.8ms', ubicacionDetalle: 'San José' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-001', nomEstacion: 'Represa Arenal', coordenadaX: -84.9, coordenadaY: 10.3, estado: 'ACTIVA', tipoSensor: 'RefTek', latencia: '3.1ms', ubicacionDetalle: 'Alajuela' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-009', nomEstacion: 'Volcán Poás', coordenadaX: -84.2, coordenadaY: 10.2, estado: 'ACTIVA', tipoSensor: 'RefTek', latencia: '5.2ms', ubicacionDetalle: 'Sector 4' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-099', nomEstacion: 'Puerto Limón Terminal', coordenadaX: -83.0, coordenadaY: 9.99, estado: 'FUERA_DE_SERVICIO', tipoSensor: 'RefTek', latencia: 'OFFLINE', ubicacionDetalle: 'Limón' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-112', nomEstacion: 'Golfito Muelle Técnico', coordenadaX: -83.1, coordenadaY: 8.64, estado: 'MANTENIMIENTO', tipoSensor: 'RefTek', latencia: '11.9ms', ubicacionDetalle: 'Golfito' },
+      { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-115', nomEstacion: 'San José Edificio Sabana', coordenadaX: -84.1, coordenadaY: 9.93, estado: 'ACTIVA', tipoSensor: 'RefTek', latencia: '6.8ms', ubicacionDetalle: 'San José' },
     ];
   }
 }
