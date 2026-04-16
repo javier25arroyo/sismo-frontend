@@ -5,7 +5,9 @@ import { SismoMapComponent } from '../../components/sismo-map/sismo-map.componen
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
+import { CentroService } from '../../services/centro.service';
 import {
+  EstacionRespuesta,
   GeneracionReporteRespuesta,
   ResumenHistoricoRespuesta,
   SismoRespuesta
@@ -24,6 +26,7 @@ import { AuthService } from '../../services/auth.service';
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
   sismosMapa = signal<Sismo[]>([]);
+  estaciones = signal<EstacionRespuesta[]>([]);
   detalleEstaciones = signal<ResumenHistoricoRespuesta[]>([]);
   cargando = signal(true);
   cargandoDetalle = signal(false);
@@ -41,6 +44,7 @@ export class SismosPage implements OnInit, OnDestroy {
 
   constructor(
     private sismoService: SismoService,
+    private centroService: CentroService,
     private historicoService: HistoricoService,
     private reporteService: ReporteService,
     readonly auth: AuthService,
@@ -48,11 +52,21 @@ export class SismosPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    void this.cargarEstaciones();
     const sismoFromState = (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null;
     this.route.queryParams.subscribe(params => {
       const id = params['id'];
       void this.cargar(id, sismoFromState);
     });
+  }
+
+  private async cargarEstaciones(): Promise<void> {
+    try {
+      const page = await this.centroService.getTodasEstaciones({ size: 500 });
+      this.estaciones.set(page.content);
+    } catch {
+      this.estaciones.set([]);
+    }
   }
 
   ngOnDestroy(): void {

@@ -393,6 +393,7 @@
           <app-sismo-map
             [sismos]="[]"
             [epicentro]="$any(s)"
+            [estaciones]="estaciones()"
             [center]="[s.coordenadaY, s.coordenadaX]"
             [zoom]="9"
             height="320px"

@@ -4,7 +4,8 @@ import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
-import { SismoRespuesta } from '../../interfaces/api.interfaces';
+import { CentroService } from '../../services/centro.service';
+import { EstacionRespuesta, SismoRespuesta } from '../../interfaces/api.interfaces';
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Calendar, Check, ChevronDown, ClipboardList, LucideAngularModule, MapPin, SlidersHorizontal, TriangleAlert, X } from 'lucide-angular';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -50,6 +51,7 @@ export class HistorialPage implements OnInit {
 
   // Panel de detalle
   sismoDetalle = signal<SismoRespuesta | null>(null);
+  estaciones = signal<EstacionRespuesta[]>([]);
 
   // Sidebar stats
   magnitudPromedio = signal(0);
@@ -86,10 +88,20 @@ export class HistorialPage implements OnInit {
     return n;
   }
 
-  constructor(private sismoService: SismoService, private router: Router) {}
+  constructor(private sismoService: SismoService, private centroService: CentroService, private router: Router) {}
 
   ngOnInit(): void {
     void this.cargarEventos();
+    void this.cargarEstaciones();
+  }
+
+  private async cargarEstaciones(): Promise<void> {
+    try {
+      const page = await this.centroService.getTodasEstaciones({ size: 500 });
+      this.estaciones.set(page.content);
+    } catch {
+      this.estaciones.set([]);
+    }
   }
 
   toggleMagnitudDropdown(): void {
