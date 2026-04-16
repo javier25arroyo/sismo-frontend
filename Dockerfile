@@ -14,7 +14,7 @@ WORKDIR /app
 # Copy only package files for optimal layer caching
 COPY package.json pnpm-lock.yaml ./
 
-# Install all dependencies (dev needed for build)
+# Install all dependencies (dev included — required by Angular build tools)
 RUN --mount=type=cache,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
@@ -23,47 +23,42 @@ RUN --mount=type=cache,target=/pnpm/store \
 #############################################
 FROM node:20.19.0-alpine AS build
 
+ARG NODE_ENV=production
+ENV NODE_ENV=$NODE_ENV
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 WORKDIR /app
 
-# Copy installed node_modules from deps stage
+# Reuse node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# Copy package files
 COPY package.json ./
-
-# Copy Angular configuration and source
 COPY angular.json tsconfig*.json postcss.config.json tailwind.config.js ./
 COPY public ./public
 COPY src ./src
 
-# Build with production configuration
-RUN pnpm build
+# Explicit production configuration (outputHashing=all, budgets enforced)
+RUN pnpm build --configuration=production
 
 #############################################
 # Stage 3: Production runtime
 #############################################
 FROM nginx:1.27-alpine AS runtime
 
-# Security: Run as non-root (nginx user/group already exists in nginx:alpine)
-RUN rm -rf /etc/nginx/conf.d/default.conf
+# Install wget for health check, clean up default config in one layer
+RUN apk add --no-cache wget && \
+    rm -rf /etc/nginx/conf.d/default.conf
 
-# Install wget for healthcheck (alpine package)
-RUN apk add --no-cache wget
-
-# Copy custom nginx configuration
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built application from build stage
-COPY --from=build /app/dist/sismo-frontend/browser /usr/share/nginx/html
+# Copy built assets with correct ownership in a single step
+COPY --from=build --chown=nginx:nginx /app/dist/sismo-frontend/browser /usr/share/nginx/html
 
-# Set proper permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
+RUN chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
 
