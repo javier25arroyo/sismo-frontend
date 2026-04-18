@@ -17,9 +17,6 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "security": {
-              "autoCsp": true
-            },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [
@@ -37,6 +34,9 @@
           },
           "configurations": {
             "production": {
+              "security": {
+                "autoCsp": true
+              },
               "budgets": [
                 {
                   "type": "initial",
@@ -54,7 +54,9 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "namedChunks": false,
+              "aot": true
             }
           },
           "defaultConfiguration": "production"
@@ -66,7 +68,8 @@
               "buildTarget": "sismo-frontend:build:production"
             },
             "development": {
-              "buildTarget": "sismo-frontend:build:development"
+              "buildTarget": "sismo-frontend:build:development",
+              "hmr": true
             }
           },
           "defaultConfiguration": "development"

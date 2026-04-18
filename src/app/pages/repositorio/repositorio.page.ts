@@ -87,15 +87,22 @@ export class RepositorioPage implements OnInit, OnDestroy {
   exportandoHistorico = signal(false);
   mensajeExport       = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
-  // Filtros CSV sismos
-  csvSismoDesde     = signal('');
-  csvSismoHasta     = signal('');
-  csvSismoMagMin    = signal('');
-  csvSismoMagMax    = signal('');
+  // ─── Filas descargadas con éxito (IDs) ───────────────────────────────────
+  private _descargadasExito = signal<Set<string>>(new Set());
+
+  // Filtros CSV sismos (backend requiere fecha ISO LocalDateTime)
+  csvSismoDesde = signal('');
+  csvSismoHasta = signal('');
 
   // Filtros CSV historial
-  csvHistDesde      = signal('');
-  csvHistHasta      = signal('');
+  csvHistDesde = signal('');
+  csvHistHasta = signal('');
+
+  // PDF consolidado
+  pdfConsolidadoDesde       = signal('');
+  pdfConsolidadoHasta       = signal('');
+  descargandoPdfConsolidado = signal(false);
+  mensajePdfConsolidado     = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -239,6 +246,17 @@ export class RepositorioPage implements OnInit, OnDestroy {
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
+  estaDescargado(id: string): boolean {
+    return this._descargadasExito().has(id);
+  }
+
+  private marcarDescargado(id: string): void {
+    this._descargadasExito.update(s => new Set([...s, id]));
+    setTimeout(() => {
+      this._descargadasExito.update(s => { const n = new Set(s); n.delete(id); return n; });
+    }, 5000);
+  }
+
   private async fetchYDescargar(feReporte: string, titulo: string, trackId: string): Promise<void> {
     this.descargando.set(trackId);
     this.descargandoGen.set(trackId);
@@ -261,6 +279,7 @@ export class RepositorioPage implements OnInit, OnDestroy {
       a.click();
       a.remove();
       URL.revokeObjectURL(blobUrl);
+      this.marcarDescargado(trackId);
       this.mensajeDescarga.set({ tipo: 'ok', texto: `"${titulo}" descargado correctamente.` });
     } catch (err) {
       this.mensajeDescarga.set({ tipo: 'error', texto: (err as Error).message || 'No se pudo descargar.' });
@@ -339,38 +358,23 @@ export class RepositorioPage implements OnInit, OnDestroy {
     }
   }
 
-  // ─── CSV: exportar sismos ─────────────────────────────────────────────────
+  // ─── CSV: exportar sismos (via backend /api/reportes/consolidado/csv) ────
   async exportarSismosCsv(): Promise<void> {
+    const desde = this.csvSismoDesde();
+    const hasta = this.csvSismoHasta();
+    if (!desde || !hasta) {
+      this.mensajeExport.set({ tipo: 'error', texto: 'Selecciona un rango de fechas (desde y hasta) para exportar.' });
+      return;
+    }
     this.exportandoSismos.set(true);
     this.mensajeExport.set(null);
     try {
-      const filtros: FiltroSismos = { size: 500, page: 0 };
-      if (this.csvSismoDesde())  filtros.desde       = this.csvSismoDesde();
-      if (this.csvSismoHasta())  filtros.hasta       = this.csvSismoHasta();
-      if (this.csvSismoMagMin()) filtros.magnitudMin = parseFloat(this.csvSismoMagMin());
-      if (this.csvSismoMagMax()) filtros.magnitudMax = parseFloat(this.csvSismoMagMax());
-
-      const todos: SismoRespuesta[] = [];
-      let pagina = 0;
-      let ultima = false;
-      while (!ultima) {
-        const res = await this.sismoService.listarSismos({ ...filtros, page: pagina });
-        todos.push(...res.content);
-        ultima = res.last;
-        pagina++;
-      }
-      const cabeceras = ['Fecha Sismo', 'Magnitud', 'Profundidad (km)', 'Ubicación', 'Latitud', 'Longitud', 'Sentido'];
-      const filas = todos.map(s => [
-        s.feSismo ?? '',
-        String(s.magnitud ?? ''),
-        String(s.profundidad ?? ''),
-        s.ubicacion ?? '',
-        String(s.coordenadaY ?? ''),
-        String(s.coordenadaX ?? ''),
-        s.sentido ?? '',
-      ]);
-      this.descargarCsv(cabeceras, filas, `sismos_${this.fechaHoy()}.csv`);
-      this.mensajeExport.set({ tipo: 'ok', texto: `${todos.length} sismos exportados.` });
+      const { blob, filename } = await this.reporteService.descargarConsolidadoCsv(
+        this.toLocalDateTime(desde),
+        this.toLocalDateTime(hasta, true)
+      );
+      this.triggerBlobDownload(blob, filename);
+      this.mensajeExport.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
     } catch (err) {
       this.mensajeExport.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar sismos.' });
     } finally {
@@ -384,8 +388,9 @@ export class RepositorioPage implements OnInit, OnDestroy {
     this.mensajeExport.set(null);
     try {
       const filtros: FiltroResumenHistorico = { size: 500, page: 0 };
-      if (this.csvHistDesde()) filtros.desde = this.csvHistDesde();
-      if (this.csvHistHasta()) filtros.hasta = this.csvHistHasta();
+      // Backend espera LocalDateTime ISO — agregar hora si solo se pasó fecha
+      if (this.csvHistDesde()) filtros.desde = this.toLocalDateTime(this.csvHistDesde());
+      if (this.csvHistHasta()) filtros.hasta = this.toLocalDateTime(this.csvHistHasta(), true);
 
       const todos: ResumenHistoricoRespuesta[] = [];
       let pagina = 0;
@@ -422,6 +427,74 @@ export class RepositorioPage implements OnInit, OnDestroy {
     } finally {
       this.exportandoHistorico.set(false);
     }
+  }
+
+  // ─── PDF Consolidado ─────────────────────────────────────────────────────
+  async descargarPdfConsolidado(): Promise<void> {
+    const desde = this.pdfConsolidadoDesde();
+    const hasta = this.pdfConsolidadoHasta();
+    if (!desde || !hasta) {
+      this.mensajePdfConsolidado.set({ tipo: 'error', texto: 'Selecciona un rango de fechas para generar el PDF.' });
+      return;
+    }
+    this.descargandoPdfConsolidado.set(true);
+    this.mensajePdfConsolidado.set(null);
+    try {
+      const { blob, filename } = await this.reporteService.descargarConsolidadoPdf(
+        this.toLocalDateTime(desde),
+        this.toLocalDateTime(hasta, true)
+      );
+      this.triggerBlobDownload(blob, filename);
+      this.mensajePdfConsolidado.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
+    } catch (err) {
+      this.mensajePdfConsolidado.set({ tipo: 'error', texto: (err as Error).message || 'Error al generar el PDF consolidado.' });
+    } finally {
+      this.descargandoPdfConsolidado.set(false);
+      setTimeout(() => this.mensajePdfConsolidado.set(null), 5000);
+    }
+  }
+
+  // ─── CSV: helpers de resumen de filtros ──────────────────────────────────
+  get resumenFiltroSismos(): string {
+    const partes: string[] = [];
+    if (this.csvSismoDesde() && this.csvSismoHasta()) partes.push(`${this.csvSismoDesde()} → ${this.csvSismoHasta()}`);
+    else if (this.csvSismoDesde()) partes.push(`desde ${this.csvSismoDesde()}`);
+    else if (this.csvSismoHasta()) partes.push(`hasta ${this.csvSismoHasta()}`);
+    return partes.length ? partes.join(' · ') : '';
+  }
+
+  get resumenFiltroHistorico(): string {
+    const partes: string[] = [];
+    if (this.csvHistDesde() && this.csvHistHasta()) partes.push(`${this.csvHistDesde()} → ${this.csvHistHasta()}`);
+    else if (this.csvHistDesde()) partes.push(`desde ${this.csvHistDesde()}`);
+    else if (this.csvHistHasta()) partes.push(`hasta ${this.csvHistHasta()}`);
+    return partes.length ? partes.join(' · ') : '';
+  }
+
+  limpiarFiltrosSismosCsv(): void {
+    this.csvSismoDesde.set(''); this.csvSismoHasta.set('');
+  }
+
+  limpiarFiltrosHistoricoCsv(): void {
+    this.csvHistDesde.set(''); this.csvHistHasta.set('');
+  }
+
+  // ─── Helpers de descarga ──────────────────────────────────────────────────
+  private toLocalDateTime(date: string, endOfDay = false): string {
+    if (!date) return '';
+    if (date.includes('T')) return date;
+    return date + (endOfDay ? 'T23:59:59' : 'T00:00:00');
+  }
+
+  private triggerBlobDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   // ─── CSV helpers ──────────────────────────────────────────────────────────
