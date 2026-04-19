@@ -34,6 +34,10 @@
           },
           "configurations": {
             "production": {
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
               "security": {
                 "autoCsp": true
               },
@@ -49,7 +53,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "extractLicenses": true
             },
             "development": {
               "optimization": false,
