@@ -6,13 +6,11 @@ import {
   AlertTriangle, TableProperties, LucideAngularModule
 } from 'lucide-angular';
 import { ReporteService } from '../../services/reporte.service';
-import { SismoService } from '../../services/sismo.service';
 import { HistoricoService } from '../../services/historico.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
-  ReporteRespuesta, FiltroReportes, GeneracionReporteRespuesta,
-  SismoRespuesta, ResumenHistoricoRespuesta, FiltroSismos, FiltroResumenHistorico
+  ReporteRespuesta, FiltroReportes, GeneracionReporteRespuesta
 } from '../../interfaces/api.interfaces';
 import { environment } from '../../../environments/environment';
 
@@ -31,7 +29,6 @@ type EstadoGen =
 })
 export class RepositorioPage implements OnInit, OnDestroy {
   private reporteService  = inject(ReporteService);
-  private sismoService    = inject(SismoService);
   private historicoService= inject(HistoricoService);
   private auth            = inject(AuthService);
 
@@ -85,7 +82,14 @@ export class RepositorioPage implements OnInit, OnDestroy {
   exportandoReportes  = signal(false);
   exportandoSismos    = signal(false);
   exportandoHistorico = signal(false);
-  mensajeExport       = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
+
+  // ─── Estado "descargado" por botón CSV ───────────────────────────────────
+  private _csvDescargados = signal<Set<string>>(new Set());
+  csvEstaDescargado(tipo: string): boolean { return this._csvDescargados().has(tipo); }
+  private marcarCsvDescargado(tipo: string): void {
+    this._csvDescargados.update(s => new Set([...s, tipo]));
+    setTimeout(() => this._csvDescargados.update(s => { const n = new Set(s); n.delete(tipo); return n; }), 5000);
+  }
 
   // ─── Filas descargadas con éxito (IDs) ───────────────────────────────────
   private _descargadasExito = signal<Set<string>>(new Set());
@@ -102,7 +106,6 @@ export class RepositorioPage implements OnInit, OnDestroy {
   pdfConsolidadoDesde       = signal('');
   pdfConsolidadoHasta       = signal('');
   descargandoPdfConsolidado = signal(false);
-  mensajePdfConsolidado     = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -330,7 +333,7 @@ export class RepositorioPage implements OnInit, OnDestroy {
   // ─── CSV: exportar reportes ───────────────────────────────────────────────
   async exportarReportesCsv(): Promise<void> {
     this.exportandoReportes.set(true);
-    this.mensajeExport.set(null);
+    this.mensajeDescarga.set(null);
     try {
       const todos: ReporteRespuesta[] = [];
       let pagina = 0;
@@ -349,12 +352,15 @@ export class RepositorioPage implements OnInit, OnDestroy {
         r.resumen ?? '',
         r.url ?? '',
       ]);
-      this.descargarCsv(cabeceras, filas, `reportes_${this.fechaHoy()}.csv`);
-      this.mensajeExport.set({ tipo: 'ok', texto: `${todos.length} reportes exportados.` });
+      const nombre = `reportes_${this.fechaHoy()}.csv`;
+      this.descargarCsv(cabeceras, filas, nombre);
+      this.marcarCsvDescargado('reportes');
+      this.mensajeDescarga.set({ tipo: 'ok', texto: `${todos.length} reportes exportados — ${nombre}` });
     } catch (err) {
-      this.mensajeExport.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar reportes.' });
+      this.mensajeDescarga.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar reportes.' });
     } finally {
       this.exportandoReportes.set(false);
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
     }
   }
 
@@ -363,69 +369,45 @@ export class RepositorioPage implements OnInit, OnDestroy {
     const desde = this.csvSismoDesde();
     const hasta = this.csvSismoHasta();
     if (!desde || !hasta) {
-      this.mensajeExport.set({ tipo: 'error', texto: 'Selecciona un rango de fechas (desde y hasta) para exportar.' });
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Selecciona rango de fechas (desde y hasta) para exportar.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
       return;
     }
     this.exportandoSismos.set(true);
-    this.mensajeExport.set(null);
+    this.mensajeDescarga.set(null);
     try {
       const { blob, filename } = await this.reporteService.descargarConsolidadoCsv(
         this.toLocalDateTime(desde),
         this.toLocalDateTime(hasta, true)
       );
       this.triggerBlobDownload(blob, filename);
-      this.mensajeExport.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
+      this.marcarCsvDescargado('sismos');
+      this.mensajeDescarga.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
     } catch (err) {
-      this.mensajeExport.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar sismos.' });
+      this.mensajeDescarga.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar sismos.' });
     } finally {
       this.exportandoSismos.set(false);
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
     }
   }
 
-  // ─── CSV: exportar historial ──────────────────────────────────────────────
+  // ─── CSV: exportar historial (via backend /api/resumen/historico/csv) ────
   async exportarHistoricoCsv(): Promise<void> {
     this.exportandoHistorico.set(true);
-    this.mensajeExport.set(null);
+    this.mensajeDescarga.set(null);
     try {
-      const filtros: FiltroResumenHistorico = { size: 500, page: 0 };
-      // Backend espera LocalDateTime ISO — agregar hora si solo se pasó fecha
-      if (this.csvHistDesde()) filtros.desde = this.toLocalDateTime(this.csvHistDesde());
-      if (this.csvHistHasta()) filtros.hasta = this.toLocalDateTime(this.csvHistHasta(), true);
-
-      const todos: ResumenHistoricoRespuesta[] = [];
-      let pagina = 0;
-      let ultima = false;
-      while (!ultima) {
-        const res = await this.historicoService.getHistorico({ ...filtros, page: pagina });
-        todos.push(...res.content);
-        ultima = res.last;
-        pagina++;
-      }
-      const cabeceras = [
-        'Fecha Sismo', 'Magnitud', 'Profundidad (km)',
-        'Estación', 'Centro', 'Latitud Estación', 'Longitud Estación',
-        'Aceleración (g)', 'Desplazamiento', 'Distancia Hipocentral (km)',
-        'Fecha Dato'
-      ];
-      const filas = todos.map(h => [
-        h.feSismo ?? '',
-        String(h.magnitud ?? ''),
-        String(h.profundidad ?? ''),
-        h.nomEstacion ?? '',
-        h.codCentroPrd ?? '',
-        String(h.yEstacion ?? ''),
-        String(h.xEstacion ?? ''),
-        String(h.vaAceleracion ?? ''),
-        String(h.vaDesplazamiento ?? ''),
-        String(h.distanciaHipocentral ?? ''),
-        h.feDato ?? '',
-      ]);
-      this.descargarCsv(cabeceras, filas, `historico_sismico_${this.fechaHoy()}.csv`);
-      this.mensajeExport.set({ tipo: 'ok', texto: `${todos.length} registros históricos exportados.` });
+      const { blob, filename } = await this.historicoService.descargarCsv(
+        this.csvHistDesde() ? this.toLocalDateTime(this.csvHistDesde()) : undefined,
+        this.csvHistHasta() ? this.toLocalDateTime(this.csvHistHasta(), true) : undefined
+      );
+      this.triggerBlobDownload(blob, filename);
+      this.marcarCsvDescargado('historico');
+      this.mensajeDescarga.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
     } catch (err) {
-      this.mensajeExport.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar historial.' });
+      this.mensajeDescarga.set({ tipo: 'error', texto: (err as Error).message || 'Error al exportar historial.' });
     } finally {
       this.exportandoHistorico.set(false);
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
     }
   }
 
@@ -434,23 +416,24 @@ export class RepositorioPage implements OnInit, OnDestroy {
     const desde = this.pdfConsolidadoDesde();
     const hasta = this.pdfConsolidadoHasta();
     if (!desde || !hasta) {
-      this.mensajePdfConsolidado.set({ tipo: 'error', texto: 'Selecciona un rango de fechas para generar el PDF.' });
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Selecciona un rango de fechas para generar el PDF.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
       return;
     }
     this.descargandoPdfConsolidado.set(true);
-    this.mensajePdfConsolidado.set(null);
+    this.mensajeDescarga.set(null);
     try {
       const { blob, filename } = await this.reporteService.descargarConsolidadoPdf(
         this.toLocalDateTime(desde),
         this.toLocalDateTime(hasta, true)
       );
       this.triggerBlobDownload(blob, filename);
-      this.mensajePdfConsolidado.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
+      this.mensajeDescarga.set({ tipo: 'ok', texto: `Descargado: ${filename}` });
     } catch (err) {
-      this.mensajePdfConsolidado.set({ tipo: 'error', texto: (err as Error).message || 'Error al generar el PDF consolidado.' });
+      this.mensajeDescarga.set({ tipo: 'error', texto: (err as Error).message || 'Error al generar el PDF consolidado.' });
     } finally {
       this.descargandoPdfConsolidado.set(false);
-      setTimeout(() => this.mensajePdfConsolidado.set(null), 5000);
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
     }
   }
 
