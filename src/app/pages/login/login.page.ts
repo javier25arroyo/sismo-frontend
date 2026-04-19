@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ArrowRight, LucideAngularModule } from 'lucide-angular';
+import { ArrowLeft, ArrowRight, LucideAngularModule } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SolicitudLogin, RespuestaLogin } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RouterLink],
   templateUrl: './login.page.html'
 })
 export class LoginPage {
@@ -17,6 +17,7 @@ export class LoginPage {
   loading = false;
   showPassword = false;
   readonly arrowRightIcon = ArrowRight;
+  readonly arrowLeftIcon  = ArrowLeft;
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
 

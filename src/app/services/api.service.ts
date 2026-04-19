@@ -100,4 +100,17 @@ export class ApiService {
   getDownloadUrl(path: string): string {
     return this.baseUrl + path;
   }
+
+  async getBlob(path: string): Promise<{ blob: Blob; headers: Headers }> {
+    const res = await fetch(this.baseUrl + path, { headers: this.buildHeaders() });
+    if (!res.ok) {
+      let mensaje = `${res.status} ${res.statusText}`;
+      try {
+        const body = await res.json();
+        mensaje = this.extractErrorMessage(body, mensaje);
+      } catch { /* ignore */ }
+      throw new Error(mensaje);
+    }
+    return { blob: await res.blob(), headers: res.headers };
+  }
 }

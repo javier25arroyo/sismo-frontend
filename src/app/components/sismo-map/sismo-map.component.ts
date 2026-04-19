@@ -12,7 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
-import { SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
+import { EstacionRespuesta, SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
 
 @Component({
   standalone: true,
@@ -41,9 +41,13 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
   /** Sismo a marcar como epicentro destacado (anillo pulsante + crosshair) */
   @Input() epicentro: SismoUltimoRespuesta | null = null;
 
+  /** Estaciones sísmicas a mostrar en el mapa */
+  @Input() estaciones: EstacionRespuesta[] = [];
+
   private map!: L.Map;
   private markersLayer!: L.LayerGroup;
   private epicentroLayer!: L.LayerGroup;
+  private estacionesLayer!: L.LayerGroup;
 
   /** Estilos según magnitud del sismo */
   private readonly magnitudStyles: Record<string, MagnitudStyle> = {
@@ -61,6 +65,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     this.initMap();
     this.addSismos();
     this.addEpicentroMarker();
+    this.addEstaciones();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -69,6 +74,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     }
     if (changes['epicentro'] && !changes['epicentro'].firstChange) {
       this.addEpicentroMarker();
+    }
+    if (changes['estaciones'] && !changes['estaciones'].firstChange) {
+      this.addEstaciones();
     }
   }
 
@@ -110,6 +118,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
 
     // Capa para el marcador del epicentro (encima de los demás)
     this.epicentroLayer = L.layerGroup().addTo(this.map);
+
+    // Capa para las estaciones sísmicas
+    this.estacionesLayer = L.layerGroup().addTo(this.map);
 
     // Agregar leyenda si está habilitada
     if (this.showLegend) {
@@ -220,6 +231,27 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
       </div>
     `);
     marker.addTo(this.epicentroLayer);
+  }
+
+  private addEstaciones(): void {
+    if (!this.estacionesLayer) return;
+    this.estacionesLayer.clearLayers();
+
+    this.estaciones.forEach(e => {
+      const icon = L.divIcon({
+        className: '',
+        html: `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,13 1,13" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 13],
+        tooltipAnchor: [0, -14]
+      });
+      const marker = L.marker([e.coordenadaY, e.coordenadaX], { icon, zIndexOffset: 500 });
+      marker.bindTooltip(`<strong>${e.codEstacion}</strong><br>${e.nomEstacion}`, {
+        direction: 'top',
+        offset: [0, -8]
+      });
+      marker.addTo(this.estacionesLayer);
+    });
   }
 
   private addLegend(): void {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { SismoService } from '../../services/sismo.service';
+import { CentroService } from '../../services/centro.service';
+import { EstacionRespuesta } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
 
 @Component({
@@ -13,6 +15,7 @@ import { Sismo } from '../../interfaces/sismo.interface';
 })
 export class MapaPage implements OnInit {
   sismos: Sismo[] = [];
+  estaciones: EstacionRespuesta[] = [];
   loading = true;
   error = '';
 
@@ -20,10 +23,19 @@ export class MapaPage implements OnInit {
   magnitudMin = 0;
   cantidadSismos = 50;
 
-  constructor(private sismoService: SismoService) {}
+  constructor(private sismoService: SismoService, private centroService: CentroService) {}
 
   async ngOnInit(): Promise<void> {
-    await this.cargarSismos();
+    await Promise.all([this.cargarSismos(), this.cargarEstaciones()]);
+  }
+
+  async cargarEstaciones(): Promise<void> {
+    try {
+      const page = await this.centroService.getTodasEstaciones({ size: 500 });
+      this.estaciones = page.content;
+    } catch {
+      this.estaciones = [];
+    }
   }
 
   async cargarSismos(): Promise<void> {

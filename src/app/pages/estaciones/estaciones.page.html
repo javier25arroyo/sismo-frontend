@@ -62,7 +62,6 @@
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Ubicación Geográfica</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Tipo Sensor</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estado</th>
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Latencia</th>
           </tr>
         </thead>
         <tbody>
@@ -81,11 +80,6 @@
             <td class="px-4 py-3 text-slate-600">{{ e.tipoSensor }}</td>
             <td class="px-4 py-3">
               <app-status-badge [estado]="e.estado"></app-status-badge>
-            </td>
-            <td class="px-4 py-3">
-              <span [class]="e.latencia === 'OFFLINE' ? 'font-bold text-rose-600' : 'text-slate-600'">
-                {{ e.latencia }}
-              </span>
             </td>
           </tr>
         </tbody>
@@ -138,13 +132,6 @@
               <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-xs text-slate-400">CENTRO</p>
                 <p class="text-sm font-bold text-slate-900 truncate">{{ est.codCentroPrd }}</p>
-              </div>
-              <div class="rounded-xl bg-slate-50 p-3">
-                <p class="text-xs text-slate-400">LATENCIA</p>
-                <p class="text-sm font-bold"
-                  [class]="est.latencia === 'OFFLINE' ? 'text-rose-600' : 'text-slate-900'">
-                  {{ est.latencia }}
-                </p>
               </div>
               <div class="rounded-xl bg-slate-50 p-3">
                 <p class="text-xs text-slate-400">CLOCK NAI</p>
