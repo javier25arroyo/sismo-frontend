@@ -1,15 +1,374 @@
+<!-- Encabezado de perfil -->
 <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
   <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
     <div class="max-w-2xl">
-      <span class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Zona protegida</span>
+      <span class="text-sm font-semibold uppercase tracking-[0.2em] text-green-700">Zona protegida</span>
       <h1 class="mt-3 text-3xl font-semibold tracking-tight text-slate-900">Perfil</h1>
       <p class="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
         Página protegida. Solo usuarios autenticados pueden verla.
       </p>
     </div>
-
-    <div class="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">
+    <div class="rounded-2xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
       Acceso autorizado
     </div>
   </div>
 </section>
+
+<!-- ─── Agregar usuario ──────────────────────────────────────────────────── -->
+<section class="mt-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-slate-900">Agregar usuario</h2>
+    <p class="mt-1 text-sm text-slate-500">Crea una nueva cuenta de usuario en el sistema.</p>
+  </div>
+
+  <form (submit)="onCrearUsuario($event)" novalidate>
+    <div class="grid gap-4 sm:grid-cols-2">
+
+      <!-- Cédula -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-cedula">Cédula</label>
+        <input
+          id="c-cedula" name="cedula" type="text" required
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          placeholder="Ej. 123456789"
+        />
+      </div>
+
+      <!-- Nombre completo -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-nombre">Nombre completo</label>
+        <input
+          id="c-nombre" name="nombreCompl" type="text" required
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          placeholder="Apellidos Nombre"
+        />
+      </div>
+
+      <!-- Correo -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-correo">Correo electrónico</label>
+        <input
+          id="c-correo" name="correoE" type="email" required
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          placeholder="usuario@ice.go.cr"
+        />
+      </div>
+
+      <!-- Nombre de usuario -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-username">Nombre de usuario</label>
+        <input
+          id="c-username" name="usuarioNombre" type="text" required
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          placeholder="usuario.sistema"
+        />
+      </div>
+
+      <!-- Teléfono oficina -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-tel">Teléfono oficina</label>
+        <input
+          id="c-tel" name="telOficina" type="tel"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          placeholder="2XXX-XXXX (opcional)"
+        />
+      </div>
+
+      <!-- Celular -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-cel">Número celular</label>
+        <input
+          id="c-cel" name="numCelular" type="tel"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          placeholder="8XXX-XXXX (opcional)"
+        />
+      </div>
+
+      <!-- Contraseña -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-pass">Contraseña temporal</label>
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <input
+              id="c-pass"
+              [type]="passwordCrearVisible() ? 'text' : 'password'"
+              [value]="passwordCrear()"
+              (input)="passwordCrear.set($any($event.target).value)"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+              placeholder="Generar o ingresar"
+            />
+            <button
+              type="button"
+              (click)="passwordCrearVisible.set(!passwordCrearVisible())"
+              class="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-slate-600"
+              [attr.aria-label]="passwordCrearVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              @if (passwordCrearVisible()) {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              }
+            </button>
+          </div>
+          <button
+            type="button"
+            (click)="generarPasswordCrear()"
+            class="shrink-0 rounded-xl bg-slate-100 px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400"
+            aria-label="Generar contraseña segura"
+          >
+            Generar
+          </button>
+        </div>
+        <p class="text-xs text-slate-400">12 caracteres · mayúscula · minúscula · dígito · especial (!@#$%&amp;*)</p>
+      </div>
+
+      <!-- Estado activo -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-estado">Estado</label>
+        <select
+          id="c-estado" name="estadoActivo"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+        >
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Feedback crear -->
+    @if (crearMensaje()) {
+      <div
+        class="mt-4 rounded-xl px-4 py-3 text-sm font-medium"
+        [class]="crearMensaje()!.tipo === 'ok'
+          ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
+          : 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'"
+      >
+        {{ crearMensaje()!.texto }}
+      </div>
+    }
+
+    <div class="mt-6 flex justify-end">
+      <button
+        type="submit"
+        [disabled]="crearCargando()"
+        class="flex items-center gap-2 rounded-xl bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+      >
+        @if (crearCargando()) {
+          <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+          </svg>
+        }
+        Crear usuario
+      </button>
+    </div>
+  </form>
+</section>
+
+<!-- ─── Actualizar usuario ───────────────────────────────────────────────── -->
+<section class="mt-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-slate-900">Actualizar usuario</h2>
+    <p class="mt-1 text-sm text-slate-500">Busca un usuario por cédula para modificar sus datos.</p>
+  </div>
+
+  <!-- Buscador -->
+  <div class="flex gap-3">
+    <input
+      type="text"
+      [value]="buscarCedula()"
+      (input)="buscarCedula.set($any($event.target).value)"
+      (keydown.enter)="buscarUsuario()"
+      placeholder="Ingresa la cédula"
+      class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+    />
+    <button
+      type="button"
+      (click)="buscarUsuario()"
+      [disabled]="buscarCargando()"
+      class="flex items-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-50"
+    >
+      @if (buscarCargando()) {
+        <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+        </svg>
+      }
+      Buscar
+    </button>
+  </div>
+
+  @if (buscarError()) {
+    <div class="mt-3 rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 ring-1 ring-rose-200">
+      {{ buscarError() }}
+    </div>
+  }
+
+  <!-- Formulario de actualización -->
+  @if (usuarioCargado()) {
+    <form (submit)="onActualizarSubmit($event)" novalidate class="mt-6">
+      <div class="mb-4 rounded-xl bg-sky-50 px-4 py-3 text-sm text-sky-700 ring-1 ring-sky-200">
+        Editando: <span class="font-semibold">{{ usuarioCargado()!.cedula }}</span> — {{ usuarioCargado()!.nombreCompl }}
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+
+        <!-- Nombre completo -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-nombre">Nombre completo</label>
+          <input
+            id="u-nombre" name="nombreCompl" type="text" required
+            [value]="usuarioCargado()!.nombreCompl"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          />
+        </div>
+
+        <!-- Correo -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-correo">Correo electrónico</label>
+          <input
+            id="u-correo" name="correoE" type="email" required
+            [value]="usuarioCargado()!.correoE"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          />
+        </div>
+
+        <!-- Nombre de usuario -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-username">Nombre de usuario</label>
+          <input
+            id="u-username" name="usuarioNombre" type="text" required
+            [value]="usuarioCargado()!.usuarioNombre"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          />
+        </div>
+
+        <!-- Teléfono oficina -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-tel">Teléfono oficina</label>
+          <input
+            id="u-tel" name="telOficina" type="tel"
+            [value]="usuarioCargado()!.telOficina ?? ''"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            placeholder="Opcional"
+          />
+        </div>
+
+        <!-- Celular -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-cel">Número celular</label>
+          <input
+            id="u-cel" name="numCelular" type="tel"
+            [value]="usuarioCargado()!.numCelular ?? ''"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            placeholder="Opcional"
+          />
+        </div>
+
+        <!-- Nueva contraseña -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-pass">Nueva contraseña</label>
+          <input
+            id="u-pass" name="password" type="password"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            placeholder="Dejar vacío para no cambiar"
+          />
+        </div>
+
+        <!-- Estado activo -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-estado">Estado</label>
+          <select
+            id="u-estado" name="estadoActivo"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          >
+            <option value="true" [selected]="usuarioCargado()!.estadoActivo">Activo</option>
+            <option value="false" [selected]="!usuarioCargado()!.estadoActivo">Inactivo</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Feedback actualizar -->
+      @if (actualizarMensaje()) {
+        <div
+          class="mt-4 rounded-xl px-4 py-3 text-sm font-medium"
+          [class]="actualizarMensaje()!.tipo === 'ok'
+            ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
+            : 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'"
+        >
+          {{ actualizarMensaje()!.texto }}
+        </div>
+      }
+
+      <div class="mt-6 flex justify-end">
+        <button
+          type="submit"
+          [disabled]="actualizarCargando()"
+          class="flex items-center gap-2 rounded-xl bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+        >
+          @if (actualizarCargando()) {
+            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+          }
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  }
+</section>
+
+<!-- ─── Cerrar sesión ────────────────────────────────────────────────────── -->
+<section class="mt-6 rounded-3xl border border-rose-100 bg-white p-8 shadow-sm">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">Cerrar sesión</h2>
+      <p class="mt-1 text-sm text-slate-500">Finaliza tu sesión actual en este dispositivo.</p>
+    </div>
+    <button
+      (click)="showLogoutDialog = true"
+      class="flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+      aria-label="Cerrar sesión"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+      </svg>
+      Cerrar sesión
+    </button>
+  </div>
+</section>
+
+<!-- Dialog logout -->
+<app-confirm-dialog
+  [visible]="showLogoutDialog"
+  title="Cerrar sesión"
+  message="¿Seguro que deseas cerrar tu sesión?"
+  action="eliminar"
+  confirmText="Cerrar sesión"
+  cancelText="Cancelar"
+  (confirm)="confirmLogout()"
+  (cancel)="showLogoutDialog = false"
+/>
+
+<!-- Dialog actualizar usuario -->
+<app-confirm-dialog
+  [visible]="showActualizarDialog()"
+  title="Actualizar usuario"
+  message="¿Confirmas los cambios en este usuario?"
+  action="actualizar"
+  cancelText="Cancelar"
+  (confirm)="confirmActualizar()"
+  (cancel)="showActualizarDialog.set(false)"
+/>

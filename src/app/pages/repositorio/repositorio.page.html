@@ -1,133 +1,806 @@
-<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
 
   <!-- HERO -->
   <section>
-    <p class="text-xs font-bold uppercase tracking-widest text-sky-600 mb-2">BASE DE CONOCIMIENTO TÉCNICO</p>
-    <div class="flex flex-wrap items-start justify-between gap-6">
+    <p class="text-xs font-bold uppercase tracking-widest text-sky-600 mb-2">Red Nacional de Sismicidad · ICE</p>
+    <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 class="text-5xl font-black tracking-tight text-slate-900">REPOSITORIO.</h1>
-        <p class="mt-3 max-w-xl text-sm text-slate-600">
-          Acceso a la biblioteca oficial de informes de actividad, manuales de instrumentación y protocolos de la Red Nacional de Sismicidad.
+        <h1 class="text-5xl font-black tracking-tight text-slate-900">REPORTES.</h1>
+        <p class="mt-2 max-w-xl text-sm text-slate-500">
+          Descarga reportes existentes o genera nuevos PDF de actividad sísmica.
         </p>
       </div>
-      <!-- Search -->
-      <div class="relative w-full max-w-xs">
-        <svg class="pointer-events-none absolute inset-y-0 left-3 flex my-auto h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-        </svg>
-        <input type="text" placeholder="Buscar por título, tema o año..."
-          (input)="setBusqueda($event)"
-          class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm shadow-sm outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
-      </div>
+      @if (totalElementos() > 0) {
+        <div class="rounded-2xl bg-sky-50 px-5 py-3 text-center ring-1 ring-sky-200">
+          <p class="text-2xl font-black text-sky-700">{{ totalElementos() }}</p>
+          <p class="text-xs font-semibold text-sky-500 uppercase tracking-wide">Reportes disponibles</p>
+        </div>
+      }
     </div>
 
     <!-- Tabs -->
-    <div class="mt-6 flex items-center gap-1 border-b border-slate-200">
-      <button (click)="setTab('ML')"
-        [class]="tabActivo() === 'ML' ? 'border-b-2 border-sky-600 text-sky-700' : 'text-slate-500 hover:text-slate-700'"
-        class="px-4 py-2 text-sm font-semibold transition">ML</button>
-      <button (click)="setTab('MAESTRO')"
-        [class]="tabActivo() === 'MAESTRO' ? 'border-b-2 border-sky-600 text-sky-700' : 'text-slate-500 hover:text-slate-700'"
-        class="px-4 py-2 text-sm font-semibold transition">MAESTRO</button>
+    <div class="mt-6 flex gap-1 border-b border-slate-200">
+      <button
+        (click)="setTab('descargar')"
+        class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition"
+        [class]="tabActivo() === 'descargar'
+          ? 'border-b-2 border-sky-600 text-sky-700'
+          : 'text-slate-500 hover:text-slate-700'"
+      >
+        <i-lucide [img]="downloadIcon" size="15"></i-lucide>
+        Descargar reportes
+      </button>
+      <button
+        (click)="setTab('generar')"
+        class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition"
+        [class]="tabActivo() === 'generar'
+          ? 'border-b-2 border-sky-600 text-sky-700'
+          : 'text-slate-500 hover:text-slate-700'"
+      >
+        <i-lucide [img]="generateIcon" size="15"></i-lucide>
+        Generar PDF
+      </button>
+      <button
+        (click)="setTab('csv')"
+        class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition"
+        [class]="tabActivo() === 'csv'
+          ? 'border-b-2 border-sky-600 text-sky-700'
+          : 'text-slate-500 hover:text-slate-700'"
+      >
+        <i-lucide [img]="csvIcon" size="15"></i-lucide>
+        Exportar CSV
+      </button>
     </div>
   </section>
 
-  <!-- INFORMES DE SISMICIDAD -->
-  <section>
-    <div class="flex items-center justify-between mb-5">
-      <div>
-        <h2 class="text-xl font-bold text-slate-900">Informes de Sismicidad</h2>
-        <p class="text-xs text-slate-400 mt-0.5">Red Nacional · Técnico · Operacional</p>
+  <!-- ════════════════════════════════════════════════════════════════════════
+       TAB: DESCARGAR
+  ════════════════════════════════════════════════════════════════════════ -->
+  @if (tabActivo() === 'descargar') {
+
+    <!-- Filtros -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="relative flex-1 min-w-[200px]">
+          <i-lucide [img]="searchIcon" size="16" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i-lucide>
+          <input
+            type="text"
+            placeholder="Buscar por título..."
+            [value]="filtroBusqueda()"
+            (input)="filtroBusqueda.set($any($event.target).value)"
+            (keydown.enter)="aplicarFiltros()"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          />
+        </div>
+        <button type="button" (click)="mostrarFiltros.update(v => !v)"
+          class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
+          <i-lucide [img]="filterIcon" size="14"></i-lucide>
+          Filtros
+          @if (filtroAutor() || filtroDesde() || filtroHasta()) {
+            <span class="h-2 w-2 rounded-full bg-sky-500"></span>
+          }
+        </button>
+        <button type="button" (click)="aplicarFiltros()"
+          class="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
+          Buscar
+        </button>
+        @if (filtroBusqueda() || filtroAutor() || filtroDesde() || filtroHasta()) {
+          <button type="button" (click)="limpiarFiltros()"
+            class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-50">
+            Limpiar
+          </button>
+        }
       </div>
-      <a routerLink="/historial" class="text-xs font-semibold text-sky-600 hover:text-sky-700 transition">
-        <span class="inline-flex items-center gap-1">
-          VER TODO EL ARCHIVO
-          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
-        </span>
-      </a>
-    </div>
 
-    <div *ngIf="cargando()" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <div *ngFor="let i of [1,2,3]" class="h-72 rounded-2xl bg-slate-100 animate-pulse"></div>
-    </div>
-
-    <div *ngIf="!cargando()" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <article *ngFor="let r of informesFiltrados" class="group rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition hover:shadow-md hover:border-sky-200">
-        <!-- Card image placeholder -->
-        <div class="h-44 bg-linear-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center relative overflow-hidden">
-          <div class="absolute inset-0 opacity-20"
-            style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)"></div>
-          <i-lucide [img]="documentIcon" size="40" class="opacity-60 text-white"></i-lucide>
-        </div>
-        <div class="p-5">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold text-sky-700">
-              {{ r.fecha | date:'MMM yyyy' | uppercase }}
-            </span>
-            <span class="text-xs text-slate-400">SIS · ICE · RSN</span>
+      @if (mostrarFiltros()) {
+        <div class="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Autor</label>
+            <input type="text" placeholder="Nombre del autor"
+              [value]="filtroAutor()" (input)="filtroAutor.set($any($event.target).value)"
+              class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
           </div>
-          <h3 class="font-semibold text-slate-900 group-hover:text-sky-700 transition line-clamp-2">
-            {{ r.titulo }}
-          </h3>
-          <p *ngIf="r.resumen" class="mt-2 text-xs text-slate-500 line-clamp-2">{{ r.resumen }}</p>
-          <div class="mt-4 flex items-center justify-between">
-            <span class="text-xs text-slate-400">Por {{ r.autor ?? 'ICE – Sismología' }}</span>
-            <a *ngIf="r.url" [href]="r.url" target="_blank"
-              class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-sky-300 hover:text-sky-600">
-              <i-lucide [img]="downloadIcon" size="14"></i-lucide>
-            </a>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
+            <input type="date" [value]="filtroDesde()" (input)="filtroDesde.set($any($event.target).value)"
+              class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
+            <input type="date" [value]="filtroHasta()" (input)="filtroHasta.set($any($event.target).value)"
+              class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
           </div>
         </div>
-      </article>
-    </div>
+      }
+    </section>
 
-    <div *ngIf="!cargando() && informesFiltrados.length === 0"
-      class="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-sm text-slate-400">
-      No hay informes que coincidan con la búsqueda.
-    </div>
-  </section>
+    <!-- Error -->
+    @if (errorLista()) {
+      <div class="rounded-2xl bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700 ring-1 ring-rose-200">
+        {{ errorLista() }}
+      </div>
+    }
 
-  <!-- MANUALES E INSTRUMENTACIÓN -->
-  <section>
-    <h2 class="text-xl font-bold text-slate-900 mb-5">Manuales e Instrumentación</h2>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div *ngFor="let m of manuales"
-        class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-sky-200">
-        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
-          <i-lucide [img]="m.icono" size="20" class="text-slate-600"></i-lucide>
+    <!-- Tabla -->
+    @if (cargando()) {
+      <div class="space-y-3">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="h-16 rounded-2xl bg-slate-100 animate-pulse"></div>
+        }
+      </div>
+    }
+
+    @if (!cargando() && reportes().length > 0) {
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-100 bg-slate-50">
+              <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha</th>
+              <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Título</th>
+              <th class="hidden px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 sm:table-cell">Autor</th>
+              <th class="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Descarga</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (r of reportes(); track r.fecha) {
+              <tr
+                class="group cursor-pointer transition"
+                [class]="estaDescargado(r.fecha)
+                  ? 'bg-green-50 hover:bg-green-50/80'
+                  : descargando() === r.fecha
+                    ? 'bg-sky-50/60'
+                    : 'hover:bg-sky-50/40'"
+                (click)="descargando() !== r.fecha && descargar(r)"
+                [attr.title]="'Descargar ' + r.titulo + '.pdf'"
+              >
+                <td class="whitespace-nowrap px-5 py-4">
+                  <span class="rounded-lg px-2.5 py-1 text-xs font-semibold transition"
+                    [class]="estaDescargado(r.fecha)
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-slate-100 text-slate-600 group-hover:bg-sky-100 group-hover:text-sky-700'">
+                    {{ formatFecha(r.fecha) }}
+                  </span>
+                </td>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl transition sm:flex"
+                      [class]="estaDescargado(r.fecha) ? 'bg-green-100' : 'bg-slate-100 group-hover:bg-sky-100'">
+                      @if (estaDescargado(r.fecha)) {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      } @else {
+                        <i-lucide [img]="documentIcon" size="16" class="transition"
+                          [class]="descargando() === r.fecha ? 'text-sky-600' : 'text-slate-500 group-hover:text-sky-600'"></i-lucide>
+                      }
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <p class="font-semibold transition line-clamp-1"
+                          [class]="estaDescargado(r.fecha) ? 'text-green-700' : 'text-slate-900 group-hover:text-sky-700'">
+                          {{ r.titulo }}
+                        </p>
+                        <span class="shrink-0 rounded-md bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-600">PDF</span>
+                      </div>
+                      @if (r.resumen) {
+                        <p class="mt-0.5 text-xs text-slate-400 line-clamp-1">{{ r.resumen }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="hidden whitespace-nowrap px-5 py-4 text-xs text-slate-500 sm:table-cell">
+                  {{ r.autor ?? 'ICE – Sismología' }}
+                </td>
+                <td class="px-5 py-4 text-right" (click)="$event.stopPropagation()">
+                  <button
+                    type="button" (click)="descargar(r)"
+                    [disabled]="descargando() === r.fecha"
+                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+                    [class]="estaDescargado(r.fecha)
+                      ? 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500'
+                      : 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-500'"
+                    [attr.aria-label]="'Descargar ' + r.titulo"
+                  >
+                    @if (descargando() === r.fecha) {
+                      <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                      </svg>
+                      Descargando...
+                    } @else if (estaDescargado(r.fecha)) {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      Descargado
+                    } @else {
+                      <i-lucide [img]="downloadIcon" size="14"></i-lucide>
+                      Descargar PDF
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      @if (totalPaginas() > 1) {
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-slate-500">
+            Página <span class="font-semibold text-slate-700">{{ paginaActual() + 1 }}</span> de
+            <span class="font-semibold text-slate-700">{{ totalPaginas() }}</span>
+            &nbsp;·&nbsp; {{ totalElementos() }} reportes
+          </p>
+          <div class="flex items-center gap-1">
+            <button type="button" (click)="irAPagina(paginaActual() - 1)" [disabled]="paginaActual() === 0"
+              class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:opacity-30">
+              <i-lucide [img]="chevronLeft" size="14"></i-lucide>
+            </button>
+            @for (p of paginas; track p) {
+              @if (p === 0 || p === totalPaginas() - 1 || (p >= paginaActual() - 1 && p <= paginaActual() + 1)) {
+                <button type="button" (click)="irAPagina(p)"
+                  class="flex h-8 min-w-[2rem] items-center justify-center rounded-lg border px-2 text-xs font-semibold transition"
+                  [class]="p === paginaActual() ? 'border-sky-500 bg-sky-600 text-white' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
+                  {{ p + 1 }}
+                </button>
+              } @else if (p === paginaActual() - 2 || p === paginaActual() + 2) {
+                <span class="flex h-8 w-8 items-center justify-center text-xs text-slate-400">…</span>
+              }
+            }
+            <button type="button" (click)="irAPagina(paginaActual() + 1)" [disabled]="paginaActual() === totalPaginas() - 1"
+              class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:opacity-30">
+              <i-lucide [img]="chevronRight" size="14"></i-lucide>
+            </button>
+          </div>
         </div>
-        <h3 class="mt-3 text-sm font-semibold text-slate-900 group-hover:text-sky-700 transition line-clamp-2">
-          {{ m.titulo }}
-        </h3>
-        <p class="mt-1.5 text-xs text-slate-500 line-clamp-2">{{ m.descripcion }}</p>
-        <div class="mt-3 flex items-center justify-between">
-          <span class="text-xs text-slate-400">{{ m.etiqueta }}</span>
-          <button class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-sky-300 hover:text-sky-600">
-            <i-lucide [img]="downloadIcon" size="14"></i-lucide>
+      }
+    }
+
+    @if (!cargando() && reportes().length === 0 && !errorLista()) {
+      <div class="rounded-2xl border border-dashed border-slate-200 py-16 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
+          <i-lucide [img]="documentIcon" size="24" class="text-slate-400"></i-lucide>
+        </div>
+        <p class="text-sm font-semibold text-slate-600">No se encontraron reportes</p>
+        <p class="mt-1 text-xs text-slate-400">Prueba con otros criterios de búsqueda.</p>
+        @if (filtroBusqueda() || filtroAutor() || filtroDesde() || filtroHasta()) {
+          <button type="button" (click)="limpiarFiltros()"
+            class="mt-4 rounded-xl bg-sky-600 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-700">
+            Limpiar filtros
+          </button>
+        }
+      </div>
+    }
+
+  }
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       TAB: GENERAR PDF
+  ════════════════════════════════════════════════════════════════════════ -->
+  @if (tabActivo() === 'generar') {
+
+    <div class="grid gap-6 lg:grid-cols-[420px_1fr]">
+
+      <!-- ── Panel izquierdo: opciones de generación ── -->
+      <div class="space-y-4">
+
+        <!-- Opción 1: Por sismo específico -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="mb-5 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100">
+              <i-lucide [img]="generateIcon" size="18" class="text-sky-600"></i-lucide>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Reporte por sismo</h2>
+              <p class="text-xs text-slate-500">Genera PDF de un evento específico</p>
+            </div>
+          </div>
+
+          <form (submit)="onSolicitarGeneracion($event)" novalidate class="space-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="feSismo">
+                Fecha y hora del sismo
+              </label>
+              <input id="feSismo" name="feSismo" type="datetime-local" required
+                class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="magnitud">
+                Magnitud (Mw)
+              </label>
+              <input id="magnitud" name="magnitud" type="number" step="0.1" min="0" max="10" required
+                placeholder="Ej. 4.5"
+                class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+            </div>
+
+            <!-- Feedback -->
+            @if (mensajeGen()) {
+              <div class="rounded-xl px-4 py-3 text-xs font-medium"
+                [class]="mensajeGen()!.tipo === 'ok'
+                  ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
+                  : 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'">
+                {{ mensajeGen()!.texto }}
+              </div>
+            }
+
+            <button type="submit" [disabled]="enviandoGen()"
+              class="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50">
+              @if (enviandoGen()) {
+                <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+                Solicitando...
+              } @else {
+                <i-lucide [img]="generateIcon" size="15"></i-lucide>
+                Generar PDF
+              }
+            </button>
+          </form>
+        </section>
+
+        <!-- Opción 2: PDF Consolidado por rango de fechas -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="mb-5 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
+              <i-lucide [img]="downloadIcon" size="18" class="text-slate-600"></i-lucide>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">PDF consolidado</h2>
+              <p class="text-xs text-slate-500">Todos los sismos de un rango de fechas</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="pdfDesde">
+                  Desde <span class="text-rose-400">*</span>
+                </label>
+                <input id="pdfDesde" type="date" required
+                  [value]="pdfConsolidadoDesde()" (input)="pdfConsolidadoDesde.set($any($event.target).value)"
+                  class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="pdfHasta">
+                  Hasta <span class="text-rose-400">*</span>
+                </label>
+                <input id="pdfHasta" type="date" required
+                  [value]="pdfConsolidadoHasta()" (input)="pdfConsolidadoHasta.set($any($event.target).value)"
+                  class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+              </div>
+            </div>
+
+            <button type="button" (click)="descargarPdfConsolidado()"
+              [disabled]="descargandoPdfConsolidado() || !pdfConsolidadoDesde() || !pdfConsolidadoHasta()"
+              class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-40">
+              @if (descargandoPdfConsolidado()) {
+                <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+                Generando PDF...
+              } @else {
+                <i-lucide [img]="downloadIcon" size="15"></i-lucide>
+                Descargar PDF consolidado
+              }
+            </button>
+          </div>
+        </section>
+
+        <!-- Opción 3: Información sobre tipos de reporte -->
+        <section class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">¿Qué incluye el PDF?</h3>
+          <ul class="space-y-2 text-xs text-slate-600">
+            <li class="flex items-start gap-2">
+              <span class="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500"></span>
+              Datos del evento sísmico (magnitud, profundidad, coordenadas)
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500"></span>
+              Registros de acelerogramas por estación
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500"></span>
+              Mapa de intensidades y distribución geográfica
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500"></span>
+              Tabla de valores PGA por centro de producción
+            </li>
+          </ul>
+        </section>
+
+      </div>
+
+      <!-- ── Panel derecho: cola de generaciones ── -->
+      <section>
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-base font-bold text-slate-900">Mis generaciones</h2>
+          <button type="button" (click)="cargarGeneraciones()" [disabled]="cargandoGen()"
+            class="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40">
+            <i-lucide [img]="refreshIcon" size="13" [class]="cargandoGen() ? 'animate-spin' : ''"></i-lucide>
+            Actualizar
           </button>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- CTA BANNER -->
-  <section class="rounded-3xl bg-slate-900 px-8 py-10 text-white">
-    <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-      <div>
-        <h3 class="text-lg font-bold">¿Requiere documentación específica?</h3>
-        <p class="mt-2 max-w-md text-sm text-slate-400">
-          Nuestro equipo técnico le asistirá directamente. Si no encuentra lo que busca, puede solicitar un informe individualizado a cualquier área de Sismología.
-        </p>
-      </div>
-      <div class="flex shrink-0 flex-wrap gap-3">
-        <button class="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500">
-          Solicitar Reporte
-        </button>
-        <button class="rounded-xl border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-slate-700">
-          Contactar Apoyo
-        </button>
-      </div>
+        <!-- Skeleton -->
+        @if (cargandoGen() && generaciones().length === 0) {
+          <div class="space-y-3">
+            @for (i of [1,2,3]; track i) {
+              <div class="h-20 rounded-2xl bg-slate-100 animate-pulse"></div>
+            }
+          </div>
+        }
+
+        <!-- Lista -->
+        @if (generaciones().length > 0) {
+          <div class="space-y-3">
+            @for (g of generaciones(); track g.id) {
+              <div class="rounded-2xl border bg-white p-4 shadow-sm transition"
+                [class]="estaEnError(g) ? 'border-rose-200' : estaCompleto(g) ? 'border-green-200' : 'border-slate-200'">
+                <div class="flex items-start justify-between gap-3">
+
+                  <!-- Info izquierda -->
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                      <!-- Estado badge -->
+                      <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" [class]="estadoBadgeClass(g.estado)">
+                        @if (estaEnProceso(g)) {
+                          <span class="inline-flex items-center gap-1">
+                            <svg class="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                            </svg>
+                            {{ g.estado }}
+                          </span>
+                        } @else {
+                          {{ g.estado }}
+                        }
+                      </span>
+                      <!-- Magnitud -->
+                      <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                        Mw {{ g.magnitud }}
+                      </span>
+                    </div>
+
+                    <p class="text-sm font-semibold text-slate-900 truncate">
+                      Sismo {{ formatFecha(g.feSismo) }}
+                    </p>
+
+                    <div class="mt-1 flex flex-wrap gap-3 text-xs text-slate-400">
+                      <span class="flex items-center gap-1">
+                        <i-lucide [img]="clockIcon" size="11"></i-lucide>
+                        Solicitado {{ formatFecha(g.fechaCreacion) }}
+                      </span>
+                      @if (g.tiempoTranscurridoSegundos) {
+                        <span>Duración: {{ formatDuracion(g.tiempoTranscurridoSegundos) }}</span>
+                      }
+                    </div>
+
+                    @if (g.mensajeEstado) {
+                      <p class="mt-1.5 text-xs text-slate-500">{{ g.mensajeEstado }}</p>
+                    }
+                    @if (g.mensajeError) {
+                      <p class="mt-1.5 text-xs text-rose-600">{{ g.mensajeError }}</p>
+                    }
+                  </div>
+
+                  <!-- Acciones derecha -->
+                  <div class="flex shrink-0 flex-col items-end gap-2">
+                    @if (estaCompleto(g)) {
+                      <button type="button" (click)="descargarGenerado(g)"
+                        [disabled]="descargandoGen() === g.id"
+                        class="flex items-center gap-1.5 rounded-xl bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700 disabled:opacity-50">
+                        @if (descargandoGen() === g.id) {
+                          <svg class="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                          </svg>
+                        } @else {
+                          <i-lucide [img]="downloadIcon" size="13"></i-lucide>
+                        }
+                        Descargar
+                      </button>
+                    }
+                    @if (estaEnProceso(g)) {
+                      <button type="button" (click)="cancelarDialogId.set(g.id)"
+                        class="flex items-center gap-1.5 rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">
+                        <i-lucide [img]="errorIcon" size="13"></i-lucide>
+                        Cancelar
+                      </button>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!cargandoGen() && generaciones().length === 0) {
+          <div class="rounded-2xl border border-dashed border-slate-200 py-12 text-center">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100">
+              <i-lucide [img]="documentIcon" size="20" class="text-slate-400"></i-lucide>
+            </div>
+            <p class="text-sm font-semibold text-slate-600">Sin generaciones</p>
+            <p class="mt-1 text-xs text-slate-400">Usa el formulario para generar tu primer PDF.</p>
+          </div>
+        }
+      </section>
+
     </div>
-  </section>
+
+  }
+
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       TAB: EXPORTAR CSV
+  ════════════════════════════════════════════════════════════════════════ -->
+  @if (tabActivo() === 'csv') {
+
+    <section>
+      <p class="mb-1 text-xs font-bold uppercase tracking-widest text-slate-400">Exportación de datos</p>
+      <h2 class="text-xl font-bold text-slate-900">Descargar CSV</h2>
+      <p class="mt-1 text-sm text-slate-500">
+        Exporta datos tabulares del sistema en formato CSV compatible con Excel y hojas de cálculo.
+        El archivo incluye BOM UTF-8 para que los acentos se lean correctamente.
+      </p>
+    </section>
+
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+      <!-- ── Tarjeta 1: Reportes ── -->
+      <div class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-4 flex items-center gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-100">
+            <i-lucide [img]="documentIcon" size="20" class="text-sky-600"></i-lucide>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Reportes</h3>
+            <p class="text-xs text-slate-500">Biblioteca de informes técnicos</p>
+          </div>
+        </div>
+
+        <ul class="mb-5 space-y-1 text-xs text-slate-500">
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span> Fecha</li>
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span> Título y resumen</li>
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span> Autor · URL</li>
+        </ul>
+
+        <div class="mb-4 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+          </svg>
+          <p class="text-xs text-slate-500">Exporta <strong>todos</strong> los reportes disponibles sin filtros adicionales.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="exportarReportesCsv()"
+          [disabled]="exportandoReportes()"
+          class="mt-auto flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+          [class]="csvEstaDescargado('reportes')
+            ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+            : 'bg-sky-600 hover:bg-sky-700 focus:ring-sky-500'"
+        >
+          @if (exportandoReportes()) {
+            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+            Exportando...
+          } @else if (csvEstaDescargado('reportes')) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Descargado
+          } @else {
+            <i-lucide [img]="csvIcon" size="15"></i-lucide>
+            Descargar reportes.csv
+          }
+        </button>
+      </div>
+
+      <!-- ── Tarjeta 2: Sismos ── -->
+      <div class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-4 flex items-center gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-100">
+            <i-lucide [img]="warnIcon" size="20" class="text-orange-600"></i-lucide>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Sismos</h3>
+            <p class="text-xs text-slate-500">Catálogo de eventos sísmicos</p>
+          </div>
+        </div>
+
+        <ul class="mb-4 space-y-1 text-xs text-slate-500">
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-orange-400"></span> Fecha · Magnitud · Profundidad</li>
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-orange-400"></span> Ubicación · Coordenadas</li>
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-orange-400"></span> Sentido (si aplica)</li>
+        </ul>
+
+        <div class="mb-4 space-y-3">
+          <p class="text-xs text-slate-500 leading-relaxed">
+            El CSV lo genera el servidor. <strong>Ambas fechas son obligatorias.</strong>
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Desde <span class="text-rose-400">*</span>
+              </label>
+              <input type="date" required [value]="csvSismoDesde()" (input)="csvSismoDesde.set($any($event.target).value)"
+                class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Hasta <span class="text-rose-400">*</span>
+              </label>
+              <input type="date" required [value]="csvSismoHasta()" (input)="csvSismoHasta.set($any($event.target).value)"
+                class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+            </div>
+          </div>
+
+          <!-- Resumen de rango seleccionado -->
+          @if (resumenFiltroSismos) {
+            <div class="flex items-center justify-between rounded-xl bg-sky-50 px-3 py-2 ring-1 ring-sky-200">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="truncate text-xs font-medium text-sky-700">{{ resumenFiltroSismos }}</span>
+              </div>
+              <button type="button" (click)="limpiarFiltrosSismosCsv()"
+                class="ml-2 shrink-0 text-xs font-semibold text-sky-600 hover:text-sky-800 transition">
+                Limpiar
+              </button>
+            </div>
+          } @else {
+            <p class="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700 ring-1 ring-amber-200">
+              Selecciona un rango de fechas para continuar.
+            </p>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="exportarSismosCsv()"
+          [disabled]="exportandoSismos()"
+          class="mt-auto flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+          [class]="csvEstaDescargado('sismos')
+            ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+            : 'bg-sky-600 hover:bg-sky-700 focus:ring-sky-500'"
+        >
+          @if (exportandoSismos()) {
+            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+            Exportando...
+          } @else if (csvEstaDescargado('sismos')) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Descargado
+          } @else {
+            <i-lucide [img]="csvIcon" size="15"></i-lucide>
+            Descargar sismos.csv
+          }
+        </button>
+      </div>
+
+      <!-- ── Tarjeta 3: Historial sísmico ── -->
+      <div class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-4 flex items-center gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-100">
+            <i-lucide [img]="clockIcon" size="20" class="text-violet-600"></i-lucide>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Historial sísmico</h3>
+            <p class="text-xs text-slate-500">Resumen por estación y evento</p>
+          </div>
+        </div>
+
+        <ul class="mb-4 space-y-1 text-xs text-slate-500">
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span> Estación · Centro de producción</li>
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span> Aceleración PGA · Desplazamiento</li>
+          <li class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span> Distancia hipocentral · Coordenadas</li>
+        </ul>
+
+        <div class="mb-4 space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Desde</label>
+              <input type="date" [value]="csvHistDesde()" (input)="csvHistDesde.set($any($event.target).value)"
+                class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Hasta</label>
+              <input type="date" [value]="csvHistHasta()" (input)="csvHistHasta.set($any($event.target).value)"
+                class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+            </div>
+          </div>
+
+          <!-- Resumen de filtros activos -->
+          @if (resumenFiltroHistorico) {
+            <div class="flex items-center justify-between rounded-xl bg-sky-50 px-3 py-2 ring-1 ring-sky-200">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                </svg>
+                <span class="truncate text-xs font-medium text-sky-700">{{ resumenFiltroHistorico }}</span>
+              </div>
+              <button type="button" (click)="limpiarFiltrosHistoricoCsv()"
+                class="ml-2 shrink-0 text-xs font-semibold text-sky-600 hover:text-sky-800 transition">
+                Limpiar
+              </button>
+            </div>
+          } @else {
+            <p class="rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-400">Sin filtros — exporta <strong>todo</strong> el historial sísmico.</p>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="exportarHistoricoCsv()"
+          [disabled]="exportandoHistorico()"
+          class="mt-auto flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+          [class]="csvEstaDescargado('historico')
+            ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+            : 'bg-sky-600 hover:bg-sky-700 focus:ring-sky-500'"
+        >
+          @if (exportandoHistorico()) {
+            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+            Exportando...
+          } @else if (csvEstaDescargado('historico')) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Descargado
+          } @else {
+            <i-lucide [img]="csvIcon" size="15"></i-lucide>
+            Descargar historico.csv
+          }
+        </button>
+      </div>
+
+    </div>
+  }
 
 </div>
+
+<!-- Toast descarga -->
+@if (mensajeDescarga()) {
+  <div
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-3.5 shadow-xl text-sm font-medium"
+    [class]="mensajeDescarga()!.tipo === 'ok' ? 'bg-green-600 text-white' : 'bg-rose-600 text-white'"
+  >
+    @if (mensajeDescarga()!.tipo === 'ok') {
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+    } @else {
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    }
+    {{ mensajeDescarga()!.texto }}
+  </div>
+}
+
+<!-- Dialog cancelar generación -->
+<app-confirm-dialog
+  [visible]="!!cancelarDialogId()"
+  title="Cancelar generación"
+  message="¿Seguro que deseas cancelar esta generación de PDF?"
+  action="eliminar"
+  confirmText="Sí, cancelar"
+  cancelText="No"
+  (confirm)="confirmarCancelar()"
+  (cancel)="cancelarDialogId.set(null)"
+/>

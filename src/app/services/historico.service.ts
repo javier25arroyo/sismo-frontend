@@ -18,4 +18,18 @@ export class HistoricoService {
       `/api/resumen/historico${query ? '?' + query : ''}`
     );
   }
+
+  /** GET /api/resumen/historico/csv — descarga CSV generado en el servidor */
+  async descargarCsv(desde?: string, hasta?: string): Promise<{ blob: Blob; filename: string }> {
+    const params = new URLSearchParams();
+    if (desde) params.set('desde', desde);
+    if (hasta) params.set('hasta', hasta);
+    const query = params.toString();
+    const { blob, headers } = await this.api.getBlob(
+      `/api/resumen/historico/csv${query ? '?' + query : ''}`
+    );
+    const disp = headers.get('Content-Disposition') ?? '';
+    const match = disp.match(/filename[^;=\n]*=(?:(\\?["'])(.*?)\1|([^;\n]*))/i);
+    return { blob, filename: match?.[2] ?? match?.[3] ?? 'historico_sismico.csv' };
+  }
 }

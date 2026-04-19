@@ -73,4 +73,28 @@ export class ReporteService {
   async cancelarGeneracion(id: string): Promise<void> {
     return this.api.delete<void>(`/api/admin/reportes/generacion/${encodeURIComponent(id)}`);
   }
+
+  /**
+   * GET /api/reportes/consolidado/csv — CSV server-side de sismos por rango de fechas.
+   * Ambas fechas deben ser ISO-8601 LocalDateTime (ej. "2024-01-01T00:00:00").
+   */
+  async descargarConsolidadoCsv(desde: string, hasta: string): Promise<{ blob: Blob; filename: string }> {
+    const params = new URLSearchParams({ desde, hasta });
+    const { blob, headers } = await this.api.getBlob(`/api/reportes/consolidado/csv?${params}`);
+    const disp = headers.get('Content-Disposition') ?? '';
+    const match = disp.match(/filename[^;=\n]*=(?:(\\?["'])(.*?)\1|([^;\n]*))/i);
+    return { blob, filename: match?.[2] ?? match?.[3] ?? `sismos_${desde.slice(0, 10)}_${hasta.slice(0, 10)}.csv` };
+  }
+
+  /**
+   * GET /api/reportes/consolidado — PDF consolidado de todos los sismos en un rango.
+   * Ambas fechas deben ser ISO-8601 LocalDateTime (ej. "2024-01-01T00:00:00").
+   */
+  async descargarConsolidadoPdf(desde: string, hasta: string): Promise<{ blob: Blob; filename: string }> {
+    const params = new URLSearchParams({ desde, hasta });
+    const { blob, headers } = await this.api.getBlob(`/api/reportes/consolidado?${params}`);
+    const disp = headers.get('Content-Disposition') ?? '';
+    const match = disp.match(/filename[^;=\n]*=(?:(\\?["'])(.*?)\1|([^;\n]*))/i);
+    return { blob, filename: match?.[2] ?? match?.[3] ?? `consolidado_${desde.slice(0, 10)}_${hasta.slice(0, 10)}.pdf` };
+  }
 }
