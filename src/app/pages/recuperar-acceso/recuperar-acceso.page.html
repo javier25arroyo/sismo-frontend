@@ -1,0 +1,96 @@
+<div class="flex min-h-screen flex-col bg-slate-950">
+  <main class="flex flex-1 items-center justify-center px-4 py-12">
+    <section class="w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl sm:p-10">
+
+      <!-- Volver -->
+      <div class="mb-6">
+        <a routerLink="/acceso"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 transition hover:text-slate-700">
+          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+          </svg>
+          Volver al acceso
+        </a>
+      </div>
+
+      <!-- Ícono -->
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 ring-1 ring-amber-200">
+        <svg class="h-7 w-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>
+        </svg>
+      </div>
+
+      <!-- Encabezado -->
+      <div class="mt-5">
+        <p class="text-xs font-bold uppercase tracking-[0.35em] text-sky-600">Acceso técnico</p>
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-slate-900">Recuperar contraseña</h1>
+        <p class="mt-2 text-sm leading-6 text-slate-500">
+          Por seguridad institucional, el restablecimiento de contraseñas requiere la intervención de un administrador del sistema.
+        </p>
+      </div>
+
+      <!-- Pasos -->
+      <div class="mt-8 space-y-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Proceso de recuperación</p>
+
+        <div class="flex gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">1</div>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">Contacta a tu administrador</p>
+            <p class="mt-0.5 text-sm text-slate-500">
+              Comunícate con el administrador del sistema e indica tu nombre de usuario para que pueda identificarte.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">2</div>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">El administrador genera una contraseña temporal</p>
+            <p class="mt-0.5 text-sm text-slate-500">
+              Desde el panel de administración, el administrador restablecerá tu contraseña y te proporcionará una clave temporal de forma segura.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">3</div>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">Inicia sesión con la clave temporal</p>
+            <p class="mt-0.5 text-sm text-slate-500">
+              Usa esa contraseña para iniciar sesión. El sistema te pedirá definir una nueva contraseña de forma inmediata.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aviso -->
+      <div class="mt-8 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+        <span class="font-semibold">Nota:</span> La contraseña temporal tiene una vigencia de
+        <span class="font-semibold">24 horas</span>. Si vence, solicita un nuevo restablecimiento.
+      </div>
+
+      <!-- Acción -->
+      <div class="mt-8">
+        <a routerLink="/acceso"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
+          Volver al inicio de sesión
+        </a>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 py-4 px-6">
+    <div class="mx-auto flex max-w-7xl items-center justify-between text-xs text-slate-500">
+      <span class="font-semibold uppercase tracking-wider">ICE – Portal de Ingeniería</span>
+      <nav class="flex gap-4">
+        <a href="#" class="hover:text-slate-300 transition">Términos</a>
+        <a href="#" class="hover:text-slate-300 transition">Soporte Técnico</a>
+        <a href="#" class="hover:text-slate-300 transition">Transparencia</a>
+      </nav>
+    </div>
+  </footer>
+</div>

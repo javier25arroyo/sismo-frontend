@@ -1,0 +1,32 @@
+
+> sismo-frontend@0.0.0 test
+> ng test
+
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+[1mInitial chunk files[22m                                       [2m | [22m[1mNames[22m                                                  [2m | [22m [1mRaw size[22m
+[32mspec-app-pages-historial-historial.page.js[39m                [2m | [22m[2mspec-app-pages-historial-historial.page[22m                [2m | [22m[36m112.68 kB[39m[2m | [22m
+[32mstyles.css[39m                                                [2m | [22m[2mstyles[22m                                                 [2m | [22m [36m75.25 kB[39m[2m | [22m
+[32mchunk-RSTWSNOR.js[39m                                         [2m | [22m[2m-[22m                                                      [2m | [22m  [36m4.75 kB[39m[2m | [22m
+[32mchunk-2LY63GT6.js[39m                                         [2m | [22m[2m-[22m                                                      [2m | [22m  [36m3.86 kB[39m[2m | [22m
+[32mspec-app-app.js[39m                                           [2m | [22m[2mspec-app-app[22m                                           [2m | [22m  [36m1.86 kB[39m[2m | [22m
+[32mspec-app-components-status-badge-status-badge.component.js[39m[2m | [22m[2mspec-app-components-status-badge-status-badge.component[22m[2m | [22m  [36m1.70 kB[39m[2m | [22m
+[32minit-testbed.js[39m                                           [2m | [22m[2minit-testbed[22m                                           [2m | [22m  [36m1.21 kB[39m[2m | [22m
+[32mvitest-mock-patch.js[39m                                      [2m | [22m[2mvitest-mock-patch[22m                                      [2m | [22m[36m969 bytes[39m[2m | [22m
+
+[1m [22m                                                         [2m | [22m[1mInitial total[22m                                          [2m | [22m[1m202.29 kB[22m
+
+Application bundle generation complete. [3.909 seconds] - 2026-04-19T06:06:44.983Z
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mD:/GitHub/trabajo-ICE/FrontEnd-Angular/sismo-frontend[39m
+
+ [32mÔ£ô[39m [30m[45m sismo-frontend [49m[39m src/app/components/status-badge/status-badge.component.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32mÔ£ô[39m [30m[45m sismo-frontend [49m[39m src/app/app.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32mÔ£ô[39m [30m[45m sismo-frontend [49m[39m src/app/pages/historial/historial.page.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 61[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 00:06:47
+[2m   Duration [22m 26.77s[2m (transform 312ms, setup 1.55s, import 607ms, tests 168ms, environment 76.15s)[22m
+
