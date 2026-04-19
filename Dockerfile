@@ -36,7 +36,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
 COPY package.json ./
-COPY angular.json tsconfig*.json postcss.config.json tailwind.config.js ./
+COPY angular.json tsconfig*.json postcss.config.json ./
 COPY public ./public
 COPY src ./src
 
