@@ -373,15 +373,6 @@
               </div>
             </div>
 
-            @if (mensajePdfConsolidado()) {
-              <div class="rounded-xl px-4 py-3 text-xs font-medium"
-                [class]="mensajePdfConsolidado()!.tipo === 'ok'
-                  ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
-                  : 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'">
-                {{ mensajePdfConsolidado()!.texto }}
-              </div>
-            }
-
             <button type="button" (click)="descargarPdfConsolidado()"
               [disabled]="descargandoPdfConsolidado() || !pdfConsolidadoDesde() || !pdfConsolidadoHasta()"
               class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-40">
@@ -559,18 +550,6 @@
       </p>
     </section>
 
-    <!-- Feedback global -->
-    @if (mensajeExport()) {
-      <div
-        class="rounded-2xl px-5 py-4 text-sm font-medium"
-        [class]="mensajeExport()!.tipo === 'ok'
-          ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
-          : 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'"
-      >
-        {{ mensajeExport()!.texto }}
-      </div>
-    }
-
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
       <!-- ── Tarjeta 1: Reportes ── -->
@@ -602,7 +581,10 @@
           type="button"
           (click)="exportarReportesCsv()"
           [disabled]="exportandoReportes()"
-          class="mt-auto flex items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+          class="mt-auto flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+          [class]="csvEstaDescargado('reportes')
+            ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+            : 'bg-sky-600 hover:bg-sky-700 focus:ring-sky-500'"
         >
           @if (exportandoReportes()) {
             <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -610,6 +592,11 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
             </svg>
             Exportando...
+          } @else if (csvEstaDescargado('reportes')) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Descargado
           } @else {
             <i-lucide [img]="csvIcon" size="15"></i-lucide>
             Descargar reportes.csv
@@ -681,7 +668,10 @@
           type="button"
           (click)="exportarSismosCsv()"
           [disabled]="exportandoSismos()"
-          class="mt-auto flex items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+          class="mt-auto flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+          [class]="csvEstaDescargado('sismos')
+            ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+            : 'bg-sky-600 hover:bg-sky-700 focus:ring-sky-500'"
         >
           @if (exportandoSismos()) {
             <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -689,6 +679,11 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
             </svg>
             Exportando...
+          } @else if (csvEstaDescargado('sismos')) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Descargado
           } @else {
             <i-lucide [img]="csvIcon" size="15"></i-lucide>
             Descargar sismos.csv
@@ -751,7 +746,10 @@
           type="button"
           (click)="exportarHistoricoCsv()"
           [disabled]="exportandoHistorico()"
-          class="mt-auto flex items-center justify-center gap-2 rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+          class="mt-auto flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+          [class]="csvEstaDescargado('historico')
+            ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+            : 'bg-sky-600 hover:bg-sky-700 focus:ring-sky-500'"
         >
           @if (exportandoHistorico()) {
             <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -759,6 +757,11 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
             </svg>
             Exportando...
+          } @else if (csvEstaDescargado('historico')) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Descargado
           } @else {
             <i-lucide [img]="csvIcon" size="15"></i-lucide>
             Descargar historico.csv
