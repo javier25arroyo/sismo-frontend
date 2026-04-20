@@ -1,0 +1,275 @@
+# Guía de Despliegue — Sismo Frontend
+
+Cubre requisitos, configuración, desarrollo local y despliegue con Docker.
+
+---
+
+## Requisitos previos
+
+| Componente | Versión | Notas |
+|---|---|---|
+| Node.js | 20.19.0 | Versión LTS usada en Dockerfile |
+| pnpm | 10.32.1 | Gestor de paquetes (`corepack enable`) |
+| Angular CLI | 21.2.6 | Instalado via devDependencies — no instalar globalmente |
+| Docker Engine | 24+ | Solo para despliegue containerizado |
+
+Instalar pnpm sin instalación global:
+
+```bash
+corepack enable       # requiere Node.js 18+
+corepack use pnpm@10.32.1
+```
+
+---
+
+## Configuración del entorno
+
+La URL del backend se define en los archivos de entorno:
+
+```
+src/environments/
+├── environment.ts          ← desarrollo local
+└── environment.prod.ts     ← build de producción
+```
+
+### Desarrollo (`environment.ts`)
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080'   // backend local
+};
+```
+
+### Producción (`environment.prod.ts`)
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: 'http://localhost:8080'   // ← cambiar al dominio/IP real del backend
+};
+```
+
+> **Importante:** Actualizar `apiUrl` en `environment.prod.ts` antes de construir la imagen Docker de producción. Esta URL debe ser accesible desde el navegador del cliente, no desde el contenedor.
+
+---
+
+## Desarrollo local
+
+```bash
+# 1. Instalar dependencias
+pnpm install
+
+# 2. Iniciar servidor de desarrollo (hot reload)
+pnpm start            # equivale a: ng serve
+                      # disponible en http://localhost:4200
+```
+
+Scripts disponibles:
+
+| Comando | Acción |
+|---|---|
+| `pnpm start` | Servidor de desarrollo con hot reload |
+| `pnpm build` | Build de producción en `dist/` |
+| `pnpm test` | Ejecutar tests unitarios con Karma |
+| `pnpm watch` | Build en modo watch (desarrollo) |
+
+---
+
+## Build de producción
+
+```bash
+# Build optimizado con hashing de assets
+pnpm build                              # usa configuración production por defecto
+pnpm build --configuration=production  # equivalente explícito
+pnpm build --configuration=development # build de desarrollo (sin minificación)
+```
+
+Artefactos generados en `dist/sismo-frontend/browser/`. La configuración de producción activa:
+
+- Minificación y tree-shaking
+- Hashing de todos los assets (`outputHashing: all`)
+- CSP auto-generado via nonce (`autoCsp: true`)
+- Sin source maps
+
+---
+
+## Despliegue con Docker
+
+### Paso 1 — Configurar URL del backend
+
+Editar `src/environments/environment.prod.ts`:
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: 'https://tu-backend.dominio.com'  // o http://IP:9090
+};
+```
+
+### Paso 2 — Construir e iniciar
+
+```bash
+cd FrontEnd-Angular/sismo-frontend
+docker compose up -d --build
+```
+
+Frontend disponible en `http://localhost:4200` (el Compose mapea `4200:80`).
+
+### Paso 3 — Verificar
+
+```bash
+docker compose logs -f web
+curl -s -o /dev/null -w "%{http_code}" http://localhost:4200/
+# Debe retornar: 200
+```
+
+### Configuración nginx
+
+El contenedor usa nginx con:
+- Gzip habilitado para JS/CSS/JSON/SVG
+- `index.html` sin caché (`no-store`) — garantiza que Angular cargue assets hasheados correctos
+- Assets estáticos con caché inmutable de 1 año
+- Routing SPA: todas las rutas redirigen a `index.html`
+- Headers de seguridad: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, etc.
+
+---
+
+## Estructura del proyecto
+
+```
+src/app/
+├── components/          # Componentes reutilizables
+│   ├── header/          # Barra de navegación
+│   ├── footer/
+│   ├── main-layout/     # Shell de la app (header + router-outlet + footer)
+│   ├── sismo-map/       # Mapa Leaflet de sismos
+│   ├── scatter-chart/   # Gráfica de dispersión (Chart.js)
+│   ├── paginacion/      # Paginador genérico
+│   ├── magnitud-badge/  # Badge de color por magnitud
+│   ├── stat-card/       # Tarjeta de estadística
+│   ├── status-badge/    # Badge de estado
+│   ├── button/
+│   └── confirm-dialog/
+├── pages/               # Vistas enrutadas (lazy-loaded)
+│   ├── home/
+│   ├── sismos/          # Lista paginada de sismos
+│   ├── historial/       # Historial RSS
+│   ├── estaciones/      # Gestión de estaciones
+│   ├── consultas/       # Acelerógrafos + RSN (tabs + mapa + gráficas)
+│   ├── repositorio/     # Reportes PDF
+│   ├── mapa/            # Mapa interactivo
+│   ├── profile/         # Perfil del usuario autenticado
+│   ├── login/           # Acceso técnico
+│   └── cambiar-contrasena/
+├── services/            # Capa de acceso al API
+├── guards/              # AuthGuard (protege rutas privadas)
+├── interfaces/          # Tipos TypeScript
+│   ├── api.interfaces.ts   # DTOs del backend
+│   └── sismo.interface.ts
+└── environments/        # Configuración por entorno
+```
+
+---
+
+## Rutas
+
+| Ruta | Componente | Requiere auth |
+|---|---|---|
+| `/` | `HomePage` | No |
+| `/sismos` | `SismosPage` | No |
+| `/historial` | `HistorialPage` | No |
+| `/estaciones` | `EstacionesPage` | No |
+| `/consultas` | `ConsultasPage` | No |
+| `/repositorio` | `RepositorioPage` | No |
+| `/mapa` | `MapaPage` | No |
+| `/profile` | `ProfilePage` | Sí (`AuthGuard`) |
+| `/acceso` | `LoginPage` | No |
+| `/cambiar-contrasena` | `CambiarContrasenaPage` | Sí (`AuthGuard`) |
+
+---
+
+## Arquitectura técnica
+
+### Convenciones
+
+- **100% standalone components** — no hay `NgModules`.
+- **Signals** (`signal()`, `computed()`) para estado local reactivo en lugar de RxJS.
+- **`ApiService`** como capa única de HTTP — usa `fetch` nativo, no `HttpClient`. Adjunta el token JWT automáticamente desde `localStorage`.
+- **Lazy loading** — cada página es un chunk independiente cargado bajo demanda.
+- **Tailwind CSS v4** con tokens de diseño personalizados.
+
+### Autenticación
+
+- Login POST `/api/autenticacion/iniciar-sesion` → recibe JWT.
+- Token almacenado en `localStorage` via `AuthService`.
+- `ApiService` inyecta `Authorization: Bearer <token>` en cada petición.
+- `AuthGuard` bloquea rutas privadas y redirige a `/acceso` si no autenticado.
+
+### Componentes compartidos clave
+
+| Selector | Inputs principales | Propósito |
+|---|---|---|
+| `app-sismo-map` | `[sismos]`, `[height]`, `[zoom]`, `[center]` | Mapa Leaflet con marcadores por magnitud |
+| `app-scatter-chart` | `[datos]`, `[tituloX]`, `[tituloY]`, `[titulo]`, `[colorPunto]` | Gráfica de dispersión Chart.js |
+| `app-paginacion` | `[paginaActual]`, `[totalPaginas]`, `(paginaCambio)` | Paginador con output `paginaCambio` |
+| `app-magnitud-badge` | `[magnitud]` | Badge con color según escala Richter |
+
+---
+
+## Agregar una nueva página
+
+1. Crear carpeta `src/app/pages/<nombre>/`.
+2. Crear `<nombre>.page.ts` con `@Component({ standalone: true, ... })`.
+3. Agregar ruta en `src/app/app.routes.ts`:
+   ```typescript
+   { path: 'ruta', loadComponent: () => import('./pages/<nombre>/<nombre>.page').then(m => m.NombrePage) }
+   ```
+4. Agregar enlace en `src/app/components/header/header.component.html`.
+
+---
+
+## Agregar un nuevo servicio
+
+1. Crear `src/app/services/<nombre>.service.ts`.
+2. Inyectar `ApiService` y usar `this.api.get<T>(path)`, `.post<T>(path, body)`, etc.
+3. Declarar con `@Injectable({ providedIn: 'root' })`.
+
+---
+
+## Solución de problemas comunes
+
+### `ng: command not found`
+
+Angular CLI está en `devDependencies`, no en PATH global. Usar siempre:
+
+```bash
+pnpm ng <comando>
+# o via script:
+pnpm build
+```
+
+### Error de CORS al llamar al backend
+
+El backend debe tener `APP_CORS_ALLOWED_ORIGINS=http://localhost:4200` (o el dominio de producción). Ver `docs/DESPLIEGUE.md` del backend.
+
+### `pnpm install` falla con versión incorrecta de Node
+
+Verificar versión:
+
+```bash
+node -v   # debe ser 20.x
+```
+
+Usar `nvm` o `fnm` para cambiar de versión si es necesario.
+
+### La app muestra datos vacíos / errores de red
+
+Verificar que `environment.ts` (desarrollo) o `environment.prod.ts` (producción) apunten al backend correcto y que el backend esté corriendo.
+
+### Build falla por presupuesto de bundle excedido
+
+El bundle inicial tiene límite de advertencia en 500 kB y error en 1 MB. Si se superan:
+- Revisar imports innecesarios
+- Verificar que componentes grandes sean lazy-loaded
+- Usar `pnpm build --configuration=production` para ver el análisis de tamaños
