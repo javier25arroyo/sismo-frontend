@@ -46,6 +46,7 @@
           <input
             type="text"
             placeholder="Filtrar por ID o estación..."
+            aria-label="Filtrar estaciones por ID o nombre"
             (input)="setBusqueda($event)"
             class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-8 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
         </div>
@@ -71,11 +72,11 @@
             class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50 last:border-0">
             <td class="px-4 py-3">
               <p class="font-bold text-sky-700">{{ e.codEstacion }}</p>
-              <p class="text-slate-400">{{ e.codCentroPrd }}</p>
+              <p class="text-slate-500">{{ e.codCentroPrd }}</p>
             </td>
             <td class="px-4 py-3">
               <p class="font-medium text-slate-900">{{ e.nomEstacion }}</p>
-              <p class="text-slate-400">{{ e.ubicacionDetalle }}</p>
+              <p class="text-slate-500">{{ e.ubicacionDetalle }}</p>
             </td>
             <td class="px-4 py-3 text-slate-600">{{ e.tipoSensor }}</td>
             <td class="px-4 py-3">
@@ -86,14 +87,14 @@
       </table>
 
       <div *ngIf="!cargando() && filtradas.length === 0"
-        class="p-10 text-center text-sm text-slate-400">Sin resultados para "{{ busqueda() }}"</div>
+        class="p-10 text-center text-sm text-slate-500">Sin resultados para "{{ busqueda() }}"</div>
     </div>
 
     <!-- RIGHT: node detail panel -->
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
       <ng-container *ngIf="estacionSeleccionada() as est; else sinSeleccion">
         <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Detalle de Nodo</span>
+          <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Detalle de Nodo</span>
           <app-status-badge [estado]="est.estado"></app-status-badge>
         </div>
 
@@ -109,7 +110,7 @@
                 [label]="est.nomEstacion">
               </app-estacion-mini-map>
             </div>
-          <p class="mt-1 text-xs text-slate-400 text-right">
+          <p class="mt-1 text-xs text-slate-500 text-right">
             <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>
             {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
           </p>
@@ -126,15 +127,15 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div class="rounded-xl bg-slate-50 p-3">
-                <p class="text-xs text-slate-400">ESTADO</p>
+                <p class="text-xs text-slate-500">ESTADO</p>
                 <app-status-badge [estado]="est.estado"></app-status-badge>
               </div>
               <div class="rounded-xl bg-slate-50 p-3">
-                <p class="text-xs text-slate-400">CENTRO</p>
+                <p class="text-xs text-slate-500">CENTRO</p>
                 <p class="text-sm font-bold text-slate-900 truncate">{{ est.codCentroPrd }}</p>
               </div>
               <div class="rounded-xl bg-slate-50 p-3">
-                <p class="text-xs text-slate-400">CLOCK NAI</p>
+                <p class="text-xs text-slate-500">CLOCK NAI</p>
                 <p class="text-sm font-bold" [class]="gpsClass(est.estado)">{{ gpsLabel(est.estado) }}</p>
               </div>
             </div>
@@ -222,7 +223,7 @@
         </div>
       </ng-container>
       <ng-template #sinSeleccion>
-        <div class="flex h-full min-h-60 items-center justify-center text-sm text-slate-400">
+        <div class="flex h-full min-h-60 items-center justify-center text-sm text-slate-500">
           Selecciona una estación para ver el detalle
         </div>
       </ng-template>

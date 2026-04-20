@@ -29,7 +29,7 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-cedula">Cédula</label>
         <input
           id="c-cedula" name="cedula" type="text" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="Ej. 123456789"
         />
       </div>
@@ -39,7 +39,7 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-nombre">Nombre completo</label>
         <input
           id="c-nombre" name="nombreCompl" type="text" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="Apellidos Nombre"
         />
       </div>
@@ -49,7 +49,7 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-correo">Correo electrónico</label>
         <input
           id="c-correo" name="correoE" type="email" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="usuario@ice.go.cr"
         />
       </div>
@@ -59,7 +59,7 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-username">Nombre de usuario</label>
         <input
           id="c-username" name="usuarioNombre" type="text" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="usuario.sistema"
         />
       </div>
@@ -69,7 +69,7 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-tel">Teléfono oficina</label>
         <input
           id="c-tel" name="telOficina" type="tel"
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="2XXX-XXXX (opcional)"
         />
       </div>
@@ -79,7 +79,7 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-cel">Número celular</label>
         <input
           id="c-cel" name="numCelular" type="tel"
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="8XXX-XXXX (opcional)"
         />
       </div>
@@ -94,13 +94,13 @@
               [type]="passwordCrearVisible() ? 'text' : 'password'"
               [value]="passwordCrear()"
               (input)="passwordCrear.set($any($event.target).value)"
-              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
               placeholder="Generar o ingresar"
             />
             <button
               type="button"
               (click)="passwordCrearVisible.set(!passwordCrearVisible())"
-              class="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-slate-600"
+              class="absolute inset-y-0 right-2 flex items-center text-slate-500 hover:text-slate-600"
               [attr.aria-label]="passwordCrearVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             >
               @if (passwordCrearVisible()) {
@@ -124,7 +124,7 @@
             Generar
           </button>
         </div>
-        <p class="text-xs text-slate-400">12 caracteres · mayúscula · minúscula · dígito · especial (!@#$%&amp;*)</p>
+        <p class="text-xs text-slate-500">12 caracteres · mayúscula · minúscula · dígito · especial (!@#$%&amp;*)</p>
       </div>
 
       <!-- Estado activo -->
@@ -157,7 +157,7 @@
       <button
         type="submit"
         [disabled]="crearCargando()"
-        class="flex items-center gap-2 rounded-xl bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+        class="flex items-center gap-2 rounded-xl bg-sky-700 px-6 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
       >
         @if (crearCargando()) {
           <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -186,7 +186,7 @@
       (input)="buscarCedula.set($any($event.target).value)"
       (keydown.enter)="buscarUsuario()"
       placeholder="Ingresa la cédula"
-      class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+      class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
     />
     <button
       type="button"
@@ -229,7 +229,7 @@
           <input
             id="u-nombre" name="nombreCompl" type="text" required
             [value]="usuarioCargado()!.nombreCompl"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
@@ -239,7 +239,7 @@
           <input
             id="u-correo" name="correoE" type="email" required
             [value]="usuarioCargado()!.correoE"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
@@ -249,7 +249,7 @@
           <input
             id="u-username" name="usuarioNombre" type="text" required
             [value]="usuarioCargado()!.usuarioNombre"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
@@ -259,7 +259,7 @@
           <input
             id="u-tel" name="telOficina" type="tel"
             [value]="usuarioCargado()!.telOficina ?? ''"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="Opcional"
           />
         </div>
@@ -270,7 +270,7 @@
           <input
             id="u-cel" name="numCelular" type="tel"
             [value]="usuarioCargado()!.numCelular ?? ''"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="Opcional"
           />
         </div>
@@ -280,7 +280,7 @@
           <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-pass">Nueva contraseña</label>
           <input
             id="u-pass" name="password" type="password"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="Dejar vacío para no cambiar"
           />
         </div>
@@ -315,7 +315,7 @@
         <button
           type="submit"
           [disabled]="actualizarCargando()"
-          class="flex items-center gap-2 rounded-xl bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
+          class="flex items-center gap-2 rounded-xl bg-sky-700 px-6 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50"
         >
           @if (actualizarCargando()) {
             <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
