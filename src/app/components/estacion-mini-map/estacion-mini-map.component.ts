@@ -1,38 +1,50 @@
 import {
   Component,
-  Input,
+  input,
   AfterViewInit,
   OnDestroy,
-  OnChanges,
-  SimpleChanges,
   ViewChild,
-  ElementRef
+  ElementRef,
+  ChangeDetectionStrategy,
+  ViewEncapsulation,
+  effect
 } from '@angular/core';
 import * as L from 'leaflet';
 
 @Component({
   standalone: true,
   selector: 'app-estacion-mini-map',
-  template: `<div #mapEl class="w-full h-full"></div>`
+  template: `<div #mapEl class="w-full h-full"></div>`,
+  styleUrls: ['./estacion-mini-map.component.css'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy, OnChanges {
-  @Input() lat = 9.9;
-  @Input() lng = -84.1;
-  @Input() label = '';
+export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
+  lat = input<number>(9.9);
+  lng = input<number>(-84.1);
+  label = input<string>('');
 
   @ViewChild('mapEl', { static: true }) mapEl!: ElementRef;
 
   private map!: L.Map;
   private marker!: L.CircleMarker;
+  private isInitialized = false;
+
+  constructor() {
+    effect(() => {
+      const lat = this.lat();
+      const lng = this.lng();
+      const label = this.label();
+
+      if (this.isInitialized && this.map) {
+        this.updatePosition(lat, lng, label);
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.initMap();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['lat'] || changes['lng'] || changes['label']) && this.map) {
-      this.updatePosition();
-    }
+    this.isInitialized = true;
   }
 
   ngOnDestroy(): void {
@@ -42,8 +54,12 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy, OnCha
   }
 
   private initMap(): void {
+    const lat = this.lat();
+    const lng = this.lng();
+    const label = this.label();
+
     this.map = L.map(this.mapEl.nativeElement, {
-      center: [this.lat, this.lng],
+      center: [lat, lng],
       zoom: 12,
       zoomControl: false,
       attributionControl: false,
@@ -59,7 +75,7 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy, OnCha
       maxZoom: 18
     }).addTo(this.map);
 
-    this.marker = L.circleMarker([this.lat, this.lng], {
+    this.marker = L.circleMarker([lat, lng], {
       radius: 9,
       fillColor: '#0284c7',
       color: '#ffffff',
@@ -67,18 +83,18 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy, OnCha
       fillOpacity: 0.9
     }).addTo(this.map);
 
-    if (this.label) {
-      this.marker.bindTooltip(this.label, { permanent: true, direction: 'top', offset: [0, -10] });
+    if (label) {
+      this.marker.bindTooltip(label, { permanent: true, direction: 'top', offset: [0, -10] });
     }
   }
 
-  private updatePosition(): void {
-    const latlng: L.LatLngExpression = [this.lat, this.lng];
+  private updatePosition(lat: number, lng: number, label: string): void {
+    const latlng: L.LatLngExpression = [lat, lng];
     this.map.setView(latlng, 12);
     this.marker.setLatLng(latlng);
-    if (this.label) {
-      this.marker.unbindTooltip();
-      this.marker.bindTooltip(this.label, { permanent: true, direction: 'top', offset: [0, -10] });
+    this.marker.unbindTooltip();
+    if (label) {
+      this.marker.bindTooltip(label, { permanent: true, direction: 'top', offset: [0, -10] });
     }
   }
 }
