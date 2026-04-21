@@ -1,35 +1,35 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, signal, computed, Signal } from '@angular/core';
 
 @Component({
   standalone: true,
   selector: 'app-status-badge',
   template: `
-    <span [class]="badgeClass"
+    <span [class]="badgeClass()"
       class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-label-sm font-semibold uppercase tracking-wide">
-      <span [class]="dotClass" class="h-1.5 w-1.5 rounded-full"></span>
-      {{ estadoLabel }}
+      <span [class]="dotClass()" class="h-1.5 w-1.5 rounded-full"></span>
+      {{ estadoLabel() }}
     </span>
   `
 })
 export class StatusBadgeComponent {
-  @Input() estado = '';
+  estado = input<string>('');
 
-  private get estadoNormalizado(): string {
-    return (this.estado ?? '')
+  private estadoNormalizado = computed(() =>
+    (this.estado() ?? '')
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase()
       .trim()
-      .replace(/[\s-]+/g, '_');
-  }
+      .replace(/[\s-]+/g, '_')
+  );
 
-  get estadoLabel(): string {
-    if (this.estadoNormalizado === 'FUERA_DE_SERVICIO') return 'FUERA DE SERVICIO';
-    return this.estado;
-  }
+  estadoLabel = computed(() => {
+    if (this.estadoNormalizado() === 'FUERA_DE_SERVICIO') return 'FUERA DE SERVICIO';
+    return this.estado();
+  });
 
-  get badgeClass(): string {
-    switch (this.estadoNormalizado) {
+  badgeClass = computed(() => {
+    switch (this.estadoNormalizado()) {
       case 'NIVEL_1':
       case 'ACTIVO':
       case 'ACTIVA':
@@ -53,10 +53,10 @@ export class StatusBadgeComponent {
       default:
         return 'bg-slate-100 text-slate-600';
     }
-  }
+  });
 
-  get dotClass(): string {
-    switch (this.estadoNormalizado) {
+  dotClass = computed(() => {
+    switch (this.estadoNormalizado()) {
       case 'NIVEL_1':
       case 'ACTIVO':
       case 'ACTIVA':
@@ -80,5 +80,5 @@ export class StatusBadgeComponent {
       default:
         return 'bg-slate-400';
     }
-  }
+  });
 }

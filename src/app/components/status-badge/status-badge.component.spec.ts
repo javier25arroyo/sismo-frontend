@@ -1,18 +1,28 @@
 import { TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 import { StatusBadgeComponent } from './status-badge.component';
 
 describe('StatusBadgeComponent', () => {
+  @Component({
+    standalone: true,
+    imports: [StatusBadgeComponent],
+    template: `<app-status-badge [estado]="estado"></app-status-badge>`
+  })
+  class TestHostComponent {
+    estado = '';
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StatusBadgeComponent]
+      imports: [TestHostComponent, StatusBadgeComponent]
     }).compileComponents();
   });
 
   function render(estado: string): HTMLSpanElement {
-    const fixture = TestBed.createComponent(StatusBadgeComponent);
+    const fixture = TestBed.createComponent(TestHostComponent);
     fixture.componentInstance.estado = estado;
     fixture.detectChanges();
-    return fixture.nativeElement.firstElementChild as HTMLSpanElement;
+    return fixture.nativeElement.querySelector('app-status-badge span') as HTMLSpanElement;
   }
 
   it('applies success styles for NIVEL 1', () => {
