@@ -104,11 +104,15 @@
 
             <!-- Mapa de ubicación -->
             <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
-              <app-estacion-mini-map
-                [lat]="est.coordenadaY"
-                [lng]="est.coordenadaX"
-                [label]="est.nomEstacion">
-              </app-estacion-mini-map>
+              @defer (on viewport) {
+                <app-estacion-mini-map
+                  [lat]="est.coordenadaY"
+                  [lng]="est.coordenadaX"
+                  [label]="est.nomEstacion">
+                </app-estacion-mini-map>
+              } @placeholder {
+                <div class="w-full h-full bg-slate-100 animate-pulse"></div>
+              }
             </div>
           <p class="mt-1 text-xs text-slate-500 text-right">
             <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>

@@ -1,13 +1,14 @@
 import {
   Component,
-  Input,
+  input,
   OnInit,
   OnDestroy,
-  OnChanges,
-  SimpleChanges,
   ElementRef,
   ViewChild,
-  AfterViewInit
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ViewEncapsulation,
+  effect
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
@@ -18,36 +19,40 @@ import { EstacionRespuesta, SismoUltimoRespuesta } from '../../interfaces/api.in
   standalone: true,
   selector: 'app-sismo-map',
   imports: [CommonModule],
-  templateUrl: './sismo-map.component.html'
+  templateUrl: './sismo-map.component.html',
+  styleUrls: ['./sismo-map.component.css'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
 
   /** Lista de sismos a mostrar en el mapa */
-  @Input() sismos: Sismo[] = [];
+  sismos = input<Sismo[]>([]);
 
   /** Centro inicial del mapa [lat, lng] - Default: Costa Rica */
-  @Input() center: [number, number] = [9.9, -84.1];
+  center = input<[number, number]>([9.9, -84.1]);
 
   /** Zoom inicial del mapa */
-  @Input() zoom = 8;
+  zoom = input<number>(8);
 
   /** Altura del contenedor del mapa */
-  @Input() height = '500px';
+  height = input<string>('500px');
 
   /** Si se debe mostrar la leyenda de magnitudes */
-  @Input() showLegend = true;
+  showLegend = input<boolean>(true);
 
   /** Sismo a marcar como epicentro destacado (anillo pulsante + crosshair) */
-  @Input() epicentro: SismoUltimoRespuesta | null = null;
+  epicentro = input<SismoUltimoRespuesta | null>(null);
 
   /** Estaciones sísmicas a mostrar en el mapa */
-  @Input() estaciones: EstacionRespuesta[] = [];
+  estaciones = input<EstacionRespuesta[]>([]);
 
   private map!: L.Map;
   private markersLayer!: L.LayerGroup;
   private epicentroLayer!: L.LayerGroup;
   private estacionesLayer!: L.LayerGroup;
+  private isInitialized = false;
 
   /** Estilos según magnitud del sismo */
   private readonly magnitudStyles: Record<string, MagnitudStyle> = {
@@ -57,27 +62,39 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     nivel4: { color: '#ef4444', radius: 14, fillOpacity: 0.9 }      // >= 6.0 Mw (Nivel 4)
   };
 
+  constructor() {
+    effect(() => {
+      const sismos = this.sismos();
+      if (this.isInitialized && this.markersLayer) {
+        this.addSismos(sismos);
+      }
+    });
+
+    effect(() => {
+      const epicentro = this.epicentro();
+      if (this.isInitialized && this.epicentroLayer) {
+        this.addEpicentroMarker(epicentro);
+      }
+    });
+
+    effect(() => {
+      const estaciones = this.estaciones();
+      if (this.isInitialized && this.estacionesLayer) {
+        this.addEstaciones(estaciones);
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.fixLeafletIcons();
   }
 
   ngAfterViewInit(): void {
     this.initMap();
-    this.addSismos();
-    this.addEpicentroMarker();
-    this.addEstaciones();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['sismos'] && !changes['sismos'].firstChange) {
-      this.addSismos();
-    }
-    if (changes['epicentro'] && !changes['epicentro'].firstChange) {
-      this.addEpicentroMarker();
-    }
-    if (changes['estaciones'] && !changes['estaciones'].firstChange) {
-      this.addEstaciones();
-    }
+    this.addSismos(this.sismos());
+    this.addEpicentroMarker(this.epicentro());
+    this.addEstaciones(this.estaciones());
+    this.isInitialized = true;
   }
 
   ngOnDestroy(): void {
@@ -102,8 +119,8 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
 
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: this.center,
-      zoom: this.zoom,
+      center: this.center(),
+      zoom: this.zoom(),
       zoomControl: true
     });
 
@@ -123,18 +140,18 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     this.estacionesLayer = L.layerGroup().addTo(this.map);
 
     // Agregar leyenda si está habilitada
-    if (this.showLegend) {
+    if (this.showLegend()) {
       this.addLegend();
     }
   }
 
-  private addSismos(): void {
+  private addSismos(sismos: Sismo[]): void {
     if (!this.markersLayer) return;
 
     // Limpiar marcadores existentes
     this.markersLayer.clearLayers();
 
-    this.sismos.forEach(sismo => {
+    sismos.forEach(sismo => {
       const style = this.getStyleForMagnitud(sismo.magnitud);
       
       const marker = L.circleMarker([sismo.coordenadaY, sismo.coordenadaX], {
@@ -165,9 +182,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     });
 
     // Ajustar vista si hay sismos
-    if (this.sismos.length > 0) {
+    if (sismos.length > 0) {
       const bounds = L.latLngBounds(
-        this.sismos.map(s => [s.coordenadaY, s.coordenadaX] as [number, number])
+        sismos.map(s => [s.coordenadaY, s.coordenadaX] as [number, number])
       );
       this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
     }
@@ -181,12 +198,12 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     return { color: '#94a3b8', radius: 4, fillOpacity: 0.6 }; // Sismos menores (<3.5) en gris
   }
 
-  private addEpicentroMarker(): void {
+  private addEpicentroMarker(epicentro: SismoUltimoRespuesta | null): void {
     if (!this.epicentroLayer) return;
     this.epicentroLayer.clearLayers();
-    if (!this.epicentro) return;
+    if (!epicentro) return;
 
-    const s = this.epicentro;
+    const s = epicentro;
     const color = this.getStyleForMagnitud(s.magnitud).color;
     const fechaFormateada = new Date(s.feSismo).toLocaleString('es-CR', {
       dateStyle: 'medium',
@@ -233,11 +250,11 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy, OnCh
     marker.addTo(this.epicentroLayer);
   }
 
-  private addEstaciones(): void {
+  private addEstaciones(estaciones: EstacionRespuesta[]): void {
     if (!this.estacionesLayer) return;
     this.estacionesLayer.clearLayers();
 
-    this.estaciones.forEach(e => {
+    estaciones.forEach(e => {
       const icon = L.divIcon({
         className: '',
         html: `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,13 1,13" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,

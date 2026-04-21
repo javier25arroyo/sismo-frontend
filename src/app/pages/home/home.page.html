@@ -39,115 +39,120 @@
     </div>
   </section>
 
-  <!-- ÚLTIMO EVENTO SIGNIFICATIVO -->
-  <section>
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold text-slate-900">Último Evento Significativo</h2>
-      <a routerLink="/historial" class="text-sm font-medium text-sky-700 hover:text-sky-800 transition">
-        <span class="inline-flex items-center gap-1">
-          Catálogo Completo
-          <i-lucide [img]="arrowRightIcon" size="14" class="shrink-0"></i-lucide>
-        </span>
-      </a>
-    </div>
-
-    <div *ngIf="cargando()" class="rounded-2xl bg-slate-100 h-40 animate-pulse"></div>
-
-    <div *ngIf="!cargando() && ultimoSismo()" class="rounded-2xl bg-slate-900 text-white overflow-hidden shadow-xl">
-      <div class="grid lg:grid-cols-[auto_1fr_auto] gap-0">
-        <!-- Magnitude block -->
-        <div class="flex flex-col items-center justify-center px-8 py-6 border-r border-slate-700"
-          [style.background]="magnitudColor + '22'">
-          <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">MAGNITUD Mw</span>
-          <span class="text-6xl font-bold tabular-nums" [style.color]="magnitudColor">
-            {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
+  @defer (on idle) {
+    <!-- ÚLTIMO EVENTO SIGNIFICATIVO -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-slate-900">Último Evento Significativo</h2>
+        <a routerLink="/historial" class="text-sm font-medium text-sky-700 hover:text-sky-800 transition">
+          <span class="inline-flex items-center gap-1">
+            Catálogo Completo
+            <i-lucide [img]="arrowRightIcon" size="14" class="shrink-0"></i-lucide>
           </span>
-          <span class="mt-1 text-xs text-slate-400">{{ ultimoSismo()!.profundidad }} km prof.</span>
-        </div>
+        </a>
+      </div>
 
-        <!-- Info center -->
-        <div class="px-8 py-6">
-          <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion }}</p>
-          <div class="mt-4 flex flex-wrap gap-6 text-sm">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Coordenadas</p>
-              <p class="mt-1 font-mono text-slate-200">
-                {{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}°N /
-                {{ ultimoSismo()!.coordenadaX | number:'1.3-3' }}°W
-              </p>
-            </div>
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Profundidad</p>
-              <p class="mt-1 font-semibold text-slate-200">{{ ultimoSismo()!.profundidad }} km</p>
+      <div *ngIf="cargando()" class="rounded-2xl bg-slate-100 h-40 animate-pulse"></div>
+
+      <div *ngIf="!cargando() && ultimoSismo()" class="rounded-2xl bg-slate-900 text-white overflow-hidden shadow-xl">
+        <div class="grid lg:grid-cols-[auto_1fr_auto] gap-0">
+          <!-- Magnitude block -->
+          <div class="flex flex-col items-center justify-center px-8 py-6 border-r border-slate-700"
+            [style.background]="magnitudColor() + '22'">
+            <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">MAGNITUD Mw</span>
+            <span class="text-6xl font-bold tabular-nums" [style.color]="magnitudColor()">
+              {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
+            </span>
+            <span class="mt-1 text-xs text-slate-400">{{ ultimoSismo()!.profundidad }} km prof.</span>
+          </div>
+
+          <!-- Info center -->
+          <div class="px-8 py-6">
+            <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion }}</p>
+            <div class="mt-4 flex flex-wrap gap-6 text-sm">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Coordenadas</p>
+                <p class="mt-1 font-mono text-slate-200">
+                  {{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}°N /
+                  {{ ultimoSismo()!.coordenadaX | number:'1.3-3' }}°W
+                </p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Profundidad</p>
+                <p class="mt-1 font-semibold text-slate-200">{{ ultimoSismo()!.profundidad }} km</p>
+              </div>
             </div>
           </div>
+
+          <!-- Date/time right -->
+          <div class="flex flex-col items-end justify-center px-8 py-6 border-l border-slate-700">
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">FECHA UTC</p>
+            <p class="font-mono text-sm text-slate-200">{{ ultimoSismo()!.feSismo | date:'dd MMM yyyy' }}</p>
+            <p class="font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | date:'HH:mm:ss' }} UTC</p>
+            <a routerLink="/sismos"
+              class="mt-4 rounded-lg bg-sky-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-600">
+              Ver análisis
+            </a>
+          </div>
         </div>
+      </div>
 
-        <!-- Date/time right -->
-        <div class="flex flex-col items-end justify-center px-8 py-6 border-l border-slate-700">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">FECHA UTC</p>
-          <p class="font-mono text-sm text-slate-200">{{ ultimoSismo()!.feSismo | date:'dd MMM yyyy' }}</p>
-          <p class="font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | date:'HH:mm:ss' }} UTC</p>
-          <a routerLink="/sismos"
-            class="mt-4 rounded-lg bg-sky-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-600">
-            Ver análisis
-          </a>
+      <div *ngIf="!cargando() && !ultimoSismo()"
+        class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
+        No hay datos del último evento disponibles.
+      </div>
+    </section>
+
+    <!-- FEATURE CARDS -->
+    <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <a routerLink="/historial"
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
+          <i-lucide [img]="historyIcon" size="24" class="text-sky-600"></i-lucide>
         </div>
-      </div>
-    </div>
+        <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Catálogo Histórico</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Consulta el registro completo de eventos sísmicos con filtros avanzados y acceso a acelerogramas.
+        </p>
+        <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
+          EXPLORAR HISTORIAL
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+        </span>
+      </a>
 
-    <div *ngIf="!cargando() && !ultimoSismo()"
-      class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
-      No hay datos del último evento disponibles.
-    </div>
-  </section>
+      <a routerLink="/estaciones"
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-green-200">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
+          <i-lucide [img]="networkIcon" size="24" class="text-green-600"></i-lucide>
+        </div>
+        <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-green-700 transition">Estado de Red</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Monitorea el estado operativo y telemetría en tiempo real de todas las estaciones acelerográficas.
+        </p>
+        <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-green-700">
+          VER RED EN VIVO
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+        </span>
+      </a>
 
-  <!-- FEATURE CARDS -->
-  <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    <a routerLink="/historial"
-      class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
-      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
-        <i-lucide [img]="historyIcon" size="24" class="text-sky-600"></i-lucide>
-      </div>
-      <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Catálogo Histórico</h3>
-      <p class="mt-2 text-sm leading-6 text-slate-600">
-        Consulta el registro completo de eventos sísmicos con filtros avanzados y acceso a acelerogramas.
-      </p>
-      <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
-        EXPLORAR HISTORIAL
-        <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
-      </span>
-    </a>
-
-    <a routerLink="/estaciones"
-      class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-green-200">
-      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-        <i-lucide [img]="networkIcon" size="24" class="text-green-600"></i-lucide>
-      </div>
-      <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-green-700 transition">Estado de Red</h3>
-      <p class="mt-2 text-sm leading-6 text-slate-600">
-        Monitorea el estado operativo y telemetría en tiempo real de todas las estaciones acelerográficas.
-      </p>
-      <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-green-700">
-        VER RED EN VIVO
-        <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
-      </span>
-    </a>
-
-    <a routerLink="/repositorio"
-      class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
-      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
-        <i-lucide [img]="repositoryIcon" size="24" class="text-sky-600"></i-lucide>
-      </div>
-      <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Repositorio Raw</h3>
-      <p class="mt-2 text-sm leading-6 text-slate-600">
-        Accede a informes técnicos, manuales de instrumentación y protocolos de la Red Nacional de Sismicidad.
-      </p>
-      <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
-        ACCEDER REPOSITORIO
-        <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
-      </span>
-    </a>
-  </section>
+      <a routerLink="/repositorio"
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
+          <i-lucide [img]="repositoryIcon" size="24" class="text-sky-600"></i-lucide>
+        </div>
+        <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Repositorio Raw</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Accede a informes técnicos, manuales de instrumentación y protocolos de la Red Nacional de Sismicidad.
+        </p>
+        <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
+          ACCEDER REPOSITORIO
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+        </span>
+      </a>
+    </section>
+  } @placeholder {
+    <div class="h-40 rounded-2xl bg-slate-100 animate-pulse"></div>
+    <div class="h-48 rounded-2xl bg-slate-100 animate-pulse"></div>
+  }
 
 </div>
