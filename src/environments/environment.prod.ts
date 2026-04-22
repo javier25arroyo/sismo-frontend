@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8080'
+  apiUrl: ''  // same-origin — nginx proxies /api/** to the backend container
 };
