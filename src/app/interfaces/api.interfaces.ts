@@ -529,3 +529,43 @@ export interface FiltroTerremotos {
   page?: number;
   size?: number;
 }
+
+// ─── Historial Sismos (Acelerógrafos) ────────────────────────────────────────
+
+export interface HistorialSismoRespuesta {
+  codCentroPrd: string;
+  nomCentroPrd: string;
+  codEstacion: string;
+  nomEstacion: string;
+  xEstacion: number;
+  yEstacion: number;
+  feDato: string;
+  feSismo: string;
+  vaAceleracion: number | null;
+  vaDesplazamiento: number | null;
+  magnitud: number;
+  profundidad: number;
+  coordenadaX: number;
+  coordenadaY: number;
+  distanciaHipocentral: number | null;
+  distanciaEpicentral: number | null;
+  ubicacion: string;
+}
+
+// ─── Historial RSN ────────────────────────────────────────────────────────────
+
+export interface HistorialRsnRespuesta {
+  feSismo: string;
+  coordenadaY: number;
+  coordenadaX: number;
+  profundidad: number;
+  magnitud: number;
+  distanciaHipocentral: number | null;
+  distanciaEpicentral: number | null;
+  tipoSismo: string | null;
+  ubicacion: string;
+  nombre: string;
+  coordenadaYPlanta: number;
+  coordenadaXPlanta: number;
+  rango: number;
+}
