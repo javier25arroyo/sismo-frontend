@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "leaflet/dist/leaflet.css";
 
 @theme {
   --font-inter: "Inter", sans-serif;
@@ -51,11 +50,3 @@ body {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
 }
 
-/* Estilos personalizados para popups de Leaflet */
-.leaflet-popup-content-wrapper {
-  border-radius: 8px;
-}
-
-.leaflet-popup-content {
-  margin: 12px;
-}
