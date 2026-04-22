@@ -1,4 +1,4 @@
-import { Component, input, signal, computed, Signal } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   standalone: true,
@@ -9,19 +9,20 @@ import { Component, input, signal, computed, Signal } from '@angular/core';
       <span [class]="dotClass()" class="h-1.5 w-1.5 rounded-full"></span>
       {{ estadoLabel() }}
     </span>
-  `
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatusBadgeComponent {
   estado = input<string>('');
 
-  private estadoNormalizado = computed(() =>
-    (this.estado() ?? '')
+  private estadoNormalizado = computed(() => {
+    return (this.estado() ?? '')
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase()
       .trim()
-      .replace(/[\s-]+/g, '_')
-  );
+      .replace(/[\s-]+/g, '_');
+  });
 
   estadoLabel = computed(() => {
     if (this.estadoNormalizado() === 'FUERA_DE_SERVICIO') return 'FUERA DE SERVICIO';

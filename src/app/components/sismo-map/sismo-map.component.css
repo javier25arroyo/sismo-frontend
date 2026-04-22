@@ -1,0 +1,9 @@
+@import 'leaflet/dist/leaflet.css';
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+}

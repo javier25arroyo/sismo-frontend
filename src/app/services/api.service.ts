@@ -25,18 +25,22 @@ export class ApiService {
     return fallback;
   }
 
-  private buildHeaders(extra?: Record<string, string>): Record<string, string> {
+  private shouldAttachAuth(path: string): boolean {
+    return !path.startsWith('/api/autenticacion/iniciar-sesion');
+  }
+
+  private buildHeaders(path: string, extra?: Record<string, string>): Record<string, string> {
     const headers: Record<string, string> = { ...(extra || {}) };
     if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
     const token = this.auth.getToken();
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token && this.shouldAttachAuth(path)) headers['Authorization'] = `Bearer ${token}`;
     return headers;
   }
 
-  private buildFormHeaders(): Record<string, string> {
+  private buildFormHeaders(path: string): Record<string, string> {
     const headers: Record<string, string> = {};
     const token = this.auth.getToken();
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token && this.shouldAttachAuth(path)) headers['Authorization'] = `Bearer ${token}`;
     return headers;
   }
 
@@ -57,7 +61,7 @@ export class ApiService {
 
   async get<T>(path: string): Promise<T> {
     const res = await fetch(this.baseUrl + path, {
-      headers: this.buildHeaders()
+      headers: this.buildHeaders(path)
     });
     return this.handleResponse<T>(res);
   }
@@ -65,7 +69,7 @@ export class ApiService {
   async post<T>(path: string, body: unknown): Promise<T> {
     const res = await fetch(this.baseUrl + path, {
       method: 'POST',
-      headers: this.buildHeaders(),
+      headers: this.buildHeaders(path),
       body: JSON.stringify(body)
     });
     return this.handleResponse<T>(res);
@@ -74,7 +78,7 @@ export class ApiService {
   async put<T>(path: string, body: unknown): Promise<T> {
     const res = await fetch(this.baseUrl + path, {
       method: 'PUT',
-      headers: this.buildHeaders(),
+      headers: this.buildHeaders(path),
       body: JSON.stringify(body)
     });
     return this.handleResponse<T>(res);
@@ -83,7 +87,7 @@ export class ApiService {
   async delete<T>(path: string): Promise<T> {
     const res = await fetch(this.baseUrl + path, {
       method: 'DELETE',
-      headers: this.buildHeaders()
+      headers: this.buildHeaders(path)
     });
     return this.handleResponse<T>(res);
   }
@@ -91,7 +95,7 @@ export class ApiService {
   async postFormData<T>(path: string, formData: FormData): Promise<T> {
     const res = await fetch(this.baseUrl + path, {
       method: 'POST',
-      headers: this.buildFormHeaders(),
+      headers: this.buildFormHeaders(path),
       body: formData
     });
     return this.handleResponse<T>(res);
@@ -102,7 +106,7 @@ export class ApiService {
   }
 
   async getBlob(path: string): Promise<{ blob: Blob; headers: Headers }> {
-    const res = await fetch(this.baseUrl + path, { headers: this.buildHeaders() });
+    const res = await fetch(this.baseUrl + path, { headers: this.buildHeaders(path) });
     if (!res.ok) {
       let mensaje = `${res.status} ${res.statusText}`;
       try {

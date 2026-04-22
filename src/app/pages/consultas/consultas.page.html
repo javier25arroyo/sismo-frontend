@@ -53,8 +53,12 @@
         <select
           [ngModel]="plantaSeleccionada()?.codCentroPrd ?? ''"
           (ngModelChange)="setPlanta($event)"
+          (focus)="cargarCentrosSiNecesario()"
           class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-52">
           <option value="">Todas las plantas</option>
+          @if (cargandoCentros()) {
+            <option value="" disabled>Cargando plantas...</option>
+          }
           @for (c of centros(); track c.codCentroPrd) {
             <option [value]="c.codCentroPrd">{{ c.nomCentroPrd }}</option>
           }
@@ -104,14 +108,14 @@
 
     <!-- Sin búsqueda -->
     @if (!cargandoHistorial() && !errorHistorial() && !hasBuscadoAcel()) {
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-400">
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-500">
         Seleccioná los filtros y presioná <strong>Buscar</strong> para ver los resultados.
       </div>
     }
 
     <!-- Resultados vacíos -->
     @if (!cargandoHistorial() && !errorHistorial() && hasBuscadoAcel() && historialDatos().length === 0) {
-      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-400">
+      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-500">
         No se encontraron eventos sísmicos con los filtros seleccionados.
       </div>
     }
@@ -128,60 +132,62 @@
           </p>
         </div>
 
-        <!-- Mapa -->
-        <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-          <app-sismo-map
-            [sismos]="sismosMapaAcel"
-            [height]="'380px'"
-            [zoom]="7"
-            [showLegend]="true">
-          </app-sismo-map>
-        </div>
-
-        <!-- Gráficas: 2×2 grid -->
-        <div>
-          <h3 class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
-            Gráficas de información sismológica
-          </h3>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <app-scatter-chart
-              [datos]="chartMagnitudDistanciaAcel"
-              tituloX="Distancia (km)"
-              tituloY="Magnitud (Mw)"
-              titulo="Magnitud - Distancia"
-              colorPunto="#22c55e">
-            </app-scatter-chart>
-            <app-scatter-chart
-              [datos]="chartMagnitudProfundidadAcel"
-              tituloX="Profundidad (km)"
-              tituloY="Magnitud (Mw)"
-              titulo="Magnitud - Profundidad"
-              colorPunto="#22c55e">
-            </app-scatter-chart>
+        @defer (when historialDatos().length > 0) {
+          <!-- Mapa -->
+          <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+            <app-sismo-map
+              [sismos]="sismosMapaAcel"
+              [height]="'380px'"
+              [zoom]="7"
+              [showLegend]="true">
+            </app-sismo-map>
           </div>
-        </div>
 
-        <div>
-          <h3 class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
-            Gráficas de información acelerográfica
-          </h3>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <app-scatter-chart
-              [datos]="chartAcelMagnitud"
-              tituloX="Aceleración Pico (cm/s²)"
-              tituloY="Magnitud (Mw)"
-              titulo="Aceleración Pico - Magnitud"
-              colorPunto="#22c55e">
-            </app-scatter-chart>
-            <app-scatter-chart
-              [datos]="chartAcelDistancia"
-              tituloX="Aceleración Pico (cm/s²)"
-              tituloY="Distancia Hipocentral (km)"
-              titulo="Aceleración Pico - Distancia Hipocentral"
-              colorPunto="#22c55e">
-            </app-scatter-chart>
+          <!-- Gráficas: 2×2 grid -->
+          <div>
+            <h3 class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
+              Gráficas de información sismológica
+            </h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <app-scatter-chart
+                [datos]="chartMagnitudDistanciaAcel"
+                tituloX="Distancia (km)"
+                tituloY="Magnitud (Mw)"
+                titulo="Magnitud - Distancia"
+                colorPunto="#22c55e">
+              </app-scatter-chart>
+              <app-scatter-chart
+                [datos]="chartMagnitudProfundidadAcel"
+                tituloX="Profundidad (km)"
+                tituloY="Magnitud (Mw)"
+                titulo="Magnitud - Profundidad"
+                colorPunto="#22c55e">
+              </app-scatter-chart>
+            </div>
           </div>
-        </div>
+
+          <div>
+            <h3 class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
+              Gráficas de información acelerográfica
+            </h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <app-scatter-chart
+                [datos]="chartAcelMagnitud"
+                tituloX="Aceleración Pico (cm/s²)"
+                tituloY="Magnitud (Mw)"
+                titulo="Aceleración Pico - Magnitud"
+                colorPunto="#22c55e">
+              </app-scatter-chart>
+              <app-scatter-chart
+                [datos]="chartAcelDistancia"
+                tituloX="Aceleración Pico (cm/s²)"
+                tituloY="Distancia Hipocentral (km)"
+                titulo="Aceleración Pico - Distancia Hipocentral"
+                colorPunto="#22c55e">
+              </app-scatter-chart>
+            </div>
+          </div>
+        }
 
         <!-- Tabla -->
         <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -189,7 +195,7 @@
             <h3 class="font-semibold text-slate-800">
               Eventos sísmicos con registro acelerográfico en el sitio de monitoreo
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">
+            <p class="text-xs text-slate-500 mt-0.5">
               {{ historialDatos().length }} eventos &middot; Página {{ paginaHistorial() }} de {{ historialTotalPaginas }}
             </p>
           </div>
@@ -198,7 +204,7 @@
               <article class="p-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Evento {{ (paginaHistorial() - 1) * pageSizeHistorial + idx + 1 }}
                     </p>
                     <p class="text-sm font-medium text-slate-700">
@@ -211,37 +217,37 @@
                 </div>
                 <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Latitud</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Latitud</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.coordenadaY | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Longitud</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Longitud</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.coordenadaX | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Magnitud</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Magnitud</dt>
                     <dd class="text-sm font-bold" [style.color]="colorMagnitud(evento.magnitud)">
                       {{ evento.magnitud | number:'1.1-1' }} Mw
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Profundidad</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Profundidad</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.profundidad | number:'1.0-0' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Dist. Hipocentral</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Dist. Hipocentral</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Dist. Epicentral</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Dist. Epicentral</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.distanciaEpicentral ?? 0) | number:'1.2-2' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Aceleración</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Aceleración</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-400">Desplazamiento</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Desplazamiento</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }}</dd>
                   </div>
                 </dl>
@@ -269,7 +275,7 @@
               <tbody class="divide-y divide-slate-100">
                 @for (evento of historialPagina; track evento.feSismo + evento.codEstacion; let idx = $index) {
                   <tr class="transition hover:bg-slate-50">
-                    <td class="px-2 py-3 text-slate-400">
+                    <td class="px-2 py-3 text-slate-500">
                       {{ (paginaHistorial() - 1) * pageSizeHistorial + idx + 1 }}
                     </td>
                     <td class="px-2 py-3 text-slate-700">
@@ -340,14 +346,14 @@
 
     <!-- Sin búsqueda -->
     @if (!cargandoRsn() && !errorRsn() && !hasBuscadoRsn()) {
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-400">
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-500">
         Seleccioná los filtros y presioná <strong>Buscar</strong> para ver los resultados RSN.
       </div>
     }
 
     <!-- Sin datos -->
     @if (!cargandoRsn() && !errorRsn() && hasBuscadoRsn() && rsnDatos().length === 0) {
-      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-400">
+      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-500">
         No se encontraron eventos RSN con los filtros seleccionados.
       </div>
     }
@@ -364,38 +370,40 @@
           </p>
         </div>
 
-        <!-- Mapa RSN -->
-        <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-          <app-sismo-map
-            [sismos]="sismosMapaRsn"
-            [height]="'380px'"
-            [zoom]="7"
-            [showLegend]="true">
-          </app-sismo-map>
-        </div>
-
-        <!-- Gráficas RSN: 1×2 -->
-        <div>
-          <h3 class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
-            Gráficas de información sismológica
-          </h3>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <app-scatter-chart
-              [datos]="chartMagnitudDistanciaRsn"
-              tituloX="Distancia (km)"
-              tituloY="Magnitud (Mw)"
-              titulo="Magnitud - Distancia"
-              colorPunto="#3b82f6">
-            </app-scatter-chart>
-            <app-scatter-chart
-              [datos]="chartMagnitudProfundidadRsn"
-              tituloX="Profundidad (km)"
-              tituloY="Magnitud (Mw)"
-              titulo="Magnitud - Profundidad"
-              colorPunto="#3b82f6">
-            </app-scatter-chart>
+        @defer (when rsnDatos().length > 0) {
+          <!-- Mapa RSN -->
+          <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+            <app-sismo-map
+              [sismos]="sismosMapaRsn"
+              [height]="'380px'"
+              [zoom]="7"
+              [showLegend]="true">
+            </app-sismo-map>
           </div>
-        </div>
+
+          <!-- Gráficas RSN: 1×2 -->
+          <div>
+            <h3 class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
+              Gráficas de información sismológica
+            </h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <app-scatter-chart
+                [datos]="chartMagnitudDistanciaRsn"
+                tituloX="Distancia (km)"
+                tituloY="Magnitud (Mw)"
+                titulo="Magnitud - Distancia"
+                colorPunto="#3b82f6">
+              </app-scatter-chart>
+              <app-scatter-chart
+                [datos]="chartMagnitudProfundidadRsn"
+                tituloX="Profundidad (km)"
+                tituloY="Magnitud (Mw)"
+                titulo="Magnitud - Profundidad"
+                colorPunto="#3b82f6">
+              </app-scatter-chart>
+            </div>
+          </div>
+        }
 
         <!-- Tabla RSN -->
         <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -403,7 +411,7 @@
             <h3 class="font-semibold text-slate-800">
               Tabla de eventos sísmicos registrados por la RSN: UCR-ICE
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">
+            <p class="text-xs text-slate-500 mt-0.5">
               {{ rsnDatos().length }} eventos &middot; Página {{ paginaRsn() }} de {{ rsnTotalPaginas }}
             </p>
           </div>
@@ -425,7 +433,7 @@
               <tbody class="divide-y divide-slate-100">
                 @for (evento of rsnPagina; track evento.feSismo; let idx = $index) {
                   <tr class="transition hover:bg-slate-50">
-                    <td class="px-4 py-3 text-slate-400">
+                    <td class="px-4 py-3 text-slate-500">
                       {{ (paginaRsn() - 1) * pageSizeRsn + idx + 1 }}
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-slate-700">

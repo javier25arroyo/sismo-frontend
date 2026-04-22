@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
@@ -7,6 +7,7 @@ import { FooterComponent } from '../footer/footer.component';
   standalone: true,
   selector: 'app-main-layout',
   imports: [HeaderComponent, FooterComponent, RouterOutlet],
-  templateUrl: './main-layout.component.html'
+  templateUrl: './main-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainLayoutComponent {}

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { ScatterChartComponent, ScatterDato } from '../../components/scatter-chart/scatter-chart.component';
@@ -30,6 +30,7 @@ interface EventoAgregado {
 @Component({
   standalone: true,
   selector: 'app-consultas',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -40,13 +41,15 @@ interface EventoAgregado {
   ],
   templateUrl: './consultas.page.html'
 })
-export class ConsultasPage implements OnInit {
+export class ConsultasPage {
   readonly downloadIcon = Download;
   readonly searchIcon   = Search;
 
   tab = signal<'acelerografos' | 'rsn'>('acelerografos');
 
   centros = signal<CentroProduccionRespuesta[]>([]);
+  centrosCargados = signal(false);
+  cargandoCentros = signal(false);
 
   anioSeleccionado = signal<number | null>(null);
   plantaSeleccionada = signal<CentroProduccionRespuesta | null>(null);
@@ -80,16 +83,17 @@ export class ConsultasPage implements OnInit {
     private centroService: CentroService
   ) {}
 
-  ngOnInit(): void {
-    void this.cargarCentros();
-  }
-
-  private async cargarCentros(): Promise<void> {
+  async cargarCentrosSiNecesario(): Promise<void> {
+    if (this.centrosCargados() || this.cargandoCentros()) return;
+    this.cargandoCentros.set(true);
     try {
       const res = await this.centroService.getCentros(undefined, undefined, 0, 200);
       this.centros.set(res.content);
+      this.centrosCargados.set(true);
     } catch {
       this.centros.set([]);
+    } finally {
+      this.cargandoCentros.set(false);
     }
   }
 
@@ -107,6 +111,7 @@ export class ConsultasPage implements OnInit {
   }
 
   async buscar(): Promise<void> {
+    await this.cargarCentrosSiNecesario();
     if (this.tab() === 'acelerografos') {
       await this.buscarHistorial();
     } else {
