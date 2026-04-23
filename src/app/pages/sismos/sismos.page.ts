@@ -301,13 +301,16 @@ export class SismosPage implements OnInit, OnDestroy {
 
     switch (estado) {
       case 'verificada':
-        return 'Ubicación verificada por la Red Sísmica Nacional';
+        return 'Ya ha sido revisado por la RSN';
       case 'revision':
         return 'Ubicación en proceso de verificación';
       case 'pendiente':
         return 'Ubicación pendiente de verificación';
-      default:
-        return ubicacion;
+      default: {
+        let txt = ubicacion.replace(/\s*\)\s*$/, '').trim();
+        txt = txt.replace(/\brevisada\b/g, 'revisado').replace(/\bRevisada\b/g, 'Revisado');
+        return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
+      }
     }
   }
 }

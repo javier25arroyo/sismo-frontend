@@ -6,6 +6,7 @@ import { SismoService } from '../../services/sismo.service';
 import { CentroService } from '../../services/centro.service';
 import { EstacionRespuesta } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
+import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
 
 interface MagnitudBucket {
   label: string;
@@ -18,7 +19,7 @@ interface MagnitudBucket {
 @Component({
   standalone: true,
   selector: 'app-mapa-page',
-  imports: [CommonModule, FormsModule, SismoMapComponent],
+  imports: [CommonModule, FormsModule, SismoMapComponent, UbicacionNormalizadaPipe],
   templateUrl: './mapa.page.html'
 })
 export class MapaPage implements OnInit {
