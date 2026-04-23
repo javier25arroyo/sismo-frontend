@@ -164,6 +164,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   // ─── Descargar: descarga autenticada ─────────────────────────────────────
   async descargar(r: ReporteRespuesta): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Debes iniciar sesión para descargar reportes.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
+      return;
+    }
     await this.fetchYDescargar(r.fecha, r.titulo, r.fecha);
   }
 
@@ -245,6 +250,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   // ─── Generar: descargar completado ───────────────────────────────────────
   async descargarGenerado(g: GeneracionReporteRespuesta): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Debes iniciar sesión para descargar reportes.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
+      return;
+    }
     await this.fetchYDescargar(g.feSismo, `Reporte_${g.feSismo}`, g.id);
   }
 
@@ -332,6 +342,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   // ─── CSV: exportar reportes ───────────────────────────────────────────────
   async exportarReportesCsv(): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Debes iniciar sesión para descargar reportes.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
+      return;
+    }
     this.exportandoReportes.set(true);
     this.mensajeDescarga.set(null);
     try {
@@ -366,6 +381,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   // ─── CSV: exportar sismos (via backend /api/reportes/consolidado/csv) ────
   async exportarSismosCsv(): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Debes iniciar sesión para descargar reportes.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
+      return;
+    }
     const desde = this.csvSismoDesde();
     const hasta = this.csvSismoHasta();
     if (!desde || !hasta) {
@@ -393,6 +413,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   // ─── CSV: exportar historial (via backend /api/resumen/historico/csv) ────
   async exportarHistoricoCsv(): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Debes iniciar sesión para descargar reportes.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
+      return;
+    }
     this.exportandoHistorico.set(true);
     this.mensajeDescarga.set(null);
     try {
@@ -413,6 +438,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   // ─── PDF Consolidado ─────────────────────────────────────────────────────
   async descargarPdfConsolidado(): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      this.mensajeDescarga.set({ tipo: 'error', texto: 'Debes iniciar sesión para descargar reportes.' });
+      setTimeout(() => this.mensajeDescarga.set(null), 4000);
+      return;
+    }
     const desde = this.pdfConsolidadoDesde();
     const hasta = this.pdfConsolidadoHasta();
     if (!desde || !hasta) {

@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
+import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
@@ -9,38 +10,109 @@ import { CentroService } from '../../services/centro.service';
 import {
   EstacionRespuesta,
   GeneracionReporteRespuesta,
-  ResumenHistoricoRespuesta,
   SismoRespuesta
 } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
 import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
+import {
+  LucideAngularModule,
+  Share2,
+  FileText,
+  AlertCircle,
+  Info,
+  MapPin,
+  Clock,
+  Navigation,
+  Activity,
+  ChevronRight,
+  ShieldCheck,
+  Loader2,
+  Hourglass
+} from 'lucide-angular';
+
+interface EstacionAceleracionRow {
+  codigo: string;
+  nombre: string;
+  centro: string;
+  distanciaKm: number;
+  pga: number | null;
+  pgv: number | null;
+  nivel: 'NIVEL 1' | 'NIVEL 2' | 'NIVEL 3' | 'NIVEL 4' | 'SIN DATO';
+}
 
 @Component({
   standalone: true,
   selector: 'app-sismos',
-  imports: [CommonModule, SismoMapComponent, StatusBadgeComponent, PaginacionComponent],
+  imports: [
+    CommonModule,
+    SismoMapComponent,
+    MagnitudBadgeComponent,
+    StatusBadgeComponent,
+    PaginacionComponent,
+    LucideAngularModule
+  ],
   templateUrl: './sismos.page.html'
 })
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
   sismosMapa = signal<Sismo[]>([]);
   estaciones = signal<EstacionRespuesta[]>([]);
-  detalleEstaciones = signal<ResumenHistoricoRespuesta[]>([]);
   cargando = signal(true);
-  cargandoDetalle = signal(false);
   errorCarga = signal('');
-  errorDetalle = signal('');
   mensajeAccion = signal('');
   estadoReporte = signal<GeneracionReporteRespuesta | null>(null);
   generandoPdf = signal(false);
-  pagina = signal(1);
-  totalPaginas = signal(1);
-  totalEstaciones = signal(0);
-  readonly pageSize = 10;
+  paginaTabla = signal(1);
+  readonly pageSize = 5;
   private pollingId: ReturnType<typeof setTimeout> | null = null;
   private destruido = false;
+
+  readonly shareIcon = Share2;
+  readonly fileTextIcon = FileText;
+  readonly alertIcon = AlertCircle;
+  readonly infoIcon = Info;
+  readonly mapPinIcon = MapPin;
+  readonly clockIcon = Clock;
+  readonly navIcon = Navigation;
+  readonly activityIcon = Activity;
+  readonly chevronIcon = ChevronRight;
+  readonly shieldIcon = ShieldCheck;
+  readonly loaderIcon = Loader2;
+  readonly hourglassIcon = Hourglass;
+
+  estacionesAceleracion = computed<EstacionAceleracionRow[]>(() => {
+    const sismo = this.ultimoSismo();
+    if (!sismo) return [];
+    const feSismo = sismo.feSismo;
+    return this.sismosMapa()
+      .filter(s => s.feSismo === feSismo)
+      .map<EstacionAceleracionRow>(s => {
+        const pga = s.vaAceleracion ?? null;
+        return {
+          codigo: s.codEstacion,
+          nombre: s.nomEstacion,
+          centro: s.nomCentroPrd,
+          distanciaKm: this.distanciaKm(sismo.coordenadaY, sismo.coordenadaX, s.coordenadaY ?? 0, s.coordenadaX ?? 0),
+          pga,
+          pgv: s.vaDesplazamiento ?? null,
+          nivel: this.nivelPga(pga)
+        };
+      })
+      .sort((a, b) => a.distanciaKm - b.distanciaKm);
+  });
+
+  totalPaginasTabla = computed(() => {
+    const total = this.estacionesAceleracion().length;
+    return Math.max(1, Math.ceil(total / this.pageSize));
+  });
+
+  estacionesPaginadas = computed<EstacionAceleracionRow[]>(() => {
+    const pag = this.paginaTabla();
+    const inicio = (pag - 1) * this.pageSize;
+    return this.estacionesAceleracion().slice(inicio, inicio + this.pageSize);
+  });
 
   constructor(
     private sismoService: SismoService,
@@ -96,64 +168,14 @@ export class SismosPage implements OnInit, OnDestroy {
 
       this.ultimoSismo.set(sismo);
       this.sismosMapa.set(resumenes);
-
-      if (sismo) {
-        await this.cargarDetalleEstaciones(1, sismo.feSismo);
-      } else {
-        this.detalleEstaciones.set([]);
-      }
     } catch (error) {
       this.ultimoSismo.set(null);
       this.sismosMapa.set([]);
-      this.detalleEstaciones.set([]);
-      this.totalEstaciones.set(0);
       this.errorCarga.set(this.obtenerMensajeError(error, 'No fue posible cargar la información sísmica.'));
     } finally {
       this.cargando.set(false);
     }
   }
-
-  private async cargarDetalleEstaciones(
-    pagina = this.pagina(),
-    feSismo = this.ultimoSismo()?.feSismo
-  ): Promise<void> {
-    if (!feSismo) {
-      this.detalleEstaciones.set([]);
-      this.totalPaginas.set(1);
-      this.totalEstaciones.set(0);
-      return;
-    }
-
-    this.cargandoDetalle.set(true);
-    this.errorDetalle.set('');
-    this.pagina.set(pagina);
-
-    try {
-      const res = await this.historicoService.getHistorico({
-        desde: feSismo,
-        hasta: feSismo,
-        page: pagina - 1,
-        size: this.pageSize
-      });
-
-      const detalleEvento = res.content.filter(evento => evento.feSismo === feSismo);
-      this.detalleEstaciones.set(detalleEvento);
-      this.totalPaginas.set(res.totalPages || 1);
-      this.totalEstaciones.set(res.totalElements || detalleEvento.length);
-    } catch (error) {
-      this.detalleEstaciones.set([]);
-      this.totalPaginas.set(1);
-      this.totalEstaciones.set(0);
-      this.errorDetalle.set(this.obtenerMensajeError(error, 'No fue posible cargar el detalle por estación.'));
-    } finally {
-      this.cargandoDetalle.set(false);
-    }
-  }
-
-  cambiarPagina(p: number): void {
-    void this.cargarDetalleEstaciones(p);
-  }
-
   async compartirDatos(): Promise<void> {
     const sismo = this.ultimoSismo();
     if (!sismo) return;
@@ -284,20 +306,6 @@ export class SismosPage implements OnInit, OnDestroy {
     return this.auth.isAdmin() ? 'Solicitar PDF' : 'PDF';
   }
 
-  getEstadoRed(evento: ResumenHistoricoRespuesta): string {
-    const m = evento.magnitud;
-    const d = evento.distanciaHipocentral ?? 0;
-
-    if (m >= 6.0 && d <= 600) return 'NIVEL 4';
-    if (m >= 5.0 && d <= 400) return 'NIVEL 3';
-    if (m >= 4.0 && d <= 70)  return 'NIVEL 2';
-    if (m >= 3.5 && d <= 20)  return 'NIVEL 1';
-
-    if (!evento.vaAceleracion) return 'INACTIVO';
-    if (evento.vaAceleracion > 50) return 'FALLA RED';
-    return 'ACTIVO';
-  }
-
   get magnitudColor(): string {
     const m = this.ultimoSismo()?.magnitud ?? 0;
     if (m < 3.0) return '#22c55e'; // Verde - Nivel 1
@@ -306,9 +314,78 @@ export class SismosPage implements OnInit, OnDestroy {
     return '#ef4444';             // Rojo - Nivel 4
   }
 
-  get precision(): number {
-    const count = this.sismosMapa().length;
-    if (count === 0) return 0;
-    return Math.min(99, Math.round(85 + count / 10));
+  get nivelMagnitud(): string {
+    const m = this.ultimoSismo()?.magnitud ?? 0;
+    if (m < 2.5) return 'Micro';
+    if (m < 4.0) return 'Menor';
+    if (m < 5.0) return 'Moderado';
+    if (m < 6.0) return 'Fuerte';
+    if (m < 7.0) return 'Mayor';
+    return 'Extremo';
+  }
+
+  getColorEstadoUbicacion(estado: string): string {
+    switch (estado) {
+      case 'verificada': return 'green';
+      case 'revision': return 'amber';
+      case 'pendiente': return 'slate';
+      default: return 'slate';
+    }
+  }
+
+  getEstadoUbicacion(ubicacion: string | undefined): 'verificada' | 'revision' | 'pendiente' | 'desconocida' {
+    if (!ubicacion) return 'desconocida';
+    
+    if (/revisada?\s*(?:por\s*)?(?:la\s*)?rsn|ya\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
+      return 'verificada';
+    }
+    if (/en\s+revisión|en\s+revision|pendiente\s+de\s+revisión/i.test(ubicacion)) {
+      return 'revision';
+    }
+    if (/sin\s+revisar|no\s+revisada?|no\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
+      return 'pendiente';
+    }
+    return 'desconocida';
+  }
+
+  formatearUbicacion(ubicacion: string | undefined): string {
+    if (!ubicacion) return 'Sin información de ubicación';
+
+    const estado = this.getEstadoUbicacion(ubicacion);
+
+    switch (estado) {
+      case 'verificada':
+        return 'Ubicación verificada por la Red Sísmica Nacional';
+      case 'revision':
+        return 'Ubicación en proceso de verificación';
+      case 'pendiente':
+        return 'Ubicación pendiente de verificación';
+      default:
+        return ubicacion;
+    }
+  }
+
+  cambiarPaginaTabla(p: number): void {
+    this.paginaTabla.set(p);
+  }
+
+  private distanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
+    const R = 6371;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
+  }
+
+  private nivelPga(pga: number | null): EstacionAceleracionRow['nivel'] {
+    if (pga === null || pga === undefined || Number.isNaN(pga)) return 'SIN DATO';
+    if (pga < 10) return 'NIVEL 1';
+    if (pga < 50) return 'NIVEL 2';
+    if (pga < 200) return 'NIVEL 3';
+    return 'NIVEL 4';
   }
 }

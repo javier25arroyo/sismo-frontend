@@ -1,62 +1,81 @@
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-  <!-- BREADCRUMB + TITLE + ACTIONS -->
+  <!-- HEADER: breadcrumb + title + actions -->
   <div class="flex flex-wrap items-start justify-between gap-4">
-    <div>
-      <nav class="text-xs font-medium text-slate-500 mb-2">
-        <span>CENTRO</span>
-        <span class="mx-1.5">›</span>
-        <span>EN LÍNEA</span>
-        <span class="mx-1.5">›</span>
-        <span class="text-slate-600">Mag. Pro</span>
+    <div class="min-w-0">
+      <nav aria-label="Ruta de navegación" class="flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+        <span>Centro</span>
+        <i-lucide [img]="chevronIcon" size="12" class="text-slate-300"></i-lucide>
+        <span>En línea</span>
+        <i-lucide [img]="chevronIcon" size="12" class="text-slate-300"></i-lucide>
+        <span class="text-sky-700">Evento activo</span>
       </nav>
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900">
-        Sismo en Costa Rica
-      </h1>
-      <p class="mt-1 text-sm text-slate-500">
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          Sismo en Costa Rica
+        </h1>
+        <span *ngIf="ultimoSismo()" class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700 ring-1 ring-green-200">
+          <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
+          EN VIVO
+        </span>
+      </div>
+      <p class="mt-2 max-w-2xl text-sm text-slate-500">
         Reporte de análisis acelerográfico generado por la Red Nacional. Datos procesados en tiempo real mediante estaciones de alta fidelidad.
       </p>
     </div>
-    <div class="flex items-center gap-2">
+
+    <div class="flex flex-wrap items-center gap-2">
       <button
         type="button"
         (click)="compartirDatos()"
         [disabled]="!puedeCompartir"
-        class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
-        </svg>
-        Compartir Datos
+        title="Compartir resumen del sismo"
+        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition duration-200 hover:-translate-y-px hover:bg-slate-50 hover:shadow active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">
+        <i-lucide [img]="shareIcon" size="16"></i-lucide>
+        Compartir
       </button>
       <button
         type="button"
         (click)="solicitarPdf()"
         [disabled]="!puedeSolicitarPdf"
-        class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">
+        [title]="auth.isAdmin() ? 'Solicitar PDF del reporte' : 'Solo administradores pueden generar reportes PDF'"
+        class="inline-flex items-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm transition duration-200 hover:-translate-y-px hover:bg-sky-100 hover:shadow active:scale-[0.98] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-white disabled:text-slate-400 disabled:hover:translate-y-0">
+        <i-lucide [img]="generandoPdf() ? loaderIcon : fileTextIcon" size="16" [class.animate-spin]="generandoPdf()"></i-lucide>
         {{ etiquetaPdf }}
       </button>
     </div>
   </div>
 
-  <div *ngIf="mensajeAccion()" class="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-    {{ mensajeAccion() }}
+  <!-- BANNERS -->
+  <div *ngIf="mensajeAccion()" class="flex items-start gap-3 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+    <i-lucide [img]="infoIcon" size="18" class="mt-0.5 flex-shrink-0"></i-lucide>
+    <div>{{ mensajeAccion() }}</div>
   </div>
 
-  <div *ngIf="!auth.isAdmin()" class="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-    La generación de PDF está disponible solo para usuarios con rol administrador.
+  <div *ngIf="!auth.isAdmin()" class="flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <i-lucide [img]="infoIcon" size="18" class="mt-0.5 flex-shrink-0"></i-lucide>
+    <div>Los reportes en PDF están disponibles solo para usuarios con rol administrador.</div>
   </div>
 
-  <div *ngIf="errorCarga()" class="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-    {{ errorCarga() }}
+  <div *ngIf="errorCarga()" class="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+    <i-lucide [img]="alertIcon" size="18" class="mt-0.5 flex-shrink-0"></i-lucide>
+    <div>{{ errorCarga() }}</div>
+  </div>
+
+  <!-- SKELETON -->
+  <div *ngIf="cargando()" class="grid gap-6 lg:grid-cols-[3fr_2fr]">
+    <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 animate-pulse h-[440px]"></div>
+    <div class="space-y-4">
+      <div class="h-24 rounded-2xl bg-slate-100 animate-pulse"></div>
+      <div class="h-64 rounded-2xl bg-slate-100 animate-pulse"></div>
+    </div>
   </div>
 
   <!-- MAP + STATS PANEL -->
-  <div *ngIf="cargando()" class="h-96 rounded-2xl bg-slate-100 animate-pulse"></div>
-
   <div *ngIf="!cargando()" class="grid gap-6 lg:grid-cols-[3fr_2fr] lg:items-stretch" style="min-height:480px">
 
     <!-- MAP -->
-    <div class="rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-full min-h-[440px]">
+    <div class="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm h-full min-h-[440px]">
       <app-sismo-map
         [sismos]="sismosMapa()"
         [epicentro]="ultimoSismo()"
@@ -68,26 +87,65 @@
 
     <!-- STATS PANEL -->
     <div class="space-y-4">
-      <!-- Magnitude card -->
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <div class="flex items-center gap-2 mb-3">
-          <div class="h-2 w-2 rounded-full bg-sky-500 animate-pulse"></div>
-          <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Magnitud Momento</span>
+
+      <!-- Location Status Card -->
+      <div
+        *ngIf="ultimoSismo()"
+        [ngClass]="'rounded-2xl border-l-4 p-5 shadow-sm transition-all duration-200 ' +
+        (getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'border-l-green-500 border border-green-200 bg-green-50' :
+         getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'border-l-amber-500 border border-amber-200 bg-amber-50' :
+         'border-l-slate-300 border border-slate-200 bg-white')">
+        <div class="flex items-center gap-2 mb-1">
+          <i-lucide
+            [img]="getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'verificada' ? shieldIcon :
+                   getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'revision' ? loaderIcon : hourglassIcon"
+            size="14"
+            [class]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'text-green-700' :
+                     getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'text-amber-700' :
+                     'text-slate-500'"
+            [class.animate-spin]="getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'revision'"></i-lucide>
+          <p class="text-[11px] font-bold uppercase tracking-widest"
+            [ngClass]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'text-green-700' :
+                       getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'text-amber-700' :
+                       'text-slate-500'">
+            Estado de Ubicación
+          </p>
         </div>
+        <p class="text-sm font-medium text-slate-800">{{ formatearUbicacion(ultimoSismo()!.ubicacion) }}</p>
+      </div>
+
+      <!-- Magnitude card -->
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <div class="h-2 w-2 rounded-full bg-sky-500 animate-pulse"></div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-slate-500">Magnitud Momento</span>
+          </div>
+          <app-magnitud-badge *ngIf="ultimoSismo()" [magnitud]="ultimoSismo()!.magnitud"></app-magnitud-badge>
+        </div>
+
         <div *ngIf="ultimoSismo()">
-          <div class="flex items-end gap-2">
-            <span class="text-7xl font-bold tabular-nums" [style.color]="magnitudColor">
+          <div class="flex items-baseline gap-3">
+            <span class="text-6xl font-bold tabular-nums leading-none" [style.color]="magnitudColor">
               {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
             </span>
-            <span class="text-slate-500 mb-3 text-lg">Mw</span>
+            <div class="flex flex-col">
+              <span class="text-lg font-semibold text-slate-500">Mw</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">{{ nivelMagnitud }}</span>
+            </div>
           </div>
-          <p class="mt-1 text-xs text-slate-500">
-            ✓ Verificado por {{ precision }} estaciones de control
+
+          <p class="mt-4 flex items-center gap-1.5 text-xs text-slate-500 border-t border-slate-100 pt-3">
+            <i-lucide [img]="shieldIcon" size="12" class="text-green-600"></i-lucide>
+            Verificado por estaciones de control
           </p>
 
-          <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Coordenadas</p>
+              <p class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+                <i-lucide [img]="mapPinIcon" size="11"></i-lucide>
+                Coordenadas
+              </p>
               <p class="mt-1 font-mono text-xs text-slate-700">
                 {{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}°N
               </p>
@@ -96,106 +154,94 @@
               </p>
             </div>
             <div>
-              <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Profundidad</p>
-              <p class="mt-1 font-semibold text-slate-700">{{ ultimoSismo()!.profundidad }} km</p>
+              <p class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+                <i-lucide [img]="navIcon" size="11"></i-lucide>
+                Profundidad
+              </p>
+              <p class="mt-1 font-semibold text-slate-700 tabular-nums">{{ ultimoSismo()!.profundidad }} km</p>
             </div>
           </div>
 
-          <div class="mt-3 pt-3 border-t border-slate-100">
-            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Estampado de tiempo (UTC)</p>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <p class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              <i-lucide [img]="clockIcon" size="11"></i-lucide>
+              Hora (UTC)
+            </p>
             <p class="mt-1 font-mono text-xs text-slate-700">{{ ultimoSismo()!.feSismo | date:'yyyy-MM-dd HH:mm:ss' }}</p>
           </div>
         </div>
+
         <div *ngIf="!ultimoSismo()" class="text-sm text-slate-500">Sin datos disponibles</div>
-      </div>
-
-      <!-- Precision telemetry -->
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Precisión de Telemetría</p>
-        <div class="flex items-center gap-3">
-          <div class="flex-1 h-2 rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-sky-500 transition-all"
-              [style.width]="precision + '%'"></div>
-          </div>
-          <span class="text-sm font-bold tabular-nums text-slate-700">{{ precision }}%</span>
-        </div>
-        <p class="mt-1 text-xs text-slate-500">{{ sismosMapa().length }} estaciones activas en red</p>
-      </div>
-
-      <!-- Location -->
-      <div *ngIf="ultimoSismo()" class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Ubicación reportada</p>
-        <p class="font-medium text-slate-900">{{ ultimoSismo()!.ubicacion }}</p>
       </div>
     </div>
   </div>
 
   <!-- ACCELERATION TABLE -->
-  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-      <div>
-        <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">Detalle de Aceleración por Estación</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Resumen consolidado por estación para el evento sísmico actual</p>
+  <section *ngIf="!cargando() && ultimoSismo()" class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+          <i-lucide [img]="activityIcon" size="18"></i-lucide>
+        </div>
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">Detalle de Aceleración por Estación</h2>
+          <p class="text-xs text-slate-500">
+            {{ estacionesAceleracion().length }} estaciones registraron el evento · Ordenadas por distancia
+          </p>
+        </div>
       </div>
-      <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        {{ totalEstaciones() }} estaciones
-      </span>
     </div>
 
-    <!-- Skeleton: solo en carga inicial de estaciones -->
-    <div *ngIf="cargandoDetalle() && detalleEstaciones().length === 0" class="px-6 py-5 space-y-3">
-      <div *ngFor="let i of [1,2,3]" class="h-12 rounded-xl bg-slate-100 animate-pulse"></div>
+    <div *ngIf="estacionesAceleracion().length > 0; else sinEstaciones" class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-[11px] uppercase tracking-widest text-slate-500">
+          <tr>
+            <th scope="col" class="px-5 py-3 text-left font-bold">Código</th>
+            <th scope="col" class="px-5 py-3 text-left font-bold">Ubicación</th>
+            <th scope="col" class="px-5 py-3 text-right font-bold">Distancia</th>
+            <th scope="col" class="px-5 py-3 text-right font-bold">PGA (cm/s²)</th>
+            <th scope="col" class="px-5 py-3 text-right font-bold">PGV (cm)</th>
+            <th scope="col" class="px-5 py-3 text-left font-bold">Estado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let row of estacionesPaginadas()" class="transition-colors hover:bg-slate-50">
+            <td class="px-5 py-3 font-mono text-xs font-semibold text-slate-900">{{ row.codigo }}</td>
+            <td class="px-5 py-3">
+              <div class="font-medium text-slate-800">{{ row.nombre }}</div>
+              <div class="text-xs text-slate-500">{{ row.centro }}</div>
+            </td>
+            <td class="px-5 py-3 text-right font-mono text-xs tabular-nums text-slate-700">
+              {{ row.distanciaKm | number:'1.1-1' }} km
+            </td>
+            <td class="px-5 py-3 text-right font-mono text-xs tabular-nums text-slate-700">
+              {{ row.pga !== null ? (row.pga | number:'1.2-2') : '—' }}
+            </td>
+            <td class="px-5 py-3 text-right font-mono text-xs tabular-nums text-slate-700">
+              {{ row.pgv !== null ? (row.pgv | number:'1.2-2') : '—' }}
+            </td>
+            <td class="px-5 py-3">
+              <app-status-badge [estado]="row.nivel"></app-status-badge>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div *ngIf="errorDetalle()" class="border-b border-slate-100 px-6 py-4 text-sm text-rose-600">
-      {{ errorDetalle() }}
-    </div>
+    <ng-template #sinEstaciones>
+      <div class="px-5 py-12 text-center text-sm text-slate-500">
+        <i-lucide [img]="infoIcon" size="24" class="mx-auto mb-2 text-slate-300"></i-lucide>
+        No hay registros de estaciones para este evento.
+      </div>
+    </ng-template>
 
-    <table *ngIf="!cargandoDetalle() || detalleEstaciones().length > 0"
-      class="w-full text-xs transition-opacity duration-300"
-      [class.opacity-40]="cargandoDetalle()"
-      [class.pointer-events-none]="cargandoDetalle()">
-      <thead>
-        <tr class="border-b border-slate-100 bg-slate-50">
-          <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Código</th>
-          <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estación</th>
-          <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Distancia (km)</th>
-          <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Aceleración</th>
-          <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let estacion of detalleEstaciones()" class="border-b border-slate-100 hover:bg-slate-50 last:border-0">
-          <td class="px-4 py-3 font-bold text-sky-700">{{ estacion.codEstacion }}</td>
-          <td class="px-4 py-3">
-            <p class="font-medium text-slate-700">{{ estacion.nomEstacion }}</p>
-            <p class="text-[11px] uppercase tracking-wide text-slate-500">{{ estacion.codCentroPrd }}</p>
-          </td>
-          <td class="px-4 py-3 text-slate-600">
-            {{ estacion.distanciaHipocentral ?? 0 | number:'1.1-1' }}
-          </td>
-          <td class="px-4 py-3">
-            <span [class]="(estacion.vaAceleracion ?? 0) > 50 ? 'font-bold text-rose-600' : 'text-slate-700'">
-              {{ (estacion.vaAceleracion ?? 0) | number:'1.1-1' }}
-            </span>
-          </td>
-          <td class="px-4 py-3">
-            <app-status-badge [estado]="getEstadoRed(estacion)"></app-status-badge>
-          </td>
-        </tr>
-        <tr *ngIf="detalleEstaciones().length === 0">
-          <td colspan="5" class="px-4 py-8 text-center text-slate-500">Sin datos de aceleración disponibles</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="border-t border-slate-100 px-6 py-4">
+    <div *ngIf="estacionesAceleracion().length > pageSize" class="border-t border-slate-100 px-5 py-3">
       <app-paginacion
-        [paginaActual]="pagina()"
-        [totalPaginas]="totalPaginas()"
-        (paginaCambio)="cambiarPagina($event)">
+        [paginaActual]="paginaTabla()"
+        [totalPaginas]="totalPaginasTabla()"
+        (paginaCambio)="cambiarPaginaTabla($event)">
       </app-paginacion>
     </div>
-  </div>
+  </section>
 
 </div>
