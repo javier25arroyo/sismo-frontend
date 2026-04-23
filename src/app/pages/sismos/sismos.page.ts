@@ -1,10 +1,7 @@
-import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
-import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
-import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
-import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
 import { CentroService } from '../../services/centro.service';
 import {
@@ -25,22 +22,11 @@ import {
   MapPin,
   Clock,
   Navigation,
-  Activity,
   ChevronRight,
   ShieldCheck,
   Loader2,
   Hourglass
 } from 'lucide-angular';
-
-interface EstacionAceleracionRow {
-  codigo: string;
-  nombre: string;
-  centro: string;
-  distanciaKm: number;
-  pga: number | null;
-  pgv: number | null;
-  nivel: 'NIVEL 1' | 'NIVEL 2' | 'NIVEL 3' | 'NIVEL 4' | 'SIN DATO';
-}
 
 @Component({
   standalone: true,
@@ -48,9 +34,6 @@ interface EstacionAceleracionRow {
   imports: [
     CommonModule,
     SismoMapComponent,
-    MagnitudBadgeComponent,
-    StatusBadgeComponent,
-    PaginacionComponent,
     LucideAngularModule
   ],
   templateUrl: './sismos.page.html'
@@ -64,8 +47,6 @@ export class SismosPage implements OnInit, OnDestroy {
   mensajeAccion = signal('');
   estadoReporte = signal<GeneracionReporteRespuesta | null>(null);
   generandoPdf = signal(false);
-  paginaTabla = signal(1);
-  readonly pageSize = 5;
   private pollingId: ReturnType<typeof setTimeout> | null = null;
   private destruido = false;
 
@@ -76,43 +57,10 @@ export class SismosPage implements OnInit, OnDestroy {
   readonly mapPinIcon = MapPin;
   readonly clockIcon = Clock;
   readonly navIcon = Navigation;
-  readonly activityIcon = Activity;
   readonly chevronIcon = ChevronRight;
   readonly shieldIcon = ShieldCheck;
   readonly loaderIcon = Loader2;
   readonly hourglassIcon = Hourglass;
-
-  estacionesAceleracion = computed<EstacionAceleracionRow[]>(() => {
-    const sismo = this.ultimoSismo();
-    if (!sismo) return [];
-    const feSismo = sismo.feSismo;
-    return this.sismosMapa()
-      .filter(s => s.feSismo === feSismo)
-      .map<EstacionAceleracionRow>(s => {
-        const pga = s.vaAceleracion ?? null;
-        return {
-          codigo: s.codEstacion,
-          nombre: s.nomEstacion,
-          centro: s.nomCentroPrd,
-          distanciaKm: this.distanciaKm(sismo.coordenadaY, sismo.coordenadaX, s.coordenadaY ?? 0, s.coordenadaX ?? 0),
-          pga,
-          pgv: s.vaDesplazamiento ?? null,
-          nivel: this.nivelPga(pga)
-        };
-      })
-      .sort((a, b) => a.distanciaKm - b.distanciaKm);
-  });
-
-  totalPaginasTabla = computed(() => {
-    const total = this.estacionesAceleracion().length;
-    return Math.max(1, Math.ceil(total / this.pageSize));
-  });
-
-  estacionesPaginadas = computed<EstacionAceleracionRow[]>(() => {
-    const pag = this.paginaTabla();
-    const inicio = (pag - 1) * this.pageSize;
-    return this.estacionesAceleracion().slice(inicio, inicio + this.pageSize);
-  });
 
   constructor(
     private sismoService: SismoService,
@@ -152,18 +100,15 @@ export class SismosPage implements OnInit, OnDestroy {
     try {
       let sismo: SismoRespuesta | null = null;
 
-      // Usar el sismo pasado por estado de navegación (desde historial)
       if (sismoFromState && id && sismoFromState.feSismo === id) {
         sismo = sismoFromState;
       }
 
-      // Si no hay sismo desde estado, cargar el más reciente
       if (!sismo) {
         const res = await this.sismoService.listarSismos({ page: 0, size: 1 });
         sismo = res.content[0] || null;
       }
 
-      // Cargamos el resumen de los últimos para el mapa
       const resumenes = await this.sismoService.getUltimosSismos(50);
 
       this.ultimoSismo.set(sismo);
@@ -176,6 +121,7 @@ export class SismosPage implements OnInit, OnDestroy {
       this.cargando.set(false);
     }
   }
+
   async compartirDatos(): Promise<void> {
     const sismo = this.ultimoSismo();
     if (!sismo) return;
@@ -308,10 +254,10 @@ export class SismosPage implements OnInit, OnDestroy {
 
   get magnitudColor(): string {
     const m = this.ultimoSismo()?.magnitud ?? 0;
-    if (m < 3.0) return '#22c55e'; // Verde - Nivel 1
-    if (m < 4.5) return '#eab308'; // Amarillo - Nivel 2
-    if (m < 6.0) return '#f97316'; // Naranja - Nivel 3
-    return '#ef4444';             // Rojo - Nivel 4
+    if (m < 3.0) return '#22c55e';
+    if (m < 4.5) return '#eab308';
+    if (m < 6.0) return '#f97316';
+    return '#ef4444';
   }
 
   get nivelMagnitud(): string {
@@ -335,7 +281,7 @@ export class SismosPage implements OnInit, OnDestroy {
 
   getEstadoUbicacion(ubicacion: string | undefined): 'verificada' | 'revision' | 'pendiente' | 'desconocida' {
     if (!ubicacion) return 'desconocida';
-    
+
     if (/revisada?\s*(?:por\s*)?(?:la\s*)?rsn|ya\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
       return 'verificada';
     }
@@ -363,29 +309,5 @@ export class SismosPage implements OnInit, OnDestroy {
       default:
         return ubicacion;
     }
-  }
-
-  cambiarPaginaTabla(p: number): void {
-    this.paginaTabla.set(p);
-  }
-
-  private distanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-    const R = 6371;
-    const toRad = (d: number) => (d * Math.PI) / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-    return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
-  }
-
-  private nivelPga(pga: number | null): EstacionAceleracionRow['nivel'] {
-    if (pga === null || pga === undefined || Number.isNaN(pga)) return 'SIN DATO';
-    if (pga < 10) return 'NIVEL 1';
-    if (pga < 50) return 'NIVEL 2';
-    if (pga < 200) return 'NIVEL 3';
-    return 'NIVEL 4';
   }
 }
