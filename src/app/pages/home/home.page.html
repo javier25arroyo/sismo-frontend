@@ -68,7 +68,7 @@
 
           <!-- Info center -->
           <div class="px-8 py-6">
-            <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion }}</p>
+            <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion | ubicacionNormalizada }}</p>
             <div class="mt-4 flex flex-wrap gap-6 text-sm">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Coordenadas</p>

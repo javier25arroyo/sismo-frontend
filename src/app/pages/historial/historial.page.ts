@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Calendar, Check, ChevronD
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
+import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
 
 type FiltroSentido = '' | 'sentido' | 'no_sentido';
 type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica';
@@ -17,7 +18,7 @@ type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifi
 @Component({
   standalone: true,
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink, SismoMapComponent],
+  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink, SismoMapComponent, UbicacionNormalizadaPipe],
   templateUrl: './historial.page.html'
 })
 export class HistorialPage implements OnInit {

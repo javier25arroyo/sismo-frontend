@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { ArrowRight, BarChart3, FolderOpen, LucideAngularModule, RadioTower } from 'lucide-angular';
 import { SismoService } from '../../services/sismo.service';
 import { SismoRespuesta } from '../../interfaces/api.interfaces';
+import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, UbicacionNormalizadaPipe],
   templateUrl: './home.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
