@@ -5,11 +5,12 @@ import { ArrowRight, BarChart3, FolderOpen, LucideAngularModule, RadioTower } fr
 import { SismoService } from '../../services/sismo.service';
 import { SismoRespuesta } from '../../interfaces/api.interfaces';
 import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
+import { AcelerogramaLiveComponent } from '../../components/acelerograma-live/acelerograma-live.component';
 
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, LucideAngularModule, UbicacionNormalizadaPipe],
+  imports: [CommonModule, RouterLink, LucideAngularModule, UbicacionNormalizadaPipe, AcelerogramaLiveComponent],
   templateUrl: './home.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
