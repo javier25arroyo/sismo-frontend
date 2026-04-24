@@ -71,7 +71,7 @@
 
     <div *ngIf="!auth.isAdmin()" class="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
       <i-lucide [img]="infoIcon" size="18" class="mt-0.5 flex-shrink-0"></i-lucide>
-      <div>Los reportes en PDF están disponibles solo para usuarios con rol administrador.</div>
+      <div>Los reportes en PDF están disponibles solo usuarios registrados</div>
     </div>
 
     <div *ngIf="errorCarga()" class="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

@@ -40,7 +40,7 @@ export class LoginPage {
       if (res.debeCambiarPassword || res.esPrimerLogin) {
         await this.router.navigate(['/cambiar-contrasena']);
       } else {
-        await this.router.navigate(['/estaciones']);
+        await this.router.navigate(['/sismos']);
       }
     } catch (err) {
       this.error = (err as Error).message || 'Credenciales incorrectas. Intente de nuevo.';
