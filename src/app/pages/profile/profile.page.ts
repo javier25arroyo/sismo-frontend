@@ -1,7 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
@@ -17,17 +15,7 @@ import {
   templateUrl: './profile.page.html'
 })
 export class ProfilePage {
-  private auth = inject(AuthService);
-  private router = inject(Router);
   private usuarioService = inject(UsuarioService);
-
-  // ─── Cerrar sesión ────────────────────────────────────────────────────────
-  showLogoutDialog = false;
-
-  confirmLogout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
-  }
 
   // ─── Agregar usuario ──────────────────────────────────────────────────────
   crearCargando = signal(false);

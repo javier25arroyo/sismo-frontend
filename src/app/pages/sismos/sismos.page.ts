@@ -2,45 +2,65 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
-import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
-import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
 import { CentroService } from '../../services/centro.service';
 import {
   EstacionRespuesta,
   GeneracionReporteRespuesta,
-  ResumenHistoricoRespuesta,
   SismoRespuesta
 } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
 import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
+import {
+  LucideAngularModule,
+  Share2,
+  FileText,
+  AlertCircle,
+  Info,
+  MapPin,
+  Clock,
+  Navigation,
+  ChevronRight,
+  ShieldCheck,
+  Loader2,
+  Hourglass
+} from 'lucide-angular';
 
 @Component({
   standalone: true,
   selector: 'app-sismos',
-  imports: [CommonModule, SismoMapComponent, StatusBadgeComponent, PaginacionComponent],
+  imports: [
+    CommonModule,
+    SismoMapComponent,
+    LucideAngularModule
+  ],
   templateUrl: './sismos.page.html'
 })
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
   sismosMapa = signal<Sismo[]>([]);
   estaciones = signal<EstacionRespuesta[]>([]);
-  detalleEstaciones = signal<ResumenHistoricoRespuesta[]>([]);
   cargando = signal(true);
-  cargandoDetalle = signal(false);
   errorCarga = signal('');
-  errorDetalle = signal('');
   mensajeAccion = signal('');
   estadoReporte = signal<GeneracionReporteRespuesta | null>(null);
   generandoPdf = signal(false);
-  pagina = signal(1);
-  totalPaginas = signal(1);
-  totalEstaciones = signal(0);
-  readonly pageSize = 10;
   private pollingId: ReturnType<typeof setTimeout> | null = null;
   private destruido = false;
+
+  readonly shareIcon = Share2;
+  readonly fileTextIcon = FileText;
+  readonly alertIcon = AlertCircle;
+  readonly infoIcon = Info;
+  readonly mapPinIcon = MapPin;
+  readonly clockIcon = Clock;
+  readonly navIcon = Navigation;
+  readonly chevronIcon = ChevronRight;
+  readonly shieldIcon = ShieldCheck;
+  readonly loaderIcon = Loader2;
+  readonly hourglassIcon = Hourglass;
 
   constructor(
     private sismoService: SismoService,
@@ -80,78 +100,26 @@ export class SismosPage implements OnInit, OnDestroy {
     try {
       let sismo: SismoRespuesta | null = null;
 
-      // Usar el sismo pasado por estado de navegación (desde historial)
       if (sismoFromState && id && sismoFromState.feSismo === id) {
         sismo = sismoFromState;
       }
 
-      // Si no hay sismo desde estado, cargar el más reciente
       if (!sismo) {
         const res = await this.sismoService.listarSismos({ page: 0, size: 1 });
         sismo = res.content[0] || null;
       }
 
-      // Cargamos el resumen de los últimos para el mapa
       const resumenes = await this.sismoService.getUltimosSismos(50);
 
       this.ultimoSismo.set(sismo);
       this.sismosMapa.set(resumenes);
-
-      if (sismo) {
-        await this.cargarDetalleEstaciones(1, sismo.feSismo);
-      } else {
-        this.detalleEstaciones.set([]);
-      }
     } catch (error) {
       this.ultimoSismo.set(null);
       this.sismosMapa.set([]);
-      this.detalleEstaciones.set([]);
-      this.totalEstaciones.set(0);
       this.errorCarga.set(this.obtenerMensajeError(error, 'No fue posible cargar la información sísmica.'));
     } finally {
       this.cargando.set(false);
     }
-  }
-
-  private async cargarDetalleEstaciones(
-    pagina = this.pagina(),
-    feSismo = this.ultimoSismo()?.feSismo
-  ): Promise<void> {
-    if (!feSismo) {
-      this.detalleEstaciones.set([]);
-      this.totalPaginas.set(1);
-      this.totalEstaciones.set(0);
-      return;
-    }
-
-    this.cargandoDetalle.set(true);
-    this.errorDetalle.set('');
-    this.pagina.set(pagina);
-
-    try {
-      const res = await this.historicoService.getHistorico({
-        desde: feSismo,
-        hasta: feSismo,
-        page: pagina - 1,
-        size: this.pageSize
-      });
-
-      const detalleEvento = res.content.filter(evento => evento.feSismo === feSismo);
-      this.detalleEstaciones.set(detalleEvento);
-      this.totalPaginas.set(res.totalPages || 1);
-      this.totalEstaciones.set(res.totalElements || detalleEvento.length);
-    } catch (error) {
-      this.detalleEstaciones.set([]);
-      this.totalPaginas.set(1);
-      this.totalEstaciones.set(0);
-      this.errorDetalle.set(this.obtenerMensajeError(error, 'No fue posible cargar el detalle por estación.'));
-    } finally {
-      this.cargandoDetalle.set(false);
-    }
-  }
-
-  cambiarPagina(p: number): void {
-    void this.cargarDetalleEstaciones(p);
   }
 
   async compartirDatos(): Promise<void> {
@@ -284,31 +252,65 @@ export class SismosPage implements OnInit, OnDestroy {
     return this.auth.isAdmin() ? 'Solicitar PDF' : 'PDF';
   }
 
-  getEstadoRed(evento: ResumenHistoricoRespuesta): string {
-    const m = evento.magnitud;
-    const d = evento.distanciaHipocentral ?? 0;
-
-    if (m >= 6.0 && d <= 600) return 'NIVEL 4';
-    if (m >= 5.0 && d <= 400) return 'NIVEL 3';
-    if (m >= 4.0 && d <= 70)  return 'NIVEL 2';
-    if (m >= 3.5 && d <= 20)  return 'NIVEL 1';
-
-    if (!evento.vaAceleracion) return 'INACTIVO';
-    if (evento.vaAceleracion > 50) return 'FALLA RED';
-    return 'ACTIVO';
-  }
-
   get magnitudColor(): string {
     const m = this.ultimoSismo()?.magnitud ?? 0;
-    if (m < 3.0) return '#22c55e'; // Verde - Nivel 1
-    if (m < 4.5) return '#eab308'; // Amarillo - Nivel 2
-    if (m < 6.0) return '#f97316'; // Naranja - Nivel 3
-    return '#ef4444';             // Rojo - Nivel 4
+    if (m < 3.0) return '#22c55e';
+    if (m < 4.5) return '#eab308';
+    if (m < 6.0) return '#f97316';
+    return '#ef4444';
   }
 
-  get precision(): number {
-    const count = this.sismosMapa().length;
-    if (count === 0) return 0;
-    return Math.min(99, Math.round(85 + count / 10));
+  get nivelMagnitud(): string {
+    const m = this.ultimoSismo()?.magnitud ?? 0;
+    if (m < 2.5) return 'Micro';
+    if (m < 4.0) return 'Menor';
+    if (m < 5.0) return 'Moderado';
+    if (m < 6.0) return 'Fuerte';
+    if (m < 7.0) return 'Mayor';
+    return 'Extremo';
+  }
+
+  getColorEstadoUbicacion(estado: string): string {
+    switch (estado) {
+      case 'verificada': return 'green';
+      case 'revision': return 'amber';
+      case 'pendiente': return 'slate';
+      default: return 'slate';
+    }
+  }
+
+  getEstadoUbicacion(ubicacion: string | undefined): 'verificada' | 'revision' | 'pendiente' | 'desconocida' {
+    if (!ubicacion) return 'desconocida';
+
+    if (/revisada?\s*(?:por\s*)?(?:la\s*)?rsn|ya\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
+      return 'verificada';
+    }
+    if (/en\s+revisión|en\s+revision|pendiente\s+de\s+revisión/i.test(ubicacion)) {
+      return 'revision';
+    }
+    if (/sin\s+revisar|no\s+revisada?|no\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
+      return 'pendiente';
+    }
+    return 'desconocida';
+  }
+
+  formatearUbicacion(ubicacion: string | undefined): string {
+    if (!ubicacion) return 'Sin información de ubicación';
+
+    const estado = this.getEstadoUbicacion(ubicacion);
+
+    switch (estado) {
+      case 'verificada':
+        return 'Ya ha sido revisado por la RSN';
+      case 'revision':
+        return 'Ubicación en proceso de verificación';
+      case 'pendiente':
+        return 'Ubicación pendiente de verificación';
+      default: {
+        let txt = ubicacion.replace(/\s*\)\s*$/, '').trim();
+        txt = txt.replace(/\brevisada\b/g, 'revisado').replace(/\bRevisada\b/g, 'Revisado');
+        return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
+      }
+    }
   }
 }

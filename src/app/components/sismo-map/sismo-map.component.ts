@@ -55,6 +55,13 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private isInitialized = false;
 
   /** Estilos según magnitud del sismo */
+  private normalizarUbicacion(u: string | null | undefined): string {
+    if (!u) return '';
+    let txt = u.trim().replace(/\s*\)\s*$/, '');
+    txt = txt.replace(/\brevisada\b/g, 'revisado').replace(/\bRevisada\b/g, 'Revisado');
+    return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
+  }
+
   private readonly magnitudStyles: Record<string, MagnitudStyle> = {
     nivel1: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },      // 3.5-4.0 Mw (Nivel 1)
     nivel2: { color: '#eab308', radius: 8, fillOpacity: 0.7 },      // 4.0-5.0 Mw (Nivel 2)
@@ -104,11 +111,11 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private fixLeafletIcons(): void {
-    // Fix para iconos de Leaflet en Angular
+    // Fix para iconos de Leaflet en Angular usando activos locales
     const iconDefault = L.icon({
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+      iconUrl: 'leaflet/marker-icon.png',
+      shadowUrl: 'leaflet/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -172,7 +179,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
         <div class="sismo-popup">
           <h3 class="font-bold text-lg">M ${sismo.magnitud.toFixed(1)}</h3>
           <p class="text-sm text-gray-600">${fechaFormateada}</p>
-          <p class="mt-1">${sismo.ubicacion}</p>
+          <p class="mt-1">${this.normalizarUbicacion(sismo.ubicacion)}</p>
           <p class="text-sm">Profundidad: ${sismo.profundidad} km</p>
           ${sismo.fuente ? `<p class="text-xs text-gray-500 mt-1">Fuente: ${sismo.fuente}</p>` : ''}
         </div>
@@ -243,7 +250,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
           M ${s.magnitud.toFixed(1)}
         </h3>
         <p style="margin:0 0 2px;font-size:12px;color:#475569;">${fechaFormateada}</p>
-        <p style="margin:0 0 2px;font-size:12px;">${s.ubicacion}</p>
+        <p style="margin:0 0 2px;font-size:12px;">${this.normalizarUbicacion(s.ubicacion)}</p>
         <p style="margin:0;font-size:12px;color:#64748b;">Profundidad: ${s.profundidad} km</p>
       </div>
     `);
