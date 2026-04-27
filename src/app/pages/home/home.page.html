@@ -2,7 +2,7 @@
 
   <!-- HERO -->
   <section class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 py-4">
-    <div>
+    <div class="animate-in fade-in slide-in-from-left duration-700">
       <span class="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 text-label-sm font-semibold uppercase tracking-wide text-secondary">
         Red Acelerográfica Nacional · RSN: UCR-ICE
       </span>
@@ -15,26 +15,25 @@
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a routerLink="/historial"
-          class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition hover:brightness-110">
+          class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition hover:brightness-110 active:scale-95">
           Consultar Ahora
         </a>
         <a routerLink="/repositorio"
-          class="rounded-xl bg-surface-container-highest px-6 py-3 text-body-md font-semibold text-text-primary transition hover:bg-slate-200">
+          class="rounded-xl bg-surface-container-highest px-6 py-3 text-body-md font-semibold text-text-primary transition hover:bg-slate-200 active:scale-95">
           Repositorio
         </a>
       </div>
     </div>
-    <div class="flex items-center justify-center">
-      <div class="h-72 w-full max-w-md rounded-3xl gradient-cta flex items-center justify-center overflow-hidden">
-        <!-- Waveform abstract -->
-        <svg viewBox="0 0 400 200" class="w-full opacity-60" fill="none">
-          <polyline
-            points="0,100 20,80 40,120 60,60 80,140 100,50 120,130 140,70 160,110 180,85 200,115 220,75 240,125 260,65 280,135 300,55 320,145 340,90 360,105 380,80 400,100"
-            stroke="white" stroke-width="2" fill="none"/>
-          <polyline
-            points="0,100 20,90 40,110 60,75 80,125 100,65 120,120 140,80 160,115 180,90 200,105 220,85 240,115 260,70 280,130 300,60 320,140 340,95 360,100 380,85 400,100"
-            stroke="white" stroke-width="1" fill="none" opacity="0.5"/>
-        </svg>
+    <div class="flex items-center justify-center animate-in fade-in zoom-in duration-1000 delay-200">
+      <div class="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
+        <app-acelerograma-live height="280px"></app-acelerograma-live>
+        <div class="flex items-center justify-between border-t border-slate-50 bg-slate-50/50 px-6 py-3">
+          <div class="flex items-center gap-2">
+            <span class="flex h-2 w-2 animate-pulse rounded-full bg-red-500"></span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Live Station: ICE-01</span>
+          </div>
+          <span class="font-mono text-[10px] font-medium text-slate-400">REAL-TIME ACCELEROGRAM</span>
+        </div>
       </div>
     </div>
   </section>
@@ -68,7 +67,7 @@
 
           <!-- Info center -->
           <div class="px-8 py-6">
-            <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion }}</p>
+            <p class="text-xl font-semibold">{{ ultimoSismo()!.ubicacion | ubicacionNormalizada }}</p>
             <div class="mt-4 flex flex-wrap gap-6 text-sm">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Coordenadas</p>

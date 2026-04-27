@@ -5,6 +5,7 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { EstacionMiniMapComponent } from '../../components/estacion-mini-map/estacion-mini-map.component';
 import { EstacionRespuesta, EstadoEstacion } from '../../interfaces/api.interfaces';
 import { CentroService } from '../../services/centro.service';
+import { AuthService } from '../../services/auth.service';
 import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert, Wrench, CheckCircle, XCircle } from 'lucide-angular';
 
 interface EstacionVista extends EstacionRespuesta {
@@ -42,7 +43,7 @@ export class EstacionesPage implements OnInit {
   readonly checkIcon = CheckCircle;
   readonly xIcon = XCircle;
 
-  constructor(private centroService: CentroService) {}
+  constructor(private centroService: CentroService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.cargarEstaciones();

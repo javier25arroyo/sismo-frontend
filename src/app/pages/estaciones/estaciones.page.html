@@ -146,7 +146,7 @@
           </div>
 
           <!-- Cambiar estado -->
-          <div class="mt-5">
+          <div class="mt-5" *ngIf="auth.isAdmin()">
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
             
             <div class="relative">

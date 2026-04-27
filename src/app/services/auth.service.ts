@@ -1,28 +1,41 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { RespuestaLogin } from '../interfaces/api.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly tokenKey = 'jwt_token';
   private readonly roleKey = 'jwt_role';
+  private readonly diasExpKey = 'jwt_password_expira_dias';
   private token: string | null = null;
   private role: string | null = null;
+
+  private readonly passwordExpiraDiasSig = signal<number | null>(this.leerDiasStorage());
+
+  readonly passwordExpiraDias = computed(() => this.passwordExpiraDiasSig());
 
   login(respuesta: RespuestaLogin): void {
     this.token = respuesta.token;
     this.role = respuesta.role;
+    this.passwordExpiraDiasSig.set(respuesta.passwordExpiraDias ?? null);
     try {
       localStorage.setItem(this.tokenKey, respuesta.token);
       localStorage.setItem(this.roleKey, respuesta.role);
+      if (respuesta.passwordExpiraDias !== undefined && respuesta.passwordExpiraDias !== null) {
+        localStorage.setItem(this.diasExpKey, String(respuesta.passwordExpiraDias));
+      } else {
+        localStorage.removeItem(this.diasExpKey);
+      }
     } catch { /* ignore */ }
   }
 
   logout(): void {
     this.token = null;
     this.role = null;
+    this.passwordExpiraDiasSig.set(null);
     try {
       localStorage.removeItem(this.tokenKey);
       localStorage.removeItem(this.roleKey);
+      localStorage.removeItem(this.diasExpKey);
     } catch { /* ignore */ }
   }
 
@@ -46,5 +59,16 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.getRole() === 'ADMIN';
+  }
+
+  private leerDiasStorage(): number | null {
+    try {
+      const raw = localStorage.getItem(this.diasExpKey);
+      if (raw === null || raw === '') return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
   }
 }
