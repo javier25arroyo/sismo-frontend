@@ -1,0 +1,230 @@
+<div *ngIf="visible()" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm" (click)="onCancel()">
+  <div class="flex min-h-full items-start justify-center p-4 pt-10 pb-10">
+    <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl" (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between rounded-t-2xl border-b border-slate-100 px-6 py-4">
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">{{ titulo }}</h2>
+          <p *ngIf="esEdicion" class="mt-0.5 text-xs text-slate-400">{{ formData.codCentroPrd }} · {{ formData.codEstacion }}</p>
+        </div>
+        <button type="button" (click)="onCancel()"
+          class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          aria-label="Cerrar">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Form body -->
+      <div class="max-h-[65vh] overflow-y-auto px-6 py-5 space-y-6">
+
+        <!-- Identificación -->
+        <section>
+          <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Identificación</p>
+          <div class="grid grid-cols-2 gap-4">
+            <ng-container *ngIf="!esEdicion">
+              <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Código Centro *</label>
+                <input type="text" [(ngModel)]="formData.codCentroPrd" name="codCentroPrd" required maxlength="2"
+                  placeholder="ej. CB"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Código Estación *</label>
+                <input type="text" [(ngModel)]="formData.codEstacion" name="codEstacion" required maxlength="2"
+                  placeholder="ej. BA"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+              </div>
+            </ng-container>
+            <div [class.col-span-2]="!esEdicion" class="col-span-2">
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Nombre *</label>
+              <input type="text" [(ngModel)]="formData.nomEstacion" name="nomEstacion"
+                [required]="!esEdicion" maxlength="30"
+                placeholder="Nombre de la estación"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Estado</label>
+              <select [(ngModel)]="formData.estado" name="estado"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200">
+                <option *ngFor="let e of estadoOpciones" [value]="e">{{ e }}</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Ubicación -->
+        <section>
+          <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Ubicación</p>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Longitud (X) *</label>
+              <input type="text" [(ngModel)]="formData.coordenadaX" name="coordenadaX"
+                [required]="!esEdicion"
+                placeholder="-84.2135"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Latitud (Y) *</label>
+              <input type="text" [(ngModel)]="formData.coordenadaY" name="coordenadaY"
+                [required]="!esEdicion"
+                placeholder="10.3021"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Elevación (m)</label>
+              <input type="text" [(ngModel)]="formData.eleEstacion" name="eleEstacion"
+                placeholder="1520.5"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+          </div>
+        </section>
+
+        <!-- Instrumento -->
+        <section>
+          <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Instrumento</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Modelo (Mod_Inst)</label>
+              <input type="text" [(ngModel)]="formData.modInst" name="modInst" maxlength="20"
+                placeholder="ej. RefTek 130"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Tipo Instrumento</label>
+              <input type="text" [(ngModel)]="formData.tipoInstrumento" name="tipoInstrumento" maxlength="5"
+                placeholder="ej. ACEL"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">N.º Serie</label>
+              <input type="text" [(ngModel)]="formData.nuSerie" name="nuSerie" maxlength="4"
+                placeholder="ej. S001"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">ID Canal</label>
+              <input type="text" [(ngModel)]="formData.idCanal" name="idCanal"
+                placeholder="ej. 1"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+          </div>
+        </section>
+
+        <!-- Parámetros del Sitio -->
+        <section>
+          <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Parámetros del Sitio</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Tipo Suelo</label>
+              <input type="text" [(ngModel)]="formData.tipoSuelo" name="tipoSuelo" maxlength="10"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Condición Sitio</label>
+              <input type="text" [(ngModel)]="formData.condiSitio" name="condiSitio" maxlength="10"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Delta T</label>
+              <input type="text" [(ngModel)]="formData.deltaT" name="deltaT"
+                placeholder="ej. 0.01"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Azimut (°)</label>
+              <input type="text" [(ngModel)]="formData.azimut" name="azimut"
+                placeholder="0 – 360"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+          </div>
+        </section>
+
+        <!-- Canales -->
+        <section>
+          <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Canales</p>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Canal 1 Long.</label>
+              <input type="text" [(ngModel)]="formData.chn1Long" name="chn1Long" maxlength="3"
+                placeholder="ej. HLN"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Canal 2 Vert.</label>
+              <input type="text" [(ngModel)]="formData.chn2Vert" name="chn2Vert" maxlength="3"
+                placeholder="ej. HLZ"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Canal 3 Trans.</label>
+              <input type="text" [(ngModel)]="formData.chn3Trans" name="chn3Trans" maxlength="3"
+                placeholder="ej. HLE"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200 placeholder:text-slate-400"/>
+            </div>
+          </div>
+        </section>
+
+        <!-- Calibración (collapsible) -->
+        <section>
+          <button type="button" (click)="mostrarAvanzado = !mostrarAvanzado"
+            class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 transition hover:text-slate-600">
+            <svg class="h-3 w-3 transition-transform" [class.rotate-90]="mostrarAvanzado"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            Calibración (Bit Weight / VPU)
+          </button>
+          <div *ngIf="mostrarAvanzado" class="mt-3 grid grid-cols-3 gap-4">
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">BitWeight Ch1</label>
+              <input type="text" [(ngModel)]="formData.bitWeightCh1" name="bitWeightCh1"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">BitWeight Ch2</label>
+              <input type="text" [(ngModel)]="formData.bitWeightCh2" name="bitWeightCh2"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">BitWeight Ch3</label>
+              <input type="text" [(ngModel)]="formData.bitWeightCh3" name="bitWeightCh3"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">VPU Ch1</label>
+              <input type="text" [(ngModel)]="formData.vpuCh1" name="vpuCh1"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">VPU Ch2</label>
+              <input type="text" [(ngModel)]="formData.vpuCh2" name="vpuCh2"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">VPU Ch3</label>
+              <input type="text" [(ngModel)]="formData.vpuCh3" name="vpuCh3"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-3 rounded-b-2xl border-t border-slate-100 px-6 py-4">
+        <button type="button" (click)="onCancel()"
+          class="rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+          Cancelar
+        </button>
+        <button type="button" (click)="onSubmit()"
+          class="rounded-xl bg-sky-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-sky-700">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

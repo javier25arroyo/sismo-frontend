@@ -2,35 +2,10 @@
 
   <!-- STATS ROW -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <app-stat-card
-      label="Infraestructura Total"
-      [value]="total"
-      unit="nodos"
-      [icon]="serverIcon">
-    </app-stat-card>
-    <app-stat-card
-      label="Estado Operativo"
-      [value]="enLinea"
-      unit="En línea"
-      [icon]="satelliteIcon"
-      variant="success">
-    </app-stat-card>
-    <app-stat-card
-      label="En Mantenimiento"
-      [value]="enMantenimiento"
-      unit=""
-      sublabel="Fuera de servicio temporal"
-      [icon]="wrenchIcon"
-      [variant]="enMantenimiento > 0 ? 'warning' : 'default'">
-    </app-stat-card>
-    <app-stat-card
-      label="Incidencias Críticas"
-      [value]="incidencias"
-      unit=""
-      sublabel="Estaciones inactivas"
-      [icon]="warningIcon"
-      [variant]="incidencias > 0 ? 'danger' : 'default'">
-    </app-stat-card>
+    <app-stat-card label="Infraestructura Total"  [value]="total"          unit="nodos"      [icon]="serverIcon"></app-stat-card>
+    <app-stat-card label="Estado Operativo"        [value]="enLinea"        unit="En línea"   [icon]="satelliteIcon" variant="success"></app-stat-card>
+    <app-stat-card label="En Mantenimiento"        [value]="enMantenimiento" unit=""           sublabel="Fuera de servicio temporal" [icon]="wrenchIcon"   [variant]="enMantenimiento > 0 ? 'warning' : 'default'"></app-stat-card>
+    <app-stat-card label="Incidencias Críticas"    [value]="incidencias"    unit=""           sublabel="Estaciones inactivas"       [icon]="warningIcon"  [variant]="incidencias > 0 ? 'danger' : 'default'"></app-stat-card>
   </div>
 
   <!-- MAIN GRID: tabla + detalle -->
@@ -42,13 +17,21 @@
         <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">
           Inventario Maestro de Estaciones
         </h2>
-        <div class="relative w-56">
-          <input
-            type="text"
-            placeholder="Filtrar por ID o estación..."
-            aria-label="Filtrar estaciones por ID o nombre"
-            (input)="setBusqueda($event)"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-8 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+        <div class="flex items-center gap-3">
+          <div class="relative w-48">
+            <input
+              type="text"
+              placeholder="Filtrar por ID o estación..."
+              aria-label="Filtrar estaciones por ID o nombre"
+              (input)="setBusqueda($event)"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-8 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+          </div>
+          <button *ngIf="auth.isAdmin()" (click)="abrirCrear()"
+            aria-label="Crear nueva estación"
+            class="flex items-center gap-1.5 rounded-xl bg-sky-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-sky-700">
+            <i-lucide [img]="plusIcon" size="13"></i-lucide>
+            Nueva
+          </button>
         </div>
       </div>
 
@@ -102,29 +85,24 @@
           <h3 class="text-2xl font-bold tracking-tight text-slate-900">{{ est.codEstacion }}</h3>
           <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
 
-            <!-- Mapa de ubicación -->
-            <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
-              @defer (on viewport) {
-                <app-estacion-mini-map
-                  [lat]="est.coordenadaY"
-                  [lng]="est.coordenadaX"
-                  [label]="est.nomEstacion">
-                </app-estacion-mini-map>
-              } @placeholder {
-                <div class="w-full h-full bg-slate-100 animate-pulse"></div>
-              }
-            </div>
+          <!-- Mapa de ubicación -->
+          <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
+            @defer (on viewport) {
+              <app-estacion-mini-map [lat]="est.coordenadaY" [lng]="est.coordenadaX" [label]="est.nomEstacion"></app-estacion-mini-map>
+            } @placeholder {
+              <div class="w-full h-full bg-slate-100 animate-pulse"></div>
+            }
+          </div>
           <p class="mt-1 text-xs text-slate-500 text-right">
             <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>
             {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
           </p>
 
-          <!-- Telemetry -->
+          <!-- Telemetría -->
           <div class="mt-5">
             <div class="flex items-center justify-between mb-3">
               <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Telemetría Crítica</span>
-              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
-                [class]="telemetriaBadgeClass(est.estado)">
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" [class]="telemetriaBadgeClass(est.estado)">
                 <span class="h-1.5 w-1.5 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
                 {{ telemetriaLabel(est.estado) }}
               </span>
@@ -145,15 +123,28 @@
             </div>
           </div>
 
-          <!-- Cambiar estado -->
+          <!-- Sección Admin -->
           <div class="mt-5" *ngIf="auth.isAdmin()">
+
+            <!-- Acciones: Editar / Eliminar -->
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Acciones de Administrador</p>
+            <div class="flex gap-2 mb-4">
+              <button (click)="abrirEditar(est)"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700">
+                <i-lucide [img]="editIcon" size="13"></i-lucide>
+                Editar
+              </button>
+              <button (click)="abrirEliminar(est)"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">
+                <i-lucide [img]="deleteIcon" size="13"></i-lucide>
+                Eliminar
+              </button>
+            </div>
+
+            <!-- Cambiar Estado -->
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
-            
             <div class="relative">
-              <button
-                type="button"
-                (click)="toggleDropdown()"
-                [disabled]="cambiandoEstado()"
+              <button type="button" (click)="toggleDropdown()" [disabled]="cambiandoEstado()"
                 class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 outline-none transition hover:border-sky-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50">
                 <div class="flex items-center gap-2">
                   <span class="h-2 w-2 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
@@ -164,10 +155,8 @@
                 </svg>
               </button>
 
-              <!-- Dropdown Menu -->
-              <div *ngIf="mostrarDropdown()" 
-                class="absolute z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
-                
+              <div *ngIf="mostrarDropdown()"
+                class="absolute z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
                 <button (click)="seleccionarNuevoEstado(est, 'ACTIVA')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
@@ -176,7 +165,6 @@
                   </div>
                   <i-lucide *ngIf="est.estado === 'ACTIVA'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
-
                 <button (click)="seleccionarNuevoEstado(est, 'MANTENIMIENTO')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
@@ -185,7 +173,6 @@
                   </div>
                   <i-lucide *ngIf="est.estado === 'MANTENIMIENTO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
-
                 <button (click)="seleccionarNuevoEstado(est, 'FUERA_DE_SERVICIO')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
@@ -208,17 +195,10 @@
 
             <div *ngIf="mensajeEstado() as msg"
               class="mt-3 flex items-center gap-2 rounded-xl border px-4 py-2.5"
-              [class]="msg.tipo === 'ok'
-                ? 'border-green-200 bg-green-50'
-                : 'border-rose-200 bg-rose-50'">
-              <i-lucide
-                [img]="msg.tipo === 'ok' ? checkIcon : xIcon"
-                size="15"
-                class="shrink-0"
-                [class]="msg.tipo === 'ok' ? 'text-green-600' : 'text-rose-600'">
-              </i-lucide>
-              <span class="text-xs font-medium"
-                [class]="msg.tipo === 'ok' ? 'text-green-700' : 'text-rose-700'">
+              [class]="msg.tipo === 'ok' ? 'border-green-200 bg-green-50' : 'border-rose-200 bg-rose-50'">
+              <i-lucide [img]="msg.tipo === 'ok' ? checkIcon : xIcon" size="15" class="shrink-0"
+                [class]="msg.tipo === 'ok' ? 'text-green-600' : 'text-rose-600'"></i-lucide>
+              <span class="text-xs font-medium" [class]="msg.tipo === 'ok' ? 'text-green-700' : 'text-rose-700'">
                 {{ msg.texto }}
               </span>
             </div>
@@ -234,4 +214,31 @@
     </div>
 
   </div>
+</div>
+
+<!-- Modal crear / editar -->
+<app-estacion-form-modal
+  [visible]="mostrarModal()"
+  [mode]="modoModal()"
+  [datos]="estacionParaEditar()"
+  (guardado)="onGuardado($event)"
+  (cancelado)="cerrarModal()">
+</app-estacion-form-modal>
+
+<!-- Confirmar eliminar -->
+<app-confirm-dialog
+  [visible]="mostrarConfirmEliminar()"
+  title="Eliminar estación"
+  [message]="'¿Eliminar ' + (estacionParaEliminar()?.codEstacion ?? '') + ' — ' + (estacionParaEliminar()?.nomEstacion ?? '') + '? Esta acción no se puede deshacer.'"
+  action="eliminar"
+  (confirm)="confirmarEliminar()"
+  (cancel)="cancelarEliminar()">
+</app-confirm-dialog>
+
+<!-- Toast CRUD -->
+<div *ngIf="mensajeCrud() as msg"
+  class="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-xl border px-4 py-3 shadow-lg text-sm font-medium"
+  [class]="msg.tipo === 'ok' ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
+  <i-lucide [img]="msg.tipo === 'ok' ? checkIcon : xIcon" size="15" class="shrink-0"></i-lucide>
+  {{ msg.texto }}
 </div>
