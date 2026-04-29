@@ -46,13 +46,14 @@
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Ubicación Geográfica</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Tipo Sensor</th>
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estado</th>
+            <th *ngIf="auth.isAdmin()" class="w-20 px-4 py-3"></th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let e of filtradas"
             (click)="seleccionar(e)"
-            [class.bg-sky-50]="estacionSeleccionada()?.codEstacion === e.codEstacion"
-            class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50 last:border-0">
+            [class.bg-sky-50]="estacionSeleccionada()?.codEstacion === e.codEstacion && !false"
+            class="group cursor-pointer border-b border-slate-100 transition hover:bg-slate-50 last:border-0">
             <td class="px-4 py-3">
               <p class="font-bold text-sky-700">{{ e.codEstacion }}</p>
               <p class="text-slate-500">{{ e.codCentroPrd }}</p>
@@ -64,6 +65,15 @@
             <td class="px-4 py-3 text-slate-600">{{ e.tipoSensor }}</td>
             <td class="px-4 py-3">
               <app-status-badge [estado]="e.estado"></app-status-badge>
+            </td>
+            <td *ngIf="auth.isAdmin()" class="px-3 py-3" (click)="$event.stopPropagation()">
+              <div class="flex items-center justify-end gap-0.5 opacity-0 transition group-hover:opacity-100">
+                <button (click)="abrirEditar(e)"
+                  title="Editar estación"
+                  class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-sky-50 hover:text-sky-600">
+                  <i-lucide [img]="editIcon" size="13"></i-lucide>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -78,7 +88,16 @@
       <ng-container *ngIf="estacionSeleccionada() as est; else sinSeleccion">
         <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
           <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Detalle de Nodo</span>
-          <app-status-badge [estado]="est.estado"></app-status-badge>
+          <div class="flex items-center gap-2">
+            <ng-container *ngIf="auth.isAdmin()">
+              <button (click)="abrirEditar(est)"
+                title="Editar estación"
+                class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-sky-50 hover:text-sky-600">
+                <i-lucide [img]="editIcon" size="14"></i-lucide>
+              </button>
+            </ng-container>
+            <app-status-badge [estado]="est.estado"></app-status-badge>
+          </div>
         </div>
 
         <div class="px-6 py-4">
@@ -86,7 +105,7 @@
           <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
 
           <!-- Mapa de ubicación -->
-          <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
+          <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200 isolate">
             @defer (on viewport) {
               <app-estacion-mini-map [lat]="est.coordenadaY" [lng]="est.coordenadaX" [label]="est.nomEstacion"></app-estacion-mini-map>
             } @placeholder {
@@ -125,21 +144,6 @@
 
           <!-- Sección Admin -->
           <div class="mt-5" *ngIf="auth.isAdmin()">
-
-            <!-- Acciones: Editar / Eliminar -->
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Acciones de Administrador</p>
-            <div class="flex gap-2 mb-4">
-              <button (click)="abrirEditar(est)"
-                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700">
-                <i-lucide [img]="editIcon" size="13"></i-lucide>
-                Editar
-              </button>
-              <button (click)="abrirEliminar(est)"
-                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">
-                <i-lucide [img]="deleteIcon" size="13"></i-lucide>
-                Eliminar
-              </button>
-            </div>
 
             <!-- Cambiar Estado -->
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
@@ -225,15 +229,6 @@
   (cancelado)="cerrarModal()">
 </app-estacion-form-modal>
 
-<!-- Confirmar eliminar -->
-<app-confirm-dialog
-  [visible]="mostrarConfirmEliminar()"
-  title="Eliminar estación"
-  [message]="'¿Eliminar ' + (estacionParaEliminar()?.codEstacion ?? '') + ' — ' + (estacionParaEliminar()?.nomEstacion ?? '') + '? Esta acción no se puede deshacer.'"
-  action="eliminar"
-  (confirm)="confirmarEliminar()"
-  (cancel)="cancelarEliminar()">
-</app-confirm-dialog>
 
 <!-- Toast CRUD -->
 <div *ngIf="mensajeCrud() as msg"

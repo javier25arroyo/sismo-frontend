@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { StatCardComponent } from '../../components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { EstacionMiniMapComponent } from '../../components/estacion-mini-map/estacion-mini-map.component';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { EstacionFormModalComponent } from '../../components/estacion-form-modal/estacion-form-modal.component';
 import { EstacionRespuesta, EstadoEstacion, CrearEstacionSolicitud, ActualizarEstacionSolicitud } from '../../interfaces/api.interfaces';
 import { CentroService } from '../../services/centro.service';
 import { AuthService } from '../../services/auth.service';
-import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert, Wrench, CheckCircle, XCircle, Pencil, Trash2, Plus } from 'lucide-angular';
+import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert, Wrench, CheckCircle, XCircle, Pencil, Plus } from 'lucide-angular';
 
 interface EstacionVista extends EstacionRespuesta {
   tipoSensor: string;
@@ -23,7 +22,6 @@ interface EstacionVista extends EstacionRespuesta {
     StatCardComponent,
     StatusBadgeComponent,
     EstacionMiniMapComponent,
-    ConfirmDialogComponent,
     EstacionFormModalComponent,
     LucideAngularModule,
   ],
@@ -42,10 +40,7 @@ export class EstacionesPage implements OnInit {
   mostrarModal          = signal(false);
   modoModal             = signal<'create' | 'edit'>('create');
   estacionParaEditar    = signal<EstacionVista | null>(null);
-  mostrarConfirmEliminar = signal(false);
-  estacionParaEliminar  = signal<EstacionVista | null>(null);
   guardandoEstacion     = signal(false);
-  eliminandoEstacion    = signal(false);
   mensajeCrud           = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
   readonly serverIcon    = Server;
@@ -56,7 +51,6 @@ export class EstacionesPage implements OnInit {
   readonly checkIcon     = CheckCircle;
   readonly xIcon         = XCircle;
   readonly editIcon      = Pencil;
-  readonly deleteIcon    = Trash2;
   readonly plusIcon      = Plus;
 
   constructor(private centroService: CentroService, public auth: AuthService) {}
@@ -179,38 +173,6 @@ export class EstacionesPage implements OnInit {
       this.guardandoEstacion.set(false);
       setTimeout(() => this.mensajeCrud.set(null), 3000);
     }
-  }
-
-  abrirEliminar(est: EstacionVista): void {
-    this.estacionParaEliminar.set(est);
-    this.mostrarConfirmEliminar.set(true);
-  }
-
-  async confirmarEliminar(): Promise<void> {
-    const est = this.estacionParaEliminar();
-    if (!est) return;
-    this.eliminandoEstacion.set(true);
-    try {
-      await this.centroService.eliminarEstacion(est.codCentroPrd, est.codEstacion);
-      this.estaciones.update(es => es.filter(e =>
-        !(e.codEstacion === est.codEstacion && e.codCentroPrd === est.codCentroPrd)
-      ));
-      const restantes = this.estaciones();
-      this.estacionSeleccionada.set(restantes.length > 0 ? restantes[0] : null);
-      this.mensajeCrud.set({ tipo: 'ok', texto: 'Estación eliminada correctamente' });
-    } catch {
-      this.mensajeCrud.set({ tipo: 'error', texto: 'Error al eliminar la estación' });
-    } finally {
-      this.eliminandoEstacion.set(false);
-      this.mostrarConfirmEliminar.set(false);
-      this.estacionParaEliminar.set(null);
-      setTimeout(() => this.mensajeCrud.set(null), 3000);
-    }
-  }
-
-  cancelarEliminar(): void {
-    this.mostrarConfirmEliminar.set(false);
-    this.estacionParaEliminar.set(null);
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
