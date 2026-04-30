@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
       class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-body-md text-text-primary transition-colors duration-300"
     >
       <span class="text-label-sm uppercase tracking-wide text-slate-500 tabular-nums">
-        Página {{ paginaActual() }} de {{ totalPaginas() }}
+        {{ info() || ('Página ' + paginaActual() + ' de ' + totalPaginas()) }}
       </span>
       <div class="flex items-center gap-1.5 rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
         <button
@@ -50,6 +50,7 @@ import { CommonModule } from '@angular/common';
 export class PaginacionComponent {
   paginaActual = input<number>(1);
   totalPaginas = input<number>(1);
+  info         = input<string>('');
   paginaCambio = output<number>();
 
   pages = computed(() => {
