@@ -255,57 +255,57 @@
             }
           </div>
 
-          <div class="hidden lg:block">
-            <table class="w-full table-fixed text-xs xl:text-sm">
+          <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full text-xs xl:text-sm">
               <thead class="bg-slate-50 text-[11px] font-semibold uppercase tracking-wide text-slate-500 xl:text-xs">
                 <tr>
-                  <th class="px-2 py-3 text-left">No.</th>
-                  <th class="px-2 py-3 text-left">Fecha</th>
-                  <th class="px-2 py-3 text-right">Lat.</th>
-                  <th class="px-2 py-3 text-right">Lon.</th>
-                  <th class="px-2 py-3 text-right">Mag. (Mw)</th>
-                  <th class="px-2 py-3 text-right">Prof. (km)</th>
-                  <th class="px-2 py-3 text-right">Dist. Hip. (km)</th>
-                  <th class="px-2 py-3 text-right">Dist. Epi. (km)</th>
-                  <th class="px-2 py-3 text-center">Estación</th>
-                  <th class="px-2 py-3 text-right">Aceleración</th>
-                  <th class="px-2 py-3 text-right">Desplazamiento</th>
+                  <th class="px-2 py-3 text-left whitespace-nowrap">No.</th>
+                  <th class="px-2 py-3 text-left whitespace-nowrap">Fecha</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Lat.</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Lon.</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Mag. (Mw)</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Prof. (km)</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Dist. Hip. (km)</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Dist. Epi. (km)</th>
+                  <th class="px-2 py-3 text-center whitespace-nowrap">Estación</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Aceleración</th>
+                  <th class="px-2 py-3 text-right whitespace-nowrap">Desplazamiento</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 @for (evento of historialPagina; track evento.feSismo + evento.codEstacion; let idx = $index) {
                   <tr class="transition hover:bg-slate-50">
-                    <td class="px-2 py-3 text-slate-500">
+                    <td class="px-2 py-3 text-slate-500 whitespace-nowrap">
                       {{ (paginaHistorial() - 1) * pageSizeHistorial + idx + 1 }}
                     </td>
-                    <td class="px-2 py-3 text-slate-700">
+                    <td class="px-2 py-3 text-slate-700 whitespace-nowrap">
                       {{ formatearFecha(evento.feSismo) }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ evento.coordenadaY | number:'1.3-3' }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ evento.coordenadaX | number:'1.3-3' }}
                     </td>
-                    <td class="px-2 py-3 text-right font-bold" [style.color]="colorMagnitud(evento.magnitud)">
+                    <td class="px-2 py-3 text-right font-bold whitespace-nowrap" [style.color]="colorMagnitud(evento.magnitud)">
                       {{ evento.magnitud | number:'1.1-1' }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ evento.profundidad | number:'1.0-0' }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ (evento.distanciaEpicentral ?? 0) | number:'1.2-2' }}
                     </td>
-                    <td class="px-2 py-3 text-center font-mono text-[11px] font-bold text-slate-700 xl:text-xs">
+                    <td class="px-2 py-3 text-center font-mono text-[11px] font-bold text-slate-700 xl:text-xs whitespace-nowrap">
                       {{ evento.codEstacion }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }}
                     </td>
-                    <td class="px-2 py-3 text-right tabular-nums text-slate-600">
+                    <td class="px-2 py-3 text-right tabular-nums text-slate-600 whitespace-nowrap">
                       {{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }}
                     </td>
                   </tr>
@@ -462,7 +462,7 @@
                     <td class="px-4 py-3 text-center">
                       @if (evento.tipoSismo) {
                         <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-                          {{ evento.tipoSismo }}
+                          {{ formatTipoSismo(evento.tipoSismo) }}
                         </span>
                       } @else {
                         <span class="text-slate-300">—</span>

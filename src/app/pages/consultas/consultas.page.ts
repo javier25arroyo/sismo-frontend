@@ -305,6 +305,19 @@ export class ConsultasPage {
     return new Date(fecha).toLocaleString('es-CR', { dateStyle: 'short', timeStyle: 'short' });
   }
 
+  formatTipoSismo(tipo: string | null): string {
+    if (!tipo) return '';
+    // NFD descompone; elimina marcas combinadas duplicadas (backend bug: Ó + U+0301 extra);
+    // NFC recompone limpio antes del title-case.
+    return tipo
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036F]{2,}/g, m => m[0])
+      .normalize('NFC')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
   colorMagnitud(m: number): string {
     if (m >= 6.0) return '#ef4444';
     if (m >= 5.0) return '#f97316';
