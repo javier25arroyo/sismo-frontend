@@ -302,7 +302,8 @@ export class ConsultasPage {
 
   formatearFecha(fecha: string): string {
     if (!fecha) return '';
-    return new Date(fecha).toLocaleString('es-CR', { dateStyle: 'short', timeStyle: 'short' });
+    const utc = /[Z+\-]\d*$/.test(fecha.trim()) ? fecha : fecha + 'Z';
+    return new Date(utc).toLocaleString('es-CR', { dateStyle: 'short', timeStyle: 'short' });
   }
 
   formatTipoSismo(tipo: string | null): string {

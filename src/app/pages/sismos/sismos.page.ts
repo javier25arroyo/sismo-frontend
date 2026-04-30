@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { SismoService } from '../../services/sismo.service';
@@ -34,7 +35,8 @@ import {
   imports: [
     CommonModule,
     SismoMapComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    UtcLocalPipe
   ],
   templateUrl: './sismos.page.html'
 })
@@ -258,16 +260,6 @@ export class SismosPage implements OnInit, OnDestroy {
     if (m < 4.5) return '#eab308';
     if (m < 6.0) return '#f97316';
     return '#ef4444';
-  }
-
-  get nivelMagnitud(): string {
-    const m = this.ultimoSismo()?.magnitud ?? 0;
-    if (m < 2.5) return 'Micro';
-    if (m < 4.0) return 'Menor';
-    if (m < 5.0) return 'Moderado';
-    if (m < 6.0) return 'Fuerte';
-    if (m < 7.0) return 'Mayor';
-    return 'Extremo';
   }
 
   getColorEstadoUbicacion(estado: string): string {

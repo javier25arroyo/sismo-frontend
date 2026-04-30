@@ -8,26 +8,19 @@
         <span class="text-primary">MOVIMIENTO SÍSMICO FUERTE.</span>
       </h1>
       <div class="mt-8 flex flex-wrap gap-3">
-        <a routerLink="/historial"
+        <a href="https://rsn.ucr.ac.cr/index.php/actividad-sismica/ultimos-sismos" target="_blank"
           class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition hover:brightness-110 active:scale-95">
-          Consultar Ahora
+          RSN Últimos sismos
         </a>
-        <a routerLink="/repositorio"
+        <a href="https://rsn.ucr.ac.cr/losentiste/" target="_blank"
           class="rounded-xl bg-surface-container-highest px-6 py-3 text-body-md font-semibold text-text-primary transition hover:bg-slate-200 active:scale-95">
-          Repositorio
+          ¿Lo sentiste?
         </a>
       </div>
     </div>
     <div class="flex items-center justify-center animate-in fade-in zoom-in duration-1000 delay-200">
       <div class="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
         <app-acelerograma-live height="280px"></app-acelerograma-live>
-        <div class="flex items-center justify-between border-t border-slate-50 bg-slate-50/50 px-6 py-3">
-          <div class="flex items-center gap-2">
-            <span class="flex h-2 w-2 animate-pulse rounded-full bg-red-500"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Live Station: ICE-01</span>
-          </div>
-          <span class="font-mono text-[10px] font-medium text-slate-400">REAL-TIME ACCELEROGRAM</span>
-        </div>
       </div>
     </div>
   </section>
@@ -79,9 +72,8 @@
 
           <!-- Date/time right -->
           <div class="flex flex-col items-end justify-center px-8 py-6 border-l border-slate-700">
-            <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">FECHA UTC</p>
-            <p class="font-mono text-sm text-slate-200">{{ ultimoSismo()!.feSismo | date:'dd MMM yyyy' }}</p>
-            <p class="font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | date:'HH:mm:ss' }} UTC</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">FECHA</p>
+            <p class="font-mono text-sm text-slate-200">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy · HH:mm:ss' }}</p>
             <a routerLink="/sismos"
               class="mt-4 rounded-lg bg-sky-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-600">
               Ver análisis
@@ -105,7 +97,7 @@
         </div>
         <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Catálogo Histórico</h3>
         <p class="mt-2 text-sm leading-6 text-slate-600">
-          Consulta el registro completo de eventos sísmicos con filtros avanzados y acceso a acelerogramas.
+          Consulta el registro completo de sísmicos con filtros avanzados.
         </p>
         <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
           EXPLORAR HISTORIAL
@@ -120,10 +112,10 @@
         </div>
         <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-green-700 transition">Estado de Red</h3>
         <p class="mt-2 text-sm leading-6 text-slate-600">
-          Monitorea el estado operativo y telemetría en tiempo real de todas las estaciones acelerográficas.
+          Monitorea el estado operativo y en tiempo real de todas las estaciones.
         </p>
         <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-green-700">
-          VER RED EN VIVO
+          VER ESTACIONES
           <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
         </span>
       </a>
@@ -135,10 +127,10 @@
         </div>
         <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Repositorio Raw</h3>
         <p class="mt-2 text-sm leading-6 text-slate-600">
-          Accede a informes técnicos, manuales de instrumentación y protocolos de la Red Nacional de Sismicidad.
+          Accede a informes técnicos.
         </p>
         <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
-          ACCEDER REPOSITORIO
+          ACCEDER REPORTES
           <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
         </span>
       </a>
