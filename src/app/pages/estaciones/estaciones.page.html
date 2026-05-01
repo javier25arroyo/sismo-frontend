@@ -13,12 +13,12 @@
 
     <!-- LEFT: inventory table -->
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
         <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">
           Inventario Maestro de Estaciones
         </h2>
         <div class="flex items-center gap-3">
-          <div class="relative w-48">
+          <div class="relative w-full sm:w-48">
             <input
               type="text"
               placeholder="Filtrar por ID o estación..."
@@ -39,7 +39,8 @@
         <div *ngFor="let i of [1,2,3,4,5]" class="h-12 rounded-xl bg-slate-100 animate-pulse"></div>
       </div>
 
-      <table *ngIf="!cargando()" class="w-full text-xs">
+      <div *ngIf="!cargando()" class="overflow-x-auto">
+      <table class="w-full text-xs">
         <thead>
           <tr class="border-b border-slate-100 bg-slate-50">
             <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">ID Estación</th>
@@ -78,6 +79,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div *ngIf="!cargando() && filtradas.length === 0"
         class="p-10 text-center text-sm text-slate-500">Sin resultados para "{{ busqueda() }}"</div>

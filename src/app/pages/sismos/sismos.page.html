@@ -83,7 +83,7 @@
          SKELETON
          ═══════════════════════════════════════════════════════════ -->
     <div *ngIf="cargando()" class="grid gap-5 lg:grid-cols-[1fr_320px]">
-      <div class="h-[560px] rounded-3xl bg-slate-200 animate-pulse"></div>
+      <div class="h-[300px] rounded-3xl bg-slate-200 animate-pulse sm:h-[420px] lg:h-[560px]"></div>
       <div class="space-y-4">
         <div class="h-32 rounded-3xl bg-slate-200 animate-pulse"></div>
         <div class="h-48 rounded-3xl bg-slate-200 animate-pulse"></div>
@@ -111,7 +111,7 @@
           [sismos]="sismosMapa()"
           [epicentro]="ultimoSismo()"
           [estaciones]="estaciones()"
-          [height]="'560px'"
+          [height]="mapHeight"
           [zoom]="7">
         </app-sismo-map>
       </div>

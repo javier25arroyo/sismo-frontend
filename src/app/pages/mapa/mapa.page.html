@@ -200,7 +200,7 @@
       </div>
 
       @if (loading) {
-        <div class="flex h-[500px] items-center justify-center bg-slate-50">
+        <div class="flex h-[300px] items-center justify-center bg-slate-50 sm:h-[450px] lg:h-[620px]">
           <div class="text-center">
             <svg class="mx-auto h-10 w-10 animate-spin text-sky-700" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -213,7 +213,7 @@
         <app-sismo-map
           [sismos]="sismos"
           [estaciones]="estaciones"
-          [height]="'620px'"
+          [height]="mapHeight"
           [showLegend]="true"
         />
       }
