@@ -23,7 +23,7 @@
         <!-- Identificación -->
         <section>
           <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Identificación</p>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <ng-container *ngIf="!esEdicion">
               <div>
                 <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Código Centro *</label>
@@ -58,7 +58,7 @@
         <!-- Ubicación -->
         <section>
           <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Ubicación</p>
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Longitud (X) *</label>
               <input type="text" [(ngModel)]="formData.coordenadaX" name="coordenadaX"
@@ -85,7 +85,7 @@
         <!-- Instrumento -->
         <section>
           <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Instrumento</p>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Modelo (Mod_Inst)</label>
               <input type="text" [(ngModel)]="formData.modInst" name="modInst" maxlength="20"
@@ -116,7 +116,7 @@
         <!-- Parámetros del Sitio -->
         <section>
           <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Parámetros del Sitio</p>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Tipo Suelo</label>
               <input type="text" [(ngModel)]="formData.tipoSuelo" name="tipoSuelo" maxlength="10"
@@ -145,7 +145,7 @@
         <!-- Canales -->
         <section>
           <p class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Canales</p>
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">Canal 1 Long.</label>
               <input type="text" [(ngModel)]="formData.chn1Long" name="chn1Long" maxlength="3"
@@ -177,7 +177,7 @@
             </svg>
             Calibración (Bit Weight / VPU)
           </button>
-          <div *ngIf="mostrarAvanzado" class="mt-3 grid grid-cols-3 gap-4">
+          <div *ngIf="mostrarAvanzado" class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label class="mb-1 block text-xs font-semibold uppercase tracking-widest text-slate-500">BitWeight Ch1</label>
               <input type="text" [(ngModel)]="formData.bitWeightCh1" name="bitWeightCh1"

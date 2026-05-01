@@ -150,4 +150,9 @@ export class MapaPage implements OnInit {
   now(): Date {
     return new Date();
   }
+
+  get mapHeight(): string {
+    if (typeof window === 'undefined') return '450px';
+    return window.innerWidth < 640 ? '300px' : window.innerWidth < 1024 ? '450px' : '620px';
+  }
 }

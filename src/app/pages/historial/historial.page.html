@@ -360,7 +360,7 @@
           <i-lucide [img]="mapPinIcon" size="14" class="text-sky-500"></i-lucide>
           <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Localización del epicentro</p>
         </div>
-        <div class="overflow-hidden rounded-xl border border-slate-200" style="height: 320px;">
+        <div class="h-[240px] overflow-hidden rounded-xl border border-slate-200 sm:h-[320px]">
           <app-sismo-map
             [sismos]="[]"
             [epicentro]="$any(s)"

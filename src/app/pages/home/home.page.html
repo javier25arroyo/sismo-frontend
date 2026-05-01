@@ -3,7 +3,7 @@
   <!-- HERO -->
   <section class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 py-4">
     <div class="animate-in fade-in slide-in-from-left duration-700">
-      <h1 class="mt-6 text-5xl font-bold leading-tight tracking-tight text-text-primary sm:text-6xl">
+      <h1 class="mt-6 text-3xl font-bold leading-tight tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
         MONITOREO ACELERÓGRAFICO-<br>
         <span class="text-primary">MOVIMIENTO SÍSMICO FUERTE.</span>
       </h1>
@@ -41,9 +41,9 @@
       <div *ngIf="cargando()" class="rounded-2xl bg-slate-100 h-40 animate-pulse"></div>
 
       <div *ngIf="!cargando() && ultimoSismo()" class="rounded-2xl bg-slate-900 text-white overflow-hidden shadow-xl">
-        <div class="grid lg:grid-cols-[auto_1fr_auto] gap-0">
+        <div class="grid gap-0 lg:grid-cols-[auto_1fr_auto]">
           <!-- Magnitude block -->
-          <div class="flex flex-col items-center justify-center px-8 py-6 border-r border-slate-700"
+          <div class="flex flex-col items-center justify-center px-6 py-5 border-b border-slate-700 lg:border-b-0 lg:border-r lg:px-8 lg:py-6"
             [style.background]="magnitudColor() + '22'">
             <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">MAGNITUD Mw</span>
             <span class="text-6xl font-bold tabular-nums" [style.color]="magnitudColor()">
@@ -71,7 +71,7 @@
           </div>
 
           <!-- Date/time right -->
-          <div class="flex flex-col items-end justify-center px-8 py-6 border-l border-slate-700">
+          <div class="flex flex-col items-start justify-center px-6 py-5 lg:items-end lg:border-l lg:border-slate-700 lg:px-8 lg:py-6">
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">FECHA</p>
             <p class="font-mono text-sm text-slate-200">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy · HH:mm:ss' }}</p>
             <a routerLink="/sismos"

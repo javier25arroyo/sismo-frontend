@@ -133,6 +133,7 @@
 
     @if (!cargando() && reportes().length > 0) {
       <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50">
@@ -223,11 +224,12 @@
             }
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Paginación -->
       @if (totalPaginas() > 1) {
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-xs text-slate-500">
             Página <span class="font-semibold text-slate-700">{{ paginaActual() + 1 }}</span> de
             <span class="font-semibold text-slate-700">{{ totalPaginas() }}</span>
@@ -283,7 +285,7 @@
   ════════════════════════════════════════════════════════════════════════ -->
   @if (tabActivo() === 'generar') {
 
-    <div class="grid gap-6 lg:grid-cols-[420px_1fr]">
+    <div class="grid gap-6 lg:grid-cols-[1fr_1fr] xl:grid-cols-[420px_1fr]">
 
       <!-- ── Panel izquierdo: opciones de generación ── -->
       <div class="space-y-4">
