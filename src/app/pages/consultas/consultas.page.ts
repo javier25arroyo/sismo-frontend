@@ -308,15 +308,37 @@ export class ConsultasPage {
 
   formatTipoSismo(tipo: string | null): string {
     if (!tipo) return '';
-    // NFD descompone; elimina marcas combinadas duplicadas (backend bug: Ó + U+0301 extra);
-    // NFC recompone limpio antes del title-case.
-    return tipo
-      .toLowerCase()
+
+    // 1. Quitar paréntesis y limpiar espacios
+    let text = tipo.trim().replace(/\s*\(.*\)/g, '');
+
+    // 2. Eliminar acentos "huérfanos" o símbolos que el backend envía como caracteres separados
+    //    Esto limpia casos como "Subduccio´n" o "Deformacio´n"
+    text = text.replace(/[´‘’']/g, '');
+
+    // 3. Crear llave de búsqueda normalizada (sin acentos reales) para el mapeo
+    const searchKey = text
       .normalize('NFD')
-      .replace(/[\u0300-\u036F]{2,}/g, m => m[0])
-      .normalize('NFC')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
       .replace(/_/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+      .trim();
+
+    const correcciones: Record<string, string> = {
+      'SUBDUCCION': 'Subducción',
+      'DEFORMACION': 'Deformación',
+      'TECTONICO': 'Tectónico',
+      'VOLCANICO': 'Volcánico',
+      'LOCAL': 'Local',
+      'REGIONAL': 'Regional',
+      'DISTANTE': 'Distante'
+    };
+
+    if (correcciones[searchKey]) return correcciones[searchKey];
+
+    // 4. Fallback: Formateo genérico (Primera letra en mayúscula)
+    const lower = text.toLowerCase().replace(/_/g, ' ');
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
   }
 
   colorMagnitud(m: number): string {
