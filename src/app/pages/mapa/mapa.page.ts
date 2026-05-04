@@ -7,19 +7,12 @@ import { CentroService } from '../../services/centro.service';
 import { EstacionRespuesta } from '../../interfaces/api.interfaces';
 import { Sismo } from '../../interfaces/sismo.interface';
 import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
-
-interface MagnitudBucket {
-  label: string;
-  range: string;
-  count: number;
-  color: string;
-  bar: string;
-}
+import { UtcLocalPipe, parseUtcDate } from '../../pipes/utc-local.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-mapa-page',
-  imports: [CommonModule, FormsModule, SismoMapComponent, UbicacionNormalizadaPipe],
+  imports: [CommonModule, FormsModule, SismoMapComponent, UbicacionNormalizadaPipe, UtcLocalPipe],
   templateUrl: './mapa.page.html'
 })
 export class MapaPage implements OnInit {
@@ -110,29 +103,6 @@ export class MapaPage implements OnInit {
     return this.sismos.filter(s => new Date(s.feSismo).getTime() >= cutoff).length;
   }
 
-  get distribucionMagnitud(): MagnitudBucket[] {
-    const buckets: MagnitudBucket[] = [
-      { label: 'Menor',   range: '< 3.0',   count: 0, color: 'bg-green-500',  bar: 'from-green-400 to-green-600' },
-      { label: 'Leve',    range: '3.0–4.0', count: 0, color: 'bg-yellow-500', bar: 'from-yellow-400 to-yellow-600' },
-      { label: 'Moderado',range: '4.0–5.0', count: 0, color: 'bg-orange-500', bar: 'from-orange-400 to-orange-600' },
-      { label: 'Fuerte',  range: '5.0–6.0', count: 0, color: 'bg-red-500',    bar: 'from-red-400 to-red-600' },
-      { label: 'Mayor',   range: '≥ 6.0',   count: 0, color: 'bg-red-900',    bar: 'from-red-800 to-red-950' }
-    ];
-    for (const s of this.sismos) {
-      const m = s.magnitud;
-      if (m < 3) buckets[0].count++;
-      else if (m < 4) buckets[1].count++;
-      else if (m < 5) buckets[2].count++;
-      else if (m < 6) buckets[3].count++;
-      else buckets[4].count++;
-    }
-    return buckets;
-  }
-
-  get maxBucketCount(): number {
-    return Math.max(1, ...this.distribucionMagnitud.map(b => b.count));
-  }
-
   magnitudColorClass(m: number): string {
     if (m >= 6) return 'text-red-900';
     if (m >= 5) return 'text-red-500';
@@ -158,7 +128,7 @@ export class MapaPage implements OnInit {
   }
 
   timeAgo(fecha: string | Date): string {
-    const d = typeof fecha === 'string' ? new Date(fecha) : fecha;
+    const d = typeof fecha === 'string' ? parseUtcDate(fecha) : fecha;
     const diffMs = Date.now() - d.getTime();
     const sec = Math.floor(diffMs / 1000);
     if (sec < 60) return 'hace ' + sec + ' s';
@@ -179,5 +149,10 @@ export class MapaPage implements OnInit {
 
   now(): Date {
     return new Date();
+  }
+
+  get mapHeight(): string {
+    if (typeof window === 'undefined') return '450px';
+    return window.innerWidth < 640 ? '300px' : window.innerWidth < 1024 ? '450px' : '620px';
   }
 }

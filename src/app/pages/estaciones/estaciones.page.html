@@ -2,35 +2,10 @@
 
   <!-- STATS ROW -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <app-stat-card
-      label="Infraestructura Total"
-      [value]="total"
-      unit="nodos"
-      [icon]="serverIcon">
-    </app-stat-card>
-    <app-stat-card
-      label="Estado Operativo"
-      [value]="enLinea"
-      unit="En línea"
-      [icon]="satelliteIcon"
-      variant="success">
-    </app-stat-card>
-    <app-stat-card
-      label="En Mantenimiento"
-      [value]="enMantenimiento"
-      unit=""
-      sublabel="Fuera de servicio temporal"
-      [icon]="wrenchIcon"
-      [variant]="enMantenimiento > 0 ? 'warning' : 'default'">
-    </app-stat-card>
-    <app-stat-card
-      label="Incidencias Críticas"
-      [value]="incidencias"
-      unit=""
-      sublabel="Estaciones inactivas"
-      [icon]="warningIcon"
-      [variant]="incidencias > 0 ? 'danger' : 'default'">
-    </app-stat-card>
+    <app-stat-card label="Infraestructura Total"  [value]="total"          unit="nodos"      [icon]="serverIcon"></app-stat-card>
+    <app-stat-card label="Estado Operativo"        [value]="enLinea"        unit="En línea"   [icon]="satelliteIcon" variant="success"></app-stat-card>
+    <app-stat-card label="En Mantenimiento"        [value]="enMantenimiento" unit=""           sublabel="Fuera de servicio temporal" [icon]="wrenchIcon"   [variant]="enMantenimiento > 0 ? 'warning' : 'default'"></app-stat-card>
+    <app-stat-card label="Incidencias Críticas"    [value]="incidencias"    unit=""           sublabel="Estaciones inactivas"       [icon]="warningIcon"  [variant]="incidencias > 0 ? 'danger' : 'default'"></app-stat-card>
   </div>
 
   <!-- MAIN GRID: tabla + detalle -->
@@ -38,17 +13,25 @@
 
     <!-- LEFT: inventory table -->
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
         <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">
           Inventario Maestro de Estaciones
         </h2>
-        <div class="relative w-56">
-          <input
-            type="text"
-            placeholder="Filtrar por ID o estación..."
-            aria-label="Filtrar estaciones por ID o nombre"
-            (input)="setBusqueda($event)"
-            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-8 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+        <div class="flex items-center gap-3">
+          <div class="relative w-full sm:w-48">
+            <input
+              type="text"
+              placeholder="Filtrar por ID o estación..."
+              aria-label="Filtrar estaciones por ID o nombre"
+              (input)="setBusqueda($event)"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-8 text-xs outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-200"/>
+          </div>
+          <button *ngIf="auth.isAdmin()" (click)="abrirCrear()"
+            aria-label="Crear nueva estación"
+            class="flex items-center gap-1.5 rounded-xl bg-sky-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-sky-700">
+            <i-lucide [img]="plusIcon" size="13"></i-lucide>
+            Nueva
+          </button>
         </div>
       </div>
 
@@ -56,35 +39,47 @@
         <div *ngFor="let i of [1,2,3,4,5]" class="h-12 rounded-xl bg-slate-100 animate-pulse"></div>
       </div>
 
-      <table *ngIf="!cargando()" class="w-full text-xs">
-        <thead>
-          <tr class="border-b border-slate-100 bg-slate-50">
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">ID Estación</th>
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Ubicación Geográfica</th>
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Tipo Sensor</th>
-            <th class="px-4 py-3 text-left font-semibold uppercase tracking-widest text-slate-500">Estado</th>
+      <div *ngIf="!cargando()" class="overflow-x-auto">
+      <table class="w-full border-collapse text-xs xl:text-sm">
+        <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <tr class="border-b border-slate-200">
+            <th class="w-[20%] px-4 py-4 text-left">ID Estación</th>
+            <th class="w-[40%] px-4 py-4 text-left">Ubicación Geográfica</th>
+            <th class="w-[20%] px-4 py-4 text-left">Tipo Sensor</th>
+            <th class="w-[15%] px-4 py-4 text-left">Estado</th>
+            <th *ngIf="auth.isAdmin()" class="w-[5%] px-4 py-4"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-slate-100">
           <tr *ngFor="let e of filtradas"
             (click)="seleccionar(e)"
-            [class.bg-sky-50]="estacionSeleccionada()?.codEstacion === e.codEstacion"
-            class="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50 last:border-0">
-            <td class="px-4 py-3">
+            [class.bg-sky-50/50]="estacionSeleccionada()?.codEstacion === e.codEstacion"
+            class="group cursor-pointer transition hover:bg-sky-50/30">
+            <td class="px-4 py-3.5">
               <p class="font-bold text-sky-700">{{ e.codEstacion }}</p>
-              <p class="text-slate-500">{{ e.codCentroPrd }}</p>
+              <p class="text-[10px] text-slate-400 font-medium">{{ e.codCentroPrd }}</p>
             </td>
-            <td class="px-4 py-3">
-              <p class="font-medium text-slate-900">{{ e.nomEstacion }}</p>
-              <p class="text-slate-500">{{ e.ubicacionDetalle }}</p>
+            <td class="px-4 py-3.5">
+              <p class="font-semibold text-slate-700">{{ e.nomEstacion }}</p>
+              <p class="text-[11px] text-slate-500 line-clamp-1">{{ e.ubicacionDetalle }}</p>
             </td>
-            <td class="px-4 py-3 text-slate-600">{{ e.tipoSensor }}</td>
-            <td class="px-4 py-3">
+            <td class="px-4 py-3.5 text-slate-600 font-medium">{{ e.tipoSensor }}</td>
+            <td class="px-4 py-3.5">
               <app-status-badge [estado]="e.estado"></app-status-badge>
+            </td>
+            <td *ngIf="auth.isAdmin()" class="px-4 py-3.5" (click)="$event.stopPropagation()">
+              <div class="flex items-center justify-end opacity-0 transition group-hover:opacity-100">
+                <button (click)="abrirEditar(e)"
+                  title="Editar estación"
+                  class="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white hover:text-sky-600 hover:shadow-sm ring-1 ring-transparent hover:ring-slate-200">
+                  <i-lucide [img]="editIcon" size="14"></i-lucide>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div *ngIf="!cargando() && filtradas.length === 0"
         class="p-10 text-center text-sm text-slate-500">Sin resultados para "{{ busqueda() }}"</div>
@@ -95,36 +90,40 @@
       <ng-container *ngIf="estacionSeleccionada() as est; else sinSeleccion">
         <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
           <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Detalle de Nodo</span>
-          <app-status-badge [estado]="est.estado"></app-status-badge>
+          <div class="flex items-center gap-2">
+            <ng-container *ngIf="auth.isAdmin()">
+              <button (click)="abrirEditar(est)"
+                title="Editar estación"
+                class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition hover:bg-sky-50 hover:text-sky-600">
+                <i-lucide [img]="editIcon" size="14"></i-lucide>
+              </button>
+            </ng-container>
+            <app-status-badge [estado]="est.estado"></app-status-badge>
+          </div>
         </div>
 
         <div class="px-6 py-4">
           <h3 class="text-2xl font-bold tracking-tight text-slate-900">{{ est.codEstacion }}</h3>
           <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
 
-            <!-- Mapa de ubicación -->
-            <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200">
-              @defer (on viewport) {
-                <app-estacion-mini-map
-                  [lat]="est.coordenadaY"
-                  [lng]="est.coordenadaX"
-                  [label]="est.nomEstacion">
-                </app-estacion-mini-map>
-              } @placeholder {
-                <div class="w-full h-full bg-slate-100 animate-pulse"></div>
-              }
-            </div>
+          <!-- Mapa de ubicación -->
+          <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200 isolate">
+            @defer (on viewport) {
+              <app-estacion-mini-map [lat]="est.coordenadaY" [lng]="est.coordenadaX" [label]="est.nomEstacion"></app-estacion-mini-map>
+            } @placeholder {
+              <div class="w-full h-full bg-slate-100 animate-pulse"></div>
+            }
+          </div>
           <p class="mt-1 text-xs text-slate-500 text-right">
             <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>
             {{ est.coordenadaY | number:'1.4-4' }}, {{ est.coordenadaX | number:'1.4-4' }}
           </p>
 
-          <!-- Telemetry -->
+          <!-- Telemetría -->
           <div class="mt-5">
             <div class="flex items-center justify-between mb-3">
               <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Telemetría Crítica</span>
-              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
-                [class]="telemetriaBadgeClass(est.estado)">
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" [class]="telemetriaBadgeClass(est.estado)">
                 <span class="h-1.5 w-1.5 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
                 {{ telemetriaLabel(est.estado) }}
               </span>
@@ -145,15 +144,13 @@
             </div>
           </div>
 
-          <!-- Cambiar estado -->
+          <!-- Sección Admin -->
           <div class="mt-5" *ngIf="auth.isAdmin()">
+
+            <!-- Cambiar Estado -->
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
-            
             <div class="relative">
-              <button
-                type="button"
-                (click)="toggleDropdown()"
-                [disabled]="cambiandoEstado()"
+              <button type="button" (click)="toggleDropdown()" [disabled]="cambiandoEstado()"
                 class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 outline-none transition hover:border-sky-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50">
                 <div class="flex items-center gap-2">
                   <span class="h-2 w-2 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
@@ -164,10 +161,8 @@
                 </svg>
               </button>
 
-              <!-- Dropdown Menu -->
-              <div *ngIf="mostrarDropdown()" 
-                class="absolute z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
-                
+              <div *ngIf="mostrarDropdown()"
+                class="absolute z-10 mt-2 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
                 <button (click)="seleccionarNuevoEstado(est, 'ACTIVA')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
@@ -176,7 +171,6 @@
                   </div>
                   <i-lucide *ngIf="est.estado === 'ACTIVA'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
-
                 <button (click)="seleccionarNuevoEstado(est, 'MANTENIMIENTO')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
@@ -185,7 +179,6 @@
                   </div>
                   <i-lucide *ngIf="est.estado === 'MANTENIMIENTO'" [img]="checkIcon" size="14" class="text-sky-600"></i-lucide>
                 </button>
-
                 <button (click)="seleccionarNuevoEstado(est, 'FUERA_DE_SERVICIO')"
                   class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50">
                   <div class="flex items-center gap-2 text-slate-700">
@@ -208,17 +201,10 @@
 
             <div *ngIf="mensajeEstado() as msg"
               class="mt-3 flex items-center gap-2 rounded-xl border px-4 py-2.5"
-              [class]="msg.tipo === 'ok'
-                ? 'border-green-200 bg-green-50'
-                : 'border-rose-200 bg-rose-50'">
-              <i-lucide
-                [img]="msg.tipo === 'ok' ? checkIcon : xIcon"
-                size="15"
-                class="shrink-0"
-                [class]="msg.tipo === 'ok' ? 'text-green-600' : 'text-rose-600'">
-              </i-lucide>
-              <span class="text-xs font-medium"
-                [class]="msg.tipo === 'ok' ? 'text-green-700' : 'text-rose-700'">
+              [class]="msg.tipo === 'ok' ? 'border-green-200 bg-green-50' : 'border-rose-200 bg-rose-50'">
+              <i-lucide [img]="msg.tipo === 'ok' ? checkIcon : xIcon" size="15" class="shrink-0"
+                [class]="msg.tipo === 'ok' ? 'text-green-600' : 'text-rose-600'"></i-lucide>
+              <span class="text-xs font-medium" [class]="msg.tipo === 'ok' ? 'text-green-700' : 'text-rose-700'">
                 {{ msg.texto }}
               </span>
             </div>
@@ -234,4 +220,22 @@
     </div>
 
   </div>
+</div>
+
+<!-- Modal crear / editar -->
+<app-estacion-form-modal
+  [visible]="mostrarModal()"
+  [mode]="modoModal()"
+  [datos]="estacionParaEditar()"
+  (guardado)="onGuardado($event)"
+  (cancelado)="cerrarModal()">
+</app-estacion-form-modal>
+
+
+<!-- Toast CRUD -->
+<div *ngIf="mensajeCrud() as msg"
+  class="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-xl border px-4 py-3 shadow-lg text-sm font-medium"
+  [class]="msg.tipo === 'ok' ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
+  <i-lucide [img]="msg.tipo === 'ok' ? checkIcon : xIcon" size="15" class="shrink-0"></i-lucide>
+  {{ msg.texto }}
 </div>

@@ -1,24 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
-import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
 import { CentroService } from '../../services/centro.service';
 import { EstacionRespuesta, SismoRespuesta } from '../../interfaces/api.interfaces';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Calendar, Check, ChevronDown, ClipboardList, LucideAngularModule, MapPin, SlidersHorizontal, TriangleAlert, X } from 'lucide-angular';
+import { ArrowLeft, ArrowUp, ArrowUpRight, Calendar, Check, ClipboardList, LucideAngularModule, MapPin, SlidersHorizontal, TriangleAlert, X } from 'lucide-angular';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
+import { parseUtcDate, UtcLocalPipe } from '../../pipes/utc-local.pipe';
 
 type FiltroSentido = '' | 'sentido' | 'no_sentido';
-type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica';
+type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica' | 'zona_sur';
+type RangoRapido = 'hoy' | '7d' | '30d' | '90d' | 'anio';
 
 @Component({
   standalone: true,
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, StatusBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink, SismoMapComponent, UbicacionNormalizadaPipe],
+  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink, SismoMapComponent, UbicacionNormalizadaPipe, UtcLocalPipe],
   templateUrl: './historial.page.html'
 })
 export class HistorialPage implements OnInit {
@@ -35,20 +36,14 @@ export class HistorialPage implements OnInit {
   // Filtros aplicados
   desde = signal('');
   hasta = signal('');
-  magnitudMin = signal('');
   filtroSentido = signal<FiltroSentido>('');
   localizacion = signal<FiltroLocalizacion>('');
 
   // Filtros en edición (se aplican al tocar "Aplicar Filtros")
   desdeDraft = signal('');
   hastaDraft = signal('');
-  magnitudMinDraft = signal('');
   filtroSentidoDraft = signal<FiltroSentido>('');
   localizacionDraft = signal<FiltroLocalizacion>('');
-
-  // Dropdown states
-  showMagnitudDropdown = signal(false);
-  showLocalizacionDropdown = signal(false);
 
   // Panel de detalle
   sismoDetalle = signal<SismoRespuesta | null>(null);
@@ -59,34 +54,52 @@ export class HistorialPage implements OnInit {
   eventoCritico = signal<SismoRespuesta | null>(null);
 
   readonly arrowLeftIcon    = ArrowLeft;
-  readonly arrowRightIcon   = ArrowRight;
   readonly arrowUpIcon      = ArrowUp;
   readonly arrowUpRightIcon = ArrowUpRight;
   readonly calendarIcon     = Calendar;
   readonly reportIcon       = ClipboardList;
   readonly warningIcon      = TriangleAlert;
-  readonly chevronDownIcon  = ChevronDown;
   readonly checkIcon        = Check;
   readonly closeIcon        = X;
   readonly mapPinIcon       = MapPin;
   readonly filterIcon       = SlidersHorizontal;
 
-  readonly magnitudOpciones: { valor: string; label: string }[] = [
-    { valor: '', label: 'Todas' },
-    { valor: '3', label: '≥ 3.0' },
-    { valor: '4', label: '≥ 4.0' },
-    { valor: '5', label: '≥ 5.0' },
-    { valor: '6', label: '≥ 6.0' },
+  readonly rangosRapidos: ReadonlyArray<{ value: RangoRapido; label: string }> = [
+    { value: 'hoy', label: 'Hoy' },
+    { value: '7d', label: '7 días' },
+    { value: '30d', label: '30 días' },
+    { value: '90d', label: '90 días' },
+    { value: 'anio', label: 'Este año' }
+  ];
+
+  readonly zonasFiltro: ReadonlyArray<{ value: FiltroLocalizacion; label: string }> = [
+    { value: '', label: 'Todo el territorio' },
+    { value: 'valle_central', label: 'Central' },
+    { value: 'zona_atlantica', label: 'Huetar Atlántica' },
+    { value: 'zona_pacifica', label: 'Chorotega' },
+    { value: 'zona_sur', label: 'Zona Sur' }
+  ];
+
+  readonly sentidoOpciones: ReadonlyArray<{ value: FiltroSentido; label: string }> = [
+    { value: '', label: 'Todos' },
+    { value: 'sentido', label: 'Sentidos' },
+    { value: 'no_sentido', label: 'No sentidos' }
   ];
 
   get filtrosActivos(): number {
     let n = 0;
     if (this.desdeDraft()) n++;
     if (this.hastaDraft()) n++;
-    if (this.magnitudMinDraft()) n++;
     if (this.filtroSentidoDraft()) n++;
     if (this.localizacionDraft()) n++;
     return n;
+  }
+
+  get hayCambiosPendientes(): boolean {
+    return this.desdeDraft() !== this.desde()
+      || this.hastaDraft() !== this.hasta()
+      || this.filtroSentidoDraft() !== this.filtroSentido()
+      || this.localizacionDraft() !== this.localizacion();
   }
 
   constructor(private sismoService: SismoService, private centroService: CentroService, private router: Router) {}
@@ -105,51 +118,71 @@ export class HistorialPage implements OnInit {
     }
   }
 
-  toggleMagnitudDropdown(): void {
-    this.showMagnitudDropdown.set(!this.showMagnitudDropdown());
-    this.showLocalizacionDropdown.set(false);
-  }
-
-  toggleLocalizacionDropdown(): void {
-    this.showLocalizacionDropdown.set(!this.showLocalizacionDropdown());
-    this.showMagnitudDropdown.set(false);
-  }
-
-  setMagnitudDraft(val: string): void {
-    this.magnitudMinDraft.set(val);
-    this.showMagnitudDropdown.set(false);
-  }
-
-  setLocalizacionDraft(val: FiltroLocalizacion): void {
-    this.localizacionDraft.set(val);
-    this.showLocalizacionDropdown.set(false);
-  }
-
-  getMagnitudLabel(val: string): string {
-    switch (val) {
-      case '3': return '≥ 3.0';
-      case '4': return '≥ 4.0';
-      case '5': return '≥ 5.0';
-      case '6': return '≥ 6.0';
-      default: return 'Todas las magnitudes';
-    }
-  }
-
   getLocalizacionLabel(val: string): string {
     switch (val) {
-      case 'valle_central': return 'Valle Central';
-      case 'zona_atlantica': return 'Zona Atlántica';
-      case 'zona_pacifica': return 'Zona Pacífica';
+      case 'valle_central': return 'Central';
+      case 'zona_atlantica': return 'Huetar Atlántica';
+      case 'zona_pacifica': return 'Chorotega';
+      case 'zona_sur': return 'Zona Sur';
       default: return 'Todo el territorio';
     }
   }
 
-  onLocalizacionDraftChange(valor: string): void {
-    if (valor === 'valle_central' || valor === 'zona_atlantica' || valor === 'zona_pacifica') {
-      this.localizacionDraft.set(valor);
-      return;
+  getSentidoLabel(val: FiltroSentido): string {
+    switch (val) {
+      case 'sentido':
+        return 'Sentidos';
+      case 'no_sentido':
+        return 'No sentidos';
+      default:
+        return 'Todos';
     }
-    this.localizacionDraft.set('');
+  }
+
+  setRangoRapido(rango: RangoRapido): void {
+    const { desde, hasta } = this.obtenerRangoRapido(rango);
+    this.desdeDraft.set(desde);
+    this.hastaDraft.set(hasta);
+  }
+
+  esRangoRapidoActivo(rango: RangoRapido): boolean {
+    const actual = this.obtenerRangoRapido(rango);
+    return this.desdeDraft() === actual.desde && this.hastaDraft() === actual.hasta;
+  }
+
+  private obtenerRangoRapido(rango: RangoRapido): { desde: string; hasta: string } {
+    const hoy = new Date();
+    const fin = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    let inicio = new Date(fin);
+
+    switch (rango) {
+      case 'hoy':
+        break;
+      case '7d':
+        inicio.setDate(fin.getDate() - 6);
+        break;
+      case '30d':
+        inicio.setDate(fin.getDate() - 29);
+        break;
+      case '90d':
+        inicio.setDate(fin.getDate() - 89);
+        break;
+      case 'anio':
+        inicio = new Date(fin.getFullYear(), 0, 1);
+        break;
+    }
+
+    return {
+      desde: this.formatearFechaInput(inicio),
+      hasta: this.formatearFechaInput(fin)
+    };
+  }
+
+  private formatearFechaInput(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = `${fecha.getMonth() + 1}`.padStart(2, '0');
+    const day = `${fecha.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private async cargarEventos(): Promise<void> {
@@ -216,16 +249,13 @@ export class HistorialPage implements OnInit {
   private filtrarEventos(eventos: SismoRespuesta[]): SismoRespuesta[] {
     const desde = this.desde() ? new Date(`${this.desde()}T00:00:00`) : null;
     const hasta = this.hasta() ? new Date(`${this.hasta()}T23:59:59.999`) : null;
-    const magnitudMin = this.magnitudMin() ? Number(this.magnitudMin()) : null;
     const sentido = this.filtroSentido();
     const localizacion = this.localizacion();
 
     return eventos.filter((evento) => {
-      const fechaEvento = new Date(evento.feSismo);
+      const fechaEvento = parseUtcDate(evento.feSismo);
       if (desde && fechaEvento < desde) return false;
       if (hasta && fechaEvento > hasta) return false;
-      if (magnitudMin !== null && !Number.isNaN(magnitudMin) && evento.magnitud < magnitudMin) return false;
-
       const fueSentido = this.esSentido(evento.sentido);
       if (sentido === 'sentido' && !fueSentido) return false;
       if (sentido === 'no_sentido' && fueSentido) return false;
@@ -245,7 +275,9 @@ export class HistorialPage implements OnInit {
       case 'zona_atlantica':
         return this.contieneAlguno(valor, ['limon', 'caribe', 'atlantica', 'atlantico', 'talamanca', 'siquirres']);
       case 'zona_pacifica':
-        return this.contieneAlguno(valor, ['pacifica', 'pacifico', 'puntarenas', 'guanacaste', 'nicoya', 'golfito', 'osa']);
+        return this.contieneAlguno(valor, ['pacifica', 'pacifico', 'puntarenas', 'guanacaste', 'nicoya', 'chorotega']);
+      case 'zona_sur':
+        return this.contieneAlguno(valor, ['osa', 'golfito', 'coto brus', 'buenos aires', 'san vito', 'palmar', 'perez zeledon', 'brunca', 'zona sur']);
       default:
         return true;
     }
@@ -283,13 +315,9 @@ export class HistorialPage implements OnInit {
   aplicarFiltros(): void {
     this.desde.set(this.desdeDraft());
     this.hasta.set(this.hastaDraft());
-    this.magnitudMin.set(this.magnitudMinDraft());
     this.filtroSentido.set(this.filtroSentidoDraft());
     this.localizacion.set(this.localizacionDraft());
     this.aplicarFiltrosEnMemoria(1);
-
-    this.showMagnitudDropdown.set(false);
-    this.showLocalizacionDropdown.set(false);
   }
 
   cambiarSentido(valor: FiltroSentido): void {
@@ -299,19 +327,14 @@ export class HistorialPage implements OnInit {
   limpiarFiltros(): void {
     this.desdeDraft.set('');
     this.hastaDraft.set('');
-    this.magnitudMinDraft.set('');
     this.filtroSentidoDraft.set('');
     this.localizacionDraft.set('');
 
     this.desde.set('');
     this.hasta.set('');
-    this.magnitudMin.set('');
     this.filtroSentido.set('');
     this.localizacion.set('');
     this.aplicarFiltrosEnMemoria(1);
-
-    this.showMagnitudDropdown.set(false);
-    this.showLocalizacionDropdown.set(false);
   }
 
   cambiarPagina(p: number): void {
@@ -339,15 +362,6 @@ export class HistorialPage implements OnInit {
     if (m >= 4.0) return '#eab308';
     if (m >= 3.5) return '#22c55e';
     return '#94a3b8';
-  }
-
-  getEstadoRed(e: SismoRespuesta): string {
-    const m = e.magnitud;
-    if (m >= 6.0) return 'NIVEL 4';
-    if (m >= 5.0) return 'NIVEL 3';
-    if (m >= 4.0) return 'NIVEL 2';
-    if (m >= 3.5) return 'NIVEL 1';
-    return 'ACTIVO';
   }
 
   get magnitudColor(): string {
