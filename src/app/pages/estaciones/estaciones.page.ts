@@ -147,6 +147,8 @@ export class EstacionesPage implements OnInit {
   cerrarModal(): void { this.mostrarModal.set(false); }
 
   async onGuardado(event: { mode: 'create'; payload: CrearEstacionSolicitud } | { mode: 'edit'; payload: ActualizarEstacionSolicitud }): Promise<void> {
+    if (this.guardandoEstacion()) return;
+
     this.guardandoEstacion.set(true);
     this.mensajeCrud.set(null);
     try {
