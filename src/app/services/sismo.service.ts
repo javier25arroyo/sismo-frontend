@@ -55,7 +55,7 @@ export class SismoService {
     if (filtros.page !== undefined) params.set('page', String(filtros.page));
     if (filtros.size !== undefined) params.set('size', String(filtros.size));
     params.set('sort', 'feSismo,desc');
-    const query = params.toString();
+    const query = params.toString().replace(/%2C/g, ',');
     return this.api.get<PaginatedResponse<SismoRespuesta>>(
       `/api/sismos${query ? '?' + query : ''}`
     );
