@@ -115,6 +115,7 @@ export interface EstacionRespuesta {
   coordenadaX: number;
   coordenadaY: number;
   estado: EstadoEstacion;
+  modInst?: string;
 }
 
 export interface CrearEstacionSolicitud {
@@ -145,12 +146,28 @@ export interface CrearEstacionSolicitud {
 }
 
 export interface ActualizarEstacionSolicitud {
-  codCentroPrd: string;
-  codEstacion: string;
-  nomEstacion: string;
-  coordenadaX: number;
-  coordenadaY: number;
-  estado: EstadoEstacion;
+  nomEstacion?: string;
+  coordenadaX?: number;
+  coordenadaY?: number;
+  nuSerie?: string;
+  idCanal?: number;
+  tipoInstrumento?: string;
+  eleEstacion?: number;
+  tipoSuelo?: string;
+  condiSitio?: string;
+  deltaT?: number;
+  azimut?: number;
+  chn1Long?: string;
+  chn2Vert?: string;
+  chn3Trans?: string;
+  bitWeightCh1?: number;
+  bitWeightCh2?: number;
+  bitWeightCh3?: number;
+  vpuCh1?: number;
+  vpuCh2?: number;
+  vpuCh3?: number;
+  modInst?: string;
+  estado?: string;
 }
 
 // ─── Reportes ─────────────────────────────────────────────────────────────────

@@ -83,7 +83,7 @@
          SKELETON
          ═══════════════════════════════════════════════════════════ -->
     <div *ngIf="cargando()" class="grid gap-5 lg:grid-cols-[1fr_320px]">
-      <div class="h-[560px] rounded-3xl bg-slate-200 animate-pulse"></div>
+      <div class="h-[300px] rounded-3xl bg-slate-200 animate-pulse sm:h-[420px] lg:h-[560px]"></div>
       <div class="space-y-4">
         <div class="h-32 rounded-3xl bg-slate-200 animate-pulse"></div>
         <div class="h-48 rounded-3xl bg-slate-200 animate-pulse"></div>
@@ -111,7 +111,7 @@
           [sismos]="sismosMapa()"
           [epicentro]="ultimoSismo()"
           [estaciones]="estaciones()"
-          [height]="'560px'"
+          [height]="mapHeight"
           [zoom]="7">
         </app-sismo-map>
       </div>
@@ -167,15 +167,15 @@
 
             <div class="mt-5 flex items-center gap-2 border-t border-slate-200/60 pt-4 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500">
               <i-lucide [img]="shieldIcon" size="11" class="text-green-600"></i-lucide>
-              Red Sísmica Nacional
+              Red Sismológica Nacional
             </div>
           </div>
         </div>
 
         <!-- Quick info strip -->
         <div *ngIf="ultimoSismo()" class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-500">Hora UTC</p>
-          <p class="mt-1 font-mono text-sm font-bold text-slate-900">{{ ultimoSismo()!.feSismo | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+          <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-500">Hora local</p>
+          <p class="mt-1 font-mono text-sm font-bold text-slate-900">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy · HH:mm:ss' }}</p>
 
           <div class="mt-4 border-t border-slate-100 pt-4">
             <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-500">Coordenadas</p>
@@ -207,7 +207,7 @@
               <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
               <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-sky-400"></span>
             </span>
-            Magnitud momentánea
+            Magnitud momento
           </div>
 
           <div class="mt-5 flex items-baseline gap-3">
@@ -217,7 +217,6 @@
             </span>
             <div class="flex flex-col">
               <span class="text-2xl font-black text-slate-400 sm:text-3xl">Mw</span>
-              <span class="text-xs font-bold uppercase tracking-widest text-slate-300">{{ nivelMagnitud }}</span>
             </div>
           </div>
 
@@ -266,12 +265,12 @@
           <div>
             <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
               <i-lucide [img]="clockIcon" size="11"></i-lucide>
-              Hora UTC
+              Hora local
             </div>
             <p class="mt-2 font-mono text-sm font-black tabular-nums text-white sm:text-base">
-              {{ ultimoSismo()!.feSismo | date:'HH:mm:ss' }}
+              {{ ultimoSismo()!.feSismo | utcLocal:'HH:mm:ss' }}
             </p>
-            <p class="mt-0.5 font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | date:'yyyy-MM-dd' }}</p>
+            <p class="mt-0.5 font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy' }}</p>
           </div>
 
         </div>
