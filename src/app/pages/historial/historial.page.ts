@@ -10,7 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
-import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
+import { parseUtcDate, UtcLocalPipe } from '../../pipes/utc-local.pipe';
 
 type FiltroSentido = '' | 'sentido' | 'no_sentido';
 type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica' | 'zona_sur';
@@ -253,7 +253,7 @@ export class HistorialPage implements OnInit {
     const localizacion = this.localizacion();
 
     return eventos.filter((evento) => {
-      const fechaEvento = new Date(evento.feSismo);
+      const fechaEvento = parseUtcDate(evento.feSismo);
       if (desde && fechaEvento < desde) return false;
       if (hasta && fechaEvento > hasta) return false;
       const fueSentido = this.esSentido(evento.sentido);

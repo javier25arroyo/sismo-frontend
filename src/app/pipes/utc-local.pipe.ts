@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
 export function normalizeUtcString(value: string): string {
-  return /[Z+\-]\d*$/.test(value.trim()) ? value : value + 'Z';
+  return /[Zz]$|[+-]\d{2}:?\d{2}$/.test(value.trim()) ? value : value + 'Z';
 }
 
 export function parseUtcDate(value: string): Date {
