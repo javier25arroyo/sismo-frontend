@@ -31,7 +31,7 @@ export class HistorialPage implements OnInit {
   totalPaginas = signal(1);
   totalElementos = signal(0);
   readonly pageSize = 10;
-  private readonly fetchPageSize = 200;
+  private readonly fetchPageSize = 100;
 
   // Filtros aplicados
   desde = signal('');
