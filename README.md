@@ -82,6 +82,17 @@ Build en modo desarrollo con watch:
 pnpm watch
 ```
 
+## Releases
+
+Los releases usan tags semanticos con formato `vX.Y.Z`. Al empujar un tag de ese formato, GitHub Actions crea/actualiza el release y publica la imagen Docker en GitHub Container Registry:
+
+```bash
+git tag -a v1.2.3 -m "Release v1.2.3"
+git push origin v1.2.3
+```
+
+La imagen queda disponible como `ghcr.io/javier25arroyo/sismo-frontend:v1.2.3` y tambien con tags semver derivados como `1.2.3`, `1.2`, `1` y `latest`.
+
 ## Tests
 
 ```bash
