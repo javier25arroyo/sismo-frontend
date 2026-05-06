@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 #############################################
-# Stage 1: Dependencies (layer caching)
+# Etapa 1: Dependencias (caché por capas)
 #############################################
 FROM node:20.19.0-alpine AS deps
 
@@ -11,15 +11,15 @@ RUN corepack enable
 
 WORKDIR /app
 
-# Copy only package files for optimal layer caching
+# Solo archivos de paquetes para caché óptima por capas
 COPY package.json pnpm-lock.yaml ./
 
-# Install all dependencies (dev included — required by Angular build tools)
+# Instalar todas las dependencias (incluye dev — requeridas por herramientas de build de Angular)
 RUN --mount=type=cache,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
 #############################################
-# Stage 2: Build
+# Etapa 2: Build
 #############################################
 FROM node:20.19.0-alpine AS build
 
@@ -31,7 +31,7 @@ RUN corepack enable
 
 WORKDIR /app
 
-# Reuse node_modules from deps stage
+# Reutilizar node_modules de la etapa deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
@@ -40,22 +40,22 @@ COPY angular.json tsconfig*.json postcss.config.json ./
 COPY public ./public
 COPY src ./src
 
-# Explicit production configuration (outputHashing=all, budgets enforced)
+# Configuración de producción explícita (outputHashing=all, budgets aplicados)
 RUN pnpm build --configuration=production
 
 #############################################
-# Stage 3: Production runtime
+# Etapa 3: Runtime de producción
 #############################################
 FROM nginx:1.27-alpine AS runtime
 
-# Install wget for health check, clean up default config in one layer
+# Instalar wget para healthcheck y limpiar config por defecto en una sola capa
 RUN apk add --no-cache wget && \
     rm -rf /etc/nginx/conf.d/default.conf
 
-# Copy nginx config
+# Copiar configuración de nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built assets with correct ownership in a single step
+# Copiar assets construidos con ownership correcto en un solo paso
 COPY --from=build --chown=nginx:nginx /app/dist/sismo-frontend/browser /usr/share/nginx/html
 
 RUN chmod -R 755 /usr/share/nginx/html
