@@ -1,0 +1,372 @@
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+  <section class="mb-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-sky-700">Administración SISMO</p>
+        <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Umbrales por estación</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Consulta la configuración completa de alarmas por estación y ajusta límites específicos sin salir de la vista.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a routerLink="/estaciones"
+          class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+          Estaciones
+        </a>
+        <button type="button"
+          (click)="iniciarCrear()"
+          [disabled]="cargandoCatalogos()"
+          class="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:opacity-50">
+          <i-lucide [img]="plusIcon" size="16"></i-lucide>
+          Nuevo umbral
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-5 grid gap-3 sm:grid-cols-3">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Configuraciones</p>
+        <p class="mt-1 text-3xl font-black text-slate-900">{{ totalElementos() }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Estaciones cargadas</p>
+        <p class="mt-1 text-3xl font-black text-slate-900">{{ estaciones().length }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Parámetros</p>
+        <p class="mt-1 text-3xl font-black text-slate-900">{{ parametros().length }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="mb-4 flex items-center gap-2">
+      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+        <i-lucide [img]="filterIcon" size="16"></i-lucide>
+      </span>
+      <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">Filtros</h2>
+    </div>
+
+    <div class="grid gap-3 md:grid-cols-4">
+      <label class="flex flex-col gap-1">
+        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Centro</span>
+        <input type="text"
+          [value]="filtroCentro()"
+          (input)="setFiltroCentro($event)"
+          (keydown.enter)="aplicarFiltros()"
+          placeholder="Ej. CB"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+      </label>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estación</span>
+        <input type="text"
+          [value]="filtroEstacion()"
+          (input)="setFiltroEstacion($event)"
+          (keydown.enter)="aplicarFiltros()"
+          placeholder="Ej. 01"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+      </label>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Parámetro</span>
+        <select
+          [value]="filtroParametro()"
+          (change)="setFiltroParametro($event)"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
+          <option value="">Todos</option>
+          @for (parametro of parametros(); track parametro.codParametro) {
+            <option [value]="parametro.codParametro">{{ parametro.nomParametro }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Nivel</span>
+        <select
+          [value]="filtroUmbral()"
+          (change)="setFiltroUmbral($event)"
+          [disabled]="!filtroParametro()"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-400">
+          <option value="">Todos</option>
+          @for (umbral of umbralesFiltro(); track umbral.codUmbral) {
+            <option [value]="umbral.codUmbral">{{ umbral.codUmbral }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button type="button"
+        (click)="aplicarFiltros()"
+        class="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-800">
+        <i-lucide [img]="refreshIcon" size="15"></i-lucide>
+        Aplicar
+      </button>
+      <button type="button"
+        (click)="limpiarFiltros()"
+        class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  @if (mensaje(); as msg) {
+    <div class="mb-6 flex items-center gap-2 rounded-2xl border px-5 py-4 text-sm font-semibold"
+      [class]="msg.tipo === 'ok' ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
+      <i-lucide [img]="msg.tipo === 'ok' ? checkIcon : xIcon" size="17"></i-lucide>
+      {{ msg.texto }}
+    </div>
+  }
+
+  <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <section class="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <div class="flex items-center gap-2">
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+            <i-lucide [img]="sliderIcon" size="16"></i-lucide>
+          </span>
+          <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">Configuraciones</h2>
+        </div>
+        <p class="text-xs font-semibold text-slate-500">Página {{ pagina() + 1 }} de {{ totalPaginas() }}</p>
+      </div>
+
+      @if (cargando()) {
+        <div class="space-y-3 p-5">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
+          }
+        </div>
+      } @else if (alarmasPagina().length === 0) {
+        <div class="flex min-h-72 items-center justify-center px-5 py-10 text-center">
+          <div>
+            <p class="text-base font-semibold text-slate-700">Sin umbrales por estación</p>
+            <p class="mt-1 text-sm text-slate-500">Ajusta los filtros o crea una configuración nueva.</p>
+          </div>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse text-[11px] lg:text-xs xl:text-[13px]">
+            <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <tr class="border-b border-slate-200">
+                <th class="px-2.5 py-4 text-left">Estación</th>
+                <th class="px-2.5 py-4 text-left">Parámetro</th>
+                <th class="px-2.5 py-4 text-left">Nivel</th>
+                <th class="px-2.5 py-4 text-right">Límite estación</th>
+                <th class="px-2.5 py-4 text-right">Límite global</th>
+                <th class="px-2.5 py-4 text-left">Mensaje</th>
+                <th class="px-2.5 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (alarma of alarmasPagina(); track alarma.codCentroPrd + alarma.codEstacion + alarma.codParametro + alarma.codUmbral) {
+                @let global = umbralGlobal(alarma.codParametro, alarma.codUmbral);
+                @let limiteGlobal = global?.limiteInferior;
+                <tr class="transition hover:bg-sky-50/40"
+                  [class.bg-sky-50]="alarmaEditando()?.codCentroPrd === alarma.codCentroPrd && alarmaEditando()?.codEstacion === alarma.codEstacion && alarmaEditando()?.codParametro === alarma.codParametro && alarmaEditando()?.codUmbral === alarma.codUmbral">
+                  <td class="px-2.5 py-4">
+                    <p class="font-bold text-sky-700">{{ alarma.codCentroPrd }}-{{ alarma.codEstacion }}</p>
+                    <p class="mt-0.5 max-w-[120px] truncate text-[10px] font-medium text-slate-500">{{ estacionLabel(alarma.codCentroPrd, alarma.codEstacion) }}</p>
+                  </td>
+                  <td class="px-2.5 py-4">
+                    <p class="font-semibold text-slate-800">{{ parametroLabel(alarma.codParametro) }}</p>
+                    <p class="text-[10px] text-slate-400">Código {{ alarma.codParametro }}</p>
+                  </td>
+                  <td class="px-2.5 py-4">
+                    <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                      [class]="claseColorUmbral(global?.color)">
+                      {{ alarma.codUmbral }}
+                    </span>
+                  </td>
+                  <td class="whitespace-nowrap px-2.5 py-4 text-right font-bold text-slate-900">
+                    {{ alarma.limiteInferior !== null ? (alarma.limiteInferior | number:'1.0-6') : 'Sin definir' }}
+                  </td>
+                  <td class="whitespace-nowrap px-2.5 py-4 text-right font-semibold text-slate-600">
+                    {{ limiteGlobal !== null && limiteGlobal !== undefined ? (limiteGlobal | number:'1.0-6') : 'Sin definir' }}
+                  </td>
+                  <td class="px-2.5 py-4">
+                    <p class="max-w-[150px] truncate text-slate-600">{{ global?.mensaje || 'Sin mensaje global' }}</p>
+                    <p class="text-[10px] text-slate-400">{{ global?.color || 'Sin color' }}</p>
+                  </td>
+                  <td class="px-2.5 py-4">
+                    <div class="flex justify-end gap-1">
+                      <button type="button"
+                        (click)="editar(alarma)"
+                        title="Editar"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-sky-50 hover:text-sky-700">
+                        <i-lucide [img]="editIcon" size="14"></i-lucide>
+                      </button>
+                      <button type="button"
+                        (click)="pedirEliminar(alarma)"
+                        title="Eliminar"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-700">
+                        <i-lucide [img]="trashIcon" size="14"></i-lucide>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+          <p class="text-xs font-semibold text-slate-500">{{ totalElementos() }} configuraciones visibles</p>
+          <div class="flex gap-2">
+            <button type="button"
+              (click)="irPagina(-1)"
+              [disabled]="pagina() === 0"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40">
+              Anterior
+            </button>
+            <button type="button"
+              (click)="irPagina(1)"
+              [disabled]="pagina() + 1 >= totalPaginas()"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40">
+              Siguiente
+            </button>
+          </div>
+        </div>
+      }
+    </section>
+
+    <aside class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:sticky xl:top-24 xl:self-start">
+      <div class="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-500">
+            {{ modoFormulario() === 'edit' ? 'Editar configuración' : 'Nueva configuración' }}
+          </p>
+          <h2 class="mt-1 text-xl font-bold tracking-tight text-slate-900">
+            {{ modoFormulario() === 'edit' ? form().codCentroPrd + '-' + form().codEstacion : 'Umbral por estación' }}
+          </h2>
+        </div>
+        @if (modoFormulario() === 'edit' || form().codCentroPrd) {
+          <button type="button"
+            (click)="cancelarFormulario()"
+            class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
+            Limpiar
+          </button>
+        }
+      </div>
+
+      <form (submit)="guardar($event)" class="space-y-4">
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estación</span>
+          <select
+            [value]="form().codCentroPrd + '|' + form().codEstacion"
+            (change)="setFormEstacion($event)"
+            [disabled]="modoFormulario() === 'edit'"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500">
+            <option value="|">Selecciona estación</option>
+            @for (estacion of estacionesDisponibles(); track estacion.codCentroPrd + estacion.codEstacion) {
+              <option [value]="estacionKey(estacion)">
+                {{ estacion.codCentroPrd }}-{{ estacion.codEstacion }} · {{ estacion.nomEstacion }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Parámetro</span>
+          <select
+            [value]="form().codParametro"
+            (change)="setFormParametro($event)"
+            [disabled]="modoFormulario() === 'edit'"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500">
+            <option value="">Selecciona parámetro</option>
+            @for (parametro of parametros(); track parametro.codParametro) {
+              <option [value]="parametro.codParametro">
+                {{ parametro.nomParametro }} · {{ parametro.simboloUnidad }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Nivel</span>
+          <select
+            [value]="form().codUmbral"
+            (change)="setFormUmbral($event)"
+            [disabled]="modoFormulario() === 'edit' || !form().codParametro"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500">
+            <option value="">Selecciona nivel</option>
+            @for (umbral of umbralesFormulario(); track umbral.codUmbral) {
+              <option [value]="umbral.codUmbral">
+                {{ umbral.codUmbral }} · global {{ umbral.limiteInferior | number:'1.0-6' }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <label class="flex items-center justify-between gap-3">
+            <span class="text-sm font-semibold text-slate-700">Usar cálculo automático</span>
+            <input type="checkbox"
+              [checked]="form().usarCalculoAutomatico"
+              (change)="setUsarCalculoAutomatico($event)"
+              class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"/>
+          </label>
+          <p class="mt-1 text-xs leading-5 text-slate-500">Usa el cálculo del backend para ajustar el límite según los datos de la estación.</p>
+        </div>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Límite inferior</span>
+          <input type="number"
+            min="0"
+            step="0.000001"
+            [value]="form().limiteInferior"
+            (input)="setLimite($event)"
+            [disabled]="form().usarCalculoAutomatico"
+            placeholder="Se calculará automáticamente"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500"/>
+        </label>
+
+        <button type="button"
+          (click)="previsualizarCalculo()"
+          [disabled]="calculando() || !form().codCentroPrd || !form().codEstacion || !form().codParametro || !form().codUmbral"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-700 transition hover:bg-sky-100 disabled:opacity-50">
+          @if (calculando()) {
+            <i-lucide [img]="loaderIcon" size="15" class="animate-spin"></i-lucide>
+          } @else {
+            <i-lucide [img]="calculatorIcon" size="15"></i-lucide>
+          }
+          Calcular límite
+        </button>
+
+        @if (calculo(); as detalle) {
+          <div class="grid grid-cols-2 gap-2 rounded-xl border border-sky-100 bg-sky-50 p-3 text-xs text-slate-600">
+            <p>Global <span class="font-bold text-slate-900">{{ (detalle.limiteGlobal !== null) ? (detalle.limiteGlobal | number:'1.0-6') : 'Sin definir' }}</span></p>
+            <p>Calculado <span class="font-bold text-sky-800">{{ (detalle.limiteInferiorCalculado !== null) ? (detalle.limiteInferiorCalculado | number:'1.0-6') : 'Sin definir' }}</span></p>
+            <p>Suelo <span class="font-bold text-slate-900">{{ detalle.factorSuelo | number:'1.0-3' }}</span></p>
+            <p>Sitio <span class="font-bold text-slate-900">{{ detalle.factorSitio | number:'1.0-3' }}</span></p>
+            <p>Calibración <span class="font-bold text-slate-900">{{ detalle.factorCalibracion | number:'1.0-3' }}</span></p>
+            <p>Factor total <span class="font-bold text-slate-900">{{ detalle.factorTotal | number:'1.0-3' }}</span></p>
+            <p class="col-span-2">Piso mínimo <span class="font-bold text-slate-900">{{ detalle.pisoMinimoAplicado ? 'Aplicado' : 'No aplicado' }}</span></p>
+          </div>
+        }
+
+        <button type="submit"
+          [disabled]="guardando() || calculando() || !form().codCentroPrd || !form().codEstacion || !form().codParametro || !form().codUmbral"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:opacity-50">
+          @if (guardando()) {
+            <i-lucide [img]="loaderIcon" size="15" class="animate-spin"></i-lucide>
+          } @else {
+            <i-lucide [img]="checkIcon" size="15"></i-lucide>
+          }
+          {{ modoFormulario() === 'edit' ? 'Guardar cambios' : 'Crear configuración' }}
+        </button>
+      </form>
+    </aside>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="!!alarmaEliminar()"
+  title="Eliminar umbral por estación"
+  [message]="mensajeEliminar()"
+  action="eliminar"
+  cancelText="Cancelar"
+  (confirm)="confirmarEliminar()"
+  (cancel)="cancelarEliminar()">
+</app-confirm-dialog>
