@@ -22,6 +22,7 @@ export class HeaderComponent {
     { path: '/sismos',     label: 'Sismos' },
     { path: '/historial',  label: 'Historial' },
     { path: '/estaciones', label: 'Estaciones' },
+    { path: '/umbrales-estaciones', label: 'Umbrales', adminOnly: true },
     { path: '/consultas',  label: 'Consultas' },
     { path: '/repositorio', label: 'Reportes' },
   ];
