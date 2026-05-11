@@ -275,7 +275,7 @@ export interface CrearAlarmaPorEstacionSolicitud {
   codEstacion: string;
   codParametro: number;
   codUmbral: string;
-  limiteInferior: number;
+  limiteInferior: number | null;
 }
 
 export interface ActualizarAlarmaPorEstacionSolicitud {
@@ -323,6 +323,22 @@ export interface ActualizarUmbralSolicitud {
   limiteInferior: number;
   mensaje?: string;
   color?: string;
+}
+
+export interface CalculoUmbralEstacionRespuesta {
+  codCentroPrd: string;
+  codEstacion: string;
+  codParametro: number;
+  codUmbral: string;
+  limiteGlobal: number;
+  limiteInferiorCalculado: number;
+  factorSuelo: number;
+  factorSitio: number;
+  factorCalibracion: number;
+  factorTotal: number;
+  limiteSinPiso: number;
+  limiteMinimo: number;
+  pisoMinimoAplicado: boolean;
 }
 
 // ─── Grupos de despliegue ─────────────────────────────────────────────────────

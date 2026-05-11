@@ -11,6 +11,7 @@ export const routes: Routes = [
       { path: 'sismos', loadComponent: () => import('./pages/sismos/sismos.page').then(m => m.SismosPage) },
       { path: 'historial', loadComponent: () => import('./pages/historial/historial.page').then(m => m.HistorialPage) },
       { path: 'estaciones', loadComponent: () => import('./pages/estaciones/estaciones.page').then(m => m.EstacionesPage) },
+      { path: 'umbrales-estaciones', loadComponent: () => import('./pages/umbrales-estaciones/umbrales-estaciones.page').then(m => m.UmbralesEstacionesPage), canActivate: [AdminGuard] },
       { path: 'repositorio', loadComponent: () => import('./pages/repositorio/repositorio.page').then(m => m.RepositorioPage), canActivate: [AdminGuard] },
       { path: 'consultas', loadComponent: () => import('./pages/consultas/consultas.page').then(m => m.ConsultasPage) },
       { path: 'mapa', loadComponent: () => import('./pages/mapa/mapa.page').then(m => m.MapaPage) },

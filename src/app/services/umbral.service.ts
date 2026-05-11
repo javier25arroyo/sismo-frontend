@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import {
+  CalculoUmbralEstacionRespuesta,
   UmbralRespuesta,
   CrearUmbralSolicitud,
   ActualizarUmbralSolicitud
@@ -13,6 +14,24 @@ export class UmbralService {
   /** GET /api/umbrales/{codParametro} — umbrales para un parámetro */
   async getUmbralesPorParametro(codParametro: number): Promise<UmbralRespuesta[]> {
     return this.api.get<UmbralRespuesta[]>(`/api/umbrales/${codParametro}`);
+  }
+
+  /** GET /api/admin/calcular-umbrales — previsualiza el límite calculado por estación */
+  async calcularUmbralEstacion(
+    codCentroPrd: string,
+    codEstacion: string,
+    codParametro: number,
+    codUmbral: string
+  ): Promise<CalculoUmbralEstacionRespuesta> {
+    const params = new URLSearchParams({
+      codCentroPrd,
+      codEstacion,
+      codParametro: String(codParametro),
+      codUmbral
+    });
+    return this.api.get<CalculoUmbralEstacionRespuesta>(
+      `/api/admin/calcular-umbrales?${params.toString()}`
+    );
   }
 
   /** POST /api/admin/umbrales */
