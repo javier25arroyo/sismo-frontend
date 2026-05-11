@@ -205,6 +205,8 @@ Además aplica cabeceras de seguridad, compresión gzip y caché inmutable para 
 
 El workflow [`.github/workflows/release.yml`](.github/workflows/release.yml) se activa con tags `vX.Y.Z`. Ese flujo construye la imagen, la publica en GHCR y crea o actualiza el release de GitHub con los tags semver y `latest`.
 
+Si el release es `v0.x.y`, el workflow omite el tag Docker `0` porque major `0` se trata como etapa inicial de desarrollo.
+
 Ejemplo:
 
 ```bash
