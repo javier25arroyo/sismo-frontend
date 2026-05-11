@@ -8,17 +8,17 @@ import { CommonModule } from '@angular/common';
   template: `
     <nav
       aria-label="Paginación"
-      class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-body-md text-text-primary transition-colors duration-300"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-body-md text-text-primary shadow-sm transition-colors duration-300"
     >
       <span class="text-label-sm uppercase tracking-wide text-slate-500 tabular-nums">
         {{ info() || ('Página ' + paginaActual() + ' de ' + totalPaginas()) }}
       </span>
-      <div class="flex items-center gap-1.5 rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
+      <div class="flex items-center gap-1.5 rounded-lg bg-surface-container-low p-1 ring-1 ring-slate-200/80">
         <button
           type="button"
           (click)="ir(paginaActual() - 1)"
           [disabled]="paginaActual() <= 1"
-          class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all duration-200 ease-out hover:-translate-y-px hover:bg-slate-100 hover:text-slate-700 active:scale-95 disabled:translate-y-0 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+          class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-all duration-200 ease-out hover:bg-white hover:text-slate-700 hover:shadow-sm active:scale-95 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500 disabled:hover:shadow-none"
           aria-label="Página anterior">
           ‹
         </button>
@@ -28,9 +28,9 @@ import { CommonModule } from '@angular/common';
             (click)="ir(p)"
             [attr.aria-current]="p === paginaActual() ? 'page' : null"
             [class]="p === paginaActual()
-              ? 'gradient-cta text-white shadow-sm scale-[1.02]'
-              : 'text-slate-600 hover:-translate-y-px hover:bg-slate-100 hover:text-slate-800'"
-            class="flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-label-sm font-semibold tabular-nums transition-all duration-200 ease-out active:scale-95">
+              ? 'gradient-cta text-white shadow-sm'
+              : 'text-slate-600 hover:bg-white hover:text-slate-800 hover:shadow-sm'"
+            class="flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-label-sm font-semibold tabular-nums transition-all duration-200 ease-out active:scale-95">
             {{ p }}
           </button>
         </ng-container>
@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
           type="button"
           (click)="ir(paginaActual() + 1)"
           [disabled]="paginaActual() >= totalPaginas()"
-          class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-all duration-200 ease-out hover:-translate-y-px hover:bg-slate-100 hover:text-slate-700 active:scale-95 disabled:translate-y-0 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+          class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-all duration-200 ease-out hover:bg-white hover:text-slate-700 hover:shadow-sm active:scale-95 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500 disabled:hover:shadow-none"
           aria-label="Página siguiente">
           ›
         </button>

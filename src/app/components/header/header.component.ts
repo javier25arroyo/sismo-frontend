@@ -19,12 +19,13 @@ export class HeaderComponent {
   mobileOpen = signal(false);
 
   readonly navLinks = [
-    { path: '/sismos',     label: 'Sismos' },
-    { path: '/historial',  label: 'Historial' },
+    { path: '/sismos', label: 'Sismos' },
+    { path: '/mapa', label: 'Mapa' },
+    { path: '/historial', label: 'Historial' },
     { path: '/estaciones', label: 'Estaciones' },
+    { path: '/consultas', label: 'Consultas' },
     { path: '/umbrales-estaciones', label: 'Umbrales', adminOnly: true },
-    { path: '/consultas',  label: 'Consultas' },
-    { path: '/repositorio', label: 'Reportes' },
+    { path: '/repositorio', label: 'Reportes', adminOnly: true },
   ];
 
   constructor() {
