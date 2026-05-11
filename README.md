@@ -1,52 +1,126 @@
 # Sismo Frontend
 
-Frontend en Angular con componentes standalone, autenticacion basada en JWT y estilos con Tailwind CSS 4.
+Frontend Angular 21 para monitoreo y consulta sismológica del ICE. La app usa componentes standalone, autenticación JWT, rutas con carga diferida, Tailwind CSS 4 y un despliegue final detrás de Nginx.
 
 ## Stack
 
 - Angular 21
 - TypeScript 5.9
+- PNPM 10
 - Tailwind CSS 4
 - PostCSS
 - RxJS
-- PNPM
+- Leaflet
+- Chart.js
+- Lucide Angular
 
 ## Funcionalidad actual
 
-- Layout principal con header y footer
-- Paginas `Home`, `About`, `Login`, `CambiarContrasena` y `Profile`
-- Ruta protegida en `/profile`
-- Servicio de autenticacion con almacenamiento de token en `localStorage`
-- Servicio API con envio automatico de header `Authorization`
-- Flujo de cambio de contrasena para el primer acceso
-- Modal de confirmacion reutilizable
-- UI refactorizada para usar Tailwind en los templates
+- Layout principal con header y footer.
+- Navegación pública para monitoreo sismológico, histórico, estaciones y consultas.
+- Pantallas administrativas para umbrales, repositorio, perfil y cambio de contraseña.
+- Autenticación JWT con persistencia en `localStorage`.
+- Cliente HTTP centralizado con header `Authorization` automático.
+- Mapas, tablas, gráficas, formularios y modales reutilizables.
 
-## Rutas
+## Rutas principales
 
-| Ruta | Acceso | Descripcion |
+| Ruta | Acceso | Descripción |
 | --- | --- | --- |
-| `/` | Publico | Pagina principal con acciones de ejemplo |
-| `/about` | Publico | Informacion general de la aplicacion |
-| `/login` | Publico | Formulario de autenticacion |
-| `/cambiar-contrasena` | Protegido | Cambio de contraseña tras el primer acceso |
-| `/profile` | Protegido | Vista solo para usuarios autenticados |
+| `/` | Público | Inicio de la aplicación. |
+| `/sismos` | Público | Análisis de eventos sísmicos recientes. |
+| `/historial` | Público | Catálogo histórico de sismos con filtros. |
+| `/estaciones` | Público | Estado operativo de la red de estaciones. |
+| `/consultas` | Público | Consultas técnicas y exportación de resultados. |
+| `/acceso` | Público | Ingreso técnico para personal autorizado. |
+| `/login` | Redirección | Alias de compatibilidad hacia `/acceso`. |
+| `/recuperar-acceso` | Público | Recuperación de acceso. |
+| `/cambiar-contrasena` | Protegido | Cambio de contraseña inicial. |
+| `/umbrales-estaciones` | Admin | Administración técnica de umbrales por estación. |
+| `/repositorio` | Admin | Repositorio de reportes y archivos generados. |
+| `/profile` | Admin | Gestión del perfil técnico. |
 
-La configuracion de rutas esta en [src/app/app.routes.ts](src/app/app.routes.ts).
+La definición está en [src/app/app.routes.ts](src/app/app.routes.ts). La ruta raíz carga `MainLayoutComponent`.
 
-## Requisitos
+## Convenciones de nomenclatura
 
-- Node.js 20 o superior
-- PNPM 10
+| Elemento | Convención | Ejemplo |
+| --- | --- | --- |
+| Archivos y carpetas | `kebab-case` | `cambiar-contrasena.page.ts` |
+| Clases y componentes | `PascalCase` | `CambiarContrasenaPage` |
+| Métodos y variables | `camelCase` | `buildHeaders()` |
+| Servicios, guards, interceptors, pipes e interfaces | nombre del dominio + sufijo | `auth.service.ts`, `auth.guard.ts`, `auth.interceptor.ts`, `utc-local.pipe.ts`, `user.interface.ts` |
+| Selectores Angular | prefijo `app-` + `kebab-case` | `app-main-layout` |
+| Rutas | `kebab-case` | `/cambiar-contrasena` |
 
-Puedes verificar versiones con:
+Distribución por carpetas:
+
+- `src/app/pages/`: pantallas completas.
+- `src/app/components/`: piezas reutilizables.
+- `src/app/services/`: acceso a API y lógica compartida.
+- `src/app/guards/`: protección de rutas.
+- `src/app/interceptors/`: comportamiento transversal de HTTP.
+- `src/app/interfaces/`: contratos de datos.
+- `src/app/pipes/`: transformaciones de presentación.
+- `src/environments/`: configuración por entorno.
+
+## Normas de desarrollo
+
+- Mantener el patrón standalone. No introducir NgModules nuevos.
+- Colocar pantallas completas en `pages` y reutilizables en `components`.
+- Centralizar llamadas HTTP en `ApiService` y la lógica de token en `auth.interceptor.ts`.
+- Evitar duplicar headers, manejo de errores o reglas de auth en páginas individuales.
+- Usar `pnpm` y conservar `pnpm-lock.yaml`. No mezclar `npm`, `yarn` y `pnpm`.
+- Dejar `src/styles.css` como entrada global de Tailwind y de los tokens visuales.
+- `public/` se usa para activos estáticos servidos tal cual.
+- Validar cambios con `pnpm build` y `pnpm test --watch=false` antes de publicar.
+- Si alternas entre Windows y WSL, reinstala `node_modules` en el mismo entorno donde vas a ejecutar Angular.
+
+## Configuración
+
+### Entornos
+
+El código importa siempre `src/environments/environment`. Angular reemplaza el archivo de producción en la build.
+
+- [src/environments/environment.ts](src/environments/environment.ts): desarrollo, `apiUrl: 'http://localhost:8080'`.
+- [src/environments/environment.prod.ts](src/environments/environment.prod.ts): producción, `apiUrl: ''` para usar same-origin y el proxy de Nginx.
+- [angular.json](angular.json): define el `fileReplacement` entre ambos entornos en la configuración `production`.
+
+### Bootstrap de Angular
+
+- [src/app/app.config.ts](src/app/app.config.ts): locale `es`, animaciones, router con preloading selectivo y restauración de scroll, `withFetch()` y `authInterceptor`.
+- [src/app/interceptors/auth.interceptor.ts](src/app/interceptors/auth.interceptor.ts): agrega el bearer token a las peticiones cuando hay sesión.
+- [src/app/services/api.service.ts](src/app/services/api.service.ts): wrapper de `fetch` con normalización de errores y construcción centralizada de headers.
+- [src/app/services/selective-preloading.strategy.ts](src/app/services/selective-preloading.strategy.ts): pre-carga selectiva para rutas marcadas.
+- [src/app/services/seo-title.strategy.ts](src/app/services/seo-title.strategy.ts): resuelve títulos de página y metadatos de navegación.
+
+### Estilos globales
+
+- [src/styles.css](src/styles.css): importa Tailwind 4 con `@import "tailwindcss";`, define fuentes, colores, radios, sombras y utilidades globales.
+- [postcss.config.json](postcss.config.json): activa el plugin `@tailwindcss/postcss`.
+- No hace falta `tailwind.config.js` en este proyecto con la configuración actual.
+
+### Build
+
+- [angular.json](angular.json): build de producción con AOT, `outputHashing`, `autoCsp` y budgets de tamaño.
+- La configuración de desarrollo activa source maps y HMR.
+- `leaflet` está autorizado como dependencia CommonJS en la build.
+
+## Desarrollo local
+
+### Requisitos
+
+- Node.js 20 o superior.
+- PNPM 10.
+
+Verifica versiones con:
 
 ```bash
 node --version
 pnpm --version
 ```
 
-## Instalacion
+### Instalación
 
 ```bash
 git clone https://github.com/javier25arroyo/sismo-frontend.git
@@ -54,9 +128,13 @@ cd sismo-frontend
 pnpm install
 ```
 
-## Desarrollo
+Para una instalación reproducible, usa:
 
-Inicia el servidor local:
+```bash
+pnpm install --frozen-lockfile
+```
+
+### Ejecución
 
 ```bash
 pnpm start
@@ -68,70 +146,71 @@ o:
 pnpm ng serve
 ```
 
-La aplicacion queda disponible en `http://localhost:4200/`.
+La aplicación queda disponible en `http://localhost:4200/` y la API de desarrollo se espera en `http://localhost:8080`.
 
-## Build
+### Build
 
 ```bash
 pnpm build
 ```
 
-Build en modo desarrollo con watch:
+La build de producción es la configuración por defecto. Para build con watch:
 
 ```bash
 pnpm watch
 ```
 
-## Releases
-
-Los releases usan tags semanticos con formato `vX.Y.Z`. Al empujar un tag de ese formato, GitHub Actions crea/actualiza el release y publica la imagen Docker en GitHub Container Registry:
-
-```bash
-git tag -a v1.2.3 -m "Release v1.2.3"
-git push origin v1.2.3
-```
-
-La imagen queda disponible como `ghcr.io/javier25arroyo/sismo-frontend:v1.2.3` y tambien con tags semver derivados como `1.2.3`, `1.2`, `1` y `latest`.
-
-## Tests
+### Pruebas
 
 ```bash
 pnpm test
 ```
 
-## Tailwind
-
-Tailwind esta configurado con:
-
-- [src/styles.css](src/styles.css)
-- [postcss.config.json](postcss.config.json)
-- [tailwind.config.js](tailwind.config.js)
-
-En Tailwind 4 el archivo global usa:
-
-```css
-@import "tailwindcss";
-```
-
-Si `ng serve` levanta pero no ves estilos, primero confirma que `src/styles.css` siga importando Tailwind y luego reinicia el servidor.
-
-## Nota importante sobre Windows y WSL
-
-Si instalas dependencias en Windows y luego ejecutas `pnpm build` o `ng serve` desde WSL, puedes tener errores con binarios nativos como `esbuild` o `lightningcss`.
-
-La regla correcta es esta:
-
-- Instala dependencias en el mismo entorno donde vas a ejecutar Angular.
-
-Ejemplo en WSL:
+Si quieres ejecutarlas sin modo interactivo, usa:
 
 ```bash
-rm -rf node_modules
-pnpm install
-pnpm ng serve
+pnpm test --watch=false
 ```
 
-Si trabajas desde PowerShell o CMD en Windows, entonces instala y ejecuta todo desde Windows.
+## Despliegue
+
+### Docker
+
+El repositorio incluye un `Dockerfile` multi-etapa:
+
+- etapa de dependencias sobre `node:20.19.0-alpine`
+- etapa de build con `pnpm build --configuration=production`
+- etapa runtime sobre `nginx:1.27-alpine`
+
+Comandos habituales:
+
+```bash
+docker build -t sismo-frontend:local .
+docker compose up --build
+```
+
+`docker-compose.yml` publica la UI en `http://localhost:4200/`. El backend debe estar accesible como `app:8080` en la misma red Docker para que el proxy `/api/` funcione.
+
+### Nginx
+
+[nginx.conf](nginx.conf) hace tres cosas principales:
+
+- sirve la SPA con fallback a `index.html`
+- proxy inverso de `/api/` hacia el backend
+- restringe `/actuator/` a acceso interno
+
+Además aplica cabeceras de seguridad, compresión gzip y caché inmutable para assets con hash.
+
+### Releases
+
+El workflow [`.github/workflows/release.yml`](.github/workflows/release.yml) se activa con tags `vX.Y.Z`. Ese flujo construye la imagen, la publica en GHCR y crea o actualiza el release de GitHub con los tags semver y `latest`.
+
+Ejemplo:
+
+```bash
+git tag -a v1.2.3 -m "Release v1.2.3"
+git push origin v1.2.3
+```
 
 ## Estructura
 
@@ -139,46 +218,33 @@ Si trabajas desde PowerShell o CMD en Windows, entonces instala y ejecuta todo d
 src/
   app/
     components/
-      button/
-      confirm-dialog/
-      footer/
-      header/
-      main-layout/
     guards/
-      auth.guard.ts
+    interceptors/
+    interfaces/
     pages/
-      about/
-      cambiar-contrasena/
-      home/
-      login/
-      profile/
+    pipes/
     services/
-      api.service.ts
-      auth.service.ts
     app.config.ts
     app.routes.ts
     app.ts
-  index.html
+  environments/
+    environment.ts
+    environment.prod.ts
   main.ts
   styles.css
 public/
 ```
 
-## Scripts
-
-- `pnpm start`: servidor de desarrollo
-- `pnpm build`: build de produccion
-- `pnpm watch`: build en modo desarrollo con watch
-- `pnpm test`: pruebas unitarias
-- `pnpm ng`: comandos directos de Angular CLI
-
 ## Archivos clave
 
-- [src/app/app.routes.ts](src/app/app.routes.ts): definicion de rutas
-- [src/app/guards/auth.guard.ts](src/app/guards/auth.guard.ts): proteccion de rutas
-- [src/app/services/auth.service.ts](src/app/services/auth.service.ts): manejo del token JWT
-- [src/app/services/api.service.ts](src/app/services/api.service.ts): cliente HTTP basico
-- [src/styles.css](src/styles.css): entrada global de Tailwind
+- [src/app/app.routes.ts](src/app/app.routes.ts): definición de rutas.
+- [src/app/app.config.ts](src/app/app.config.ts): bootstrap de Angular.
+- [src/app/services/api.service.ts](src/app/services/api.service.ts): acceso HTTP centralizado.
+- [src/app/interceptors/auth.interceptor.ts](src/app/interceptors/auth.interceptor.ts): inyección del token JWT.
+- [src/environments/environment.ts](src/environments/environment.ts): configuración de desarrollo.
+- [src/environments/environment.prod.ts](src/environments/environment.prod.ts): configuración de producción.
+- [Dockerfile](Dockerfile): imagen de despliegue.
+- [nginx.conf](nginx.conf): proxy inverso y reglas de servidor.
 
 ## Licencia
 
