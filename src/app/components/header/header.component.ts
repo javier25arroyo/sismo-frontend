@@ -20,7 +20,6 @@ export class HeaderComponent {
 
   readonly navLinks = [
     { path: '/sismos', label: 'Sismos' },
-    { path: '/mapa', label: 'Mapa' },
     { path: '/historial', label: 'Historial' },
     { path: '/estaciones', label: 'Estaciones' },
     { path: '/consultas', label: 'Consultas' },
