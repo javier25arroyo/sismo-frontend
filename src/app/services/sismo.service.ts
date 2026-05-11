@@ -16,7 +16,10 @@ export class SismoService {
     const res = await this.api.get<PaginatedResponse<Sismo>>(
       `/api/sismos/ultimo/resumen?size=${limit}&sort=feSismo,desc`
     );
-    return res.content;
+    if (res.content.length > 0) return res.content;
+
+    const fallback = await this.listarSismos({ page: 0, size: limit });
+    return fallback.content;
   }
 
   /** GET /api/sismos/ultimo/resumen — con filtros y paginación */
@@ -39,7 +42,10 @@ export class SismoService {
   /** Compatibilidad con vistas que filtran por magnitud mínima */
   async getSismosPorMagnitud(magnitudMin: number, limit = 50): Promise<Sismo[]> {
     const res = await this.getSismosPaginado({ magnitudMin, size: limit, page: 0 });
-    return res.content;
+    if (res.content.length > 0) return res.content;
+
+    const fallback = await this.listarSismos({ magnitudMin, size: limit, page: 0 });
+    return fallback.content;
   }
 
   /** GET /api/sismos — lista completa paginada de todos los sismos, ordenada por fecha descendente */

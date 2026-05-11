@@ -5,7 +5,7 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
   selector: 'app-status-badge',
   template: `
     <span [class]="badgeClass()"
-      class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-label-sm font-semibold uppercase tracking-wide">
+      class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-label-sm font-semibold uppercase tracking-wide ring-1">
       <span [class]="dotClass()" class="h-1.5 w-1.5 rounded-full"></span>
       {{ estadoLabel() }}
     </span>
@@ -36,13 +36,13 @@ export class StatusBadgeComponent {
       case 'ACTIVA':
       case 'OPERATIVO':
       case 'EN_LINEA':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-50 text-green-700 ring-green-200';
       case 'NIVEL_2':
       case 'MANTENIMIENTO':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-amber-50 text-amber-700 ring-amber-200';
       case 'NIVEL_3':
       case 'PRIORIDAD_ALTA':
-        return 'bg-orange-100 text-orange-700';
+        return 'bg-orange-50 text-orange-700 ring-orange-200';
       case 'NIVEL_4':
       case 'FUERA_DE_SERVICIO':
       case 'INACTIVO':
@@ -50,9 +50,9 @@ export class StatusBadgeComponent {
       case 'FALLA_RED':
       case 'CRITICO':
       case 'OFFLINE':
-        return 'bg-rose-100 text-rose-700';
+        return 'bg-rose-50 text-rose-700 ring-rose-200';
       default:
-        return 'bg-slate-100 text-slate-600';
+        return 'bg-slate-50 text-slate-600 ring-slate-200';
     }
   });
 
@@ -66,7 +66,7 @@ export class StatusBadgeComponent {
         return 'bg-green-500';
       case 'NIVEL_2':
       case 'MANTENIMIENTO':
-        return 'bg-yellow-500';
+        return 'bg-amber-500';
       case 'NIVEL_3':
       case 'PRIORIDAD_ALTA':
         return 'bg-orange-500';

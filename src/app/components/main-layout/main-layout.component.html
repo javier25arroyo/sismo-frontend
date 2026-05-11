@@ -1,7 +1,13 @@
-<div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+<div class="flex min-h-screen flex-col bg-background text-text-primary">
+  <a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary focus:shadow-lg focus:ring-2 focus:ring-primary"
+  >
+    Saltar al contenido principal
+  </a>
   <app-header></app-header>
   <app-password-expiration-warning></app-password-expiration-warning>
-  <main class="grow">
+  <main id="main-content" class="grow" tabindex="-1">
     <router-outlet *ngIf="true" @routeAnimation></router-outlet>
   </main>
   <app-footer></app-footer>

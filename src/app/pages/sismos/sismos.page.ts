@@ -10,7 +10,6 @@ import {
   GeneracionReporteRespuesta,
   SismoRespuesta
 } from '../../interfaces/api.interfaces';
-import { Sismo } from '../../interfaces/sismo.interface';
 import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
@@ -42,7 +41,6 @@ import {
 })
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
-  sismosMapa = signal<Sismo[]>([]);
   estaciones = signal<EstacionRespuesta[]>([]);
   cargando = signal(true);
   errorCarga = signal('');
@@ -111,13 +109,9 @@ export class SismosPage implements OnInit, OnDestroy {
         sismo = res.content[0] || null;
       }
 
-      const resumenes = await this.sismoService.getUltimosSismos(50);
-
       this.ultimoSismo.set(sismo);
-      this.sismosMapa.set(resumenes);
     } catch (error) {
       this.ultimoSismo.set(null);
-      this.sismosMapa.set([]);
       this.errorCarga.set(this.obtenerMensajeError(error, 'No fue posible cargar la información sísmica.'));
     } finally {
       this.cargando.set(false);
