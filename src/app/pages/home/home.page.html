@@ -8,12 +8,12 @@
         <span class="text-primary">MOVIMIENTO SÍSMICO FUERTE.</span>
       </h1>
       <div class="mt-8 flex flex-wrap gap-3">
-        <a href="https://rsn.ucr.ac.cr/index.php/actividad-sismica/ultimos-sismos" target="_blank"
-          class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition hover:brightness-110 active:scale-95">
+        <a href="https://rsn.ucr.ac.cr/index.php/actividad-sismica/ultimos-sismos" target="_blank" rel="noopener noreferrer"
+          class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition-colors hover:brightness-110 active:scale-95">
           RSN Últimos sismos
         </a>
-        <a href="https://rsn.ucr.ac.cr/losentiste/" target="_blank"
-          class="rounded-xl bg-surface-container-highest px-6 py-3 text-body-md font-semibold text-text-primary transition hover:bg-slate-200 active:scale-95">
+        <a href="https://rsn.ucr.ac.cr/losentiste/" target="_blank" rel="noopener noreferrer"
+          class="rounded-xl bg-surface-container-highest px-6 py-3 text-body-md font-semibold text-text-primary transition-colors hover:bg-slate-200 active:scale-95">
           ¿Lo sentiste?
         </a>
       </div>
@@ -30,10 +30,10 @@
     <section>
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-slate-900">Último Evento Significativo</h2>
-        <a routerLink="/historial" class="text-sm font-medium text-sky-700 hover:text-sky-800 transition">
+        <a routerLink="/historial" class="text-sm font-medium text-sky-700 transition-colors hover:text-sky-800">
           <span class="inline-flex items-center gap-1">
             Catálogo Completo
-            <i-lucide [img]="arrowRightIcon" size="14" class="shrink-0"></i-lucide>
+            <i-lucide [img]="arrowRightIcon" size="14" class="shrink-0" aria-hidden="true"></i-lucide>
           </span>
         </a>
       </div>
@@ -91,47 +91,47 @@
     <!-- FEATURE CARDS -->
     <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <a routerLink="/historial"
-        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:border-sky-200 hover:shadow-md">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
-          <i-lucide [img]="historyIcon" size="24" class="text-sky-600"></i-lucide>
+          <i-lucide [img]="historyIcon" size="24" class="text-sky-600" aria-hidden="true"></i-lucide>
         </div>
-        <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Catálogo Histórico</h3>
+        <h3 class="mt-4 font-semibold text-slate-900 transition-colors group-hover:text-sky-700">Catálogo Histórico</h3>
         <p class="mt-2 text-sm leading-6 text-slate-600">
           Consulta el registro completo de sísmicos con filtros avanzados.
         </p>
         <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
           EXPLORAR HISTORIAL
-          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0" aria-hidden="true"></i-lucide>
         </span>
       </a>
 
       <a routerLink="/estaciones"
-        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-green-200">
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:border-green-200 hover:shadow-md">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-          <i-lucide [img]="networkIcon" size="24" class="text-green-600"></i-lucide>
+          <i-lucide [img]="networkIcon" size="24" class="text-green-600" aria-hidden="true"></i-lucide>
         </div>
-        <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-green-700 transition">Estado de Red</h3>
+        <h3 class="mt-4 font-semibold text-slate-900 transition-colors group-hover:text-green-700">Estado de Red</h3>
         <p class="mt-2 text-sm leading-6 text-slate-600">
           Monitorea el estado operativo y en tiempo real de todas las estaciones.
         </p>
         <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-green-700">
           VER ESTACIONES
-          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0" aria-hidden="true"></i-lucide>
         </span>
       </a>
 
       <a routerLink="/repositorio"
-        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-sky-200">
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:border-sky-200 hover:shadow-md">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
-          <i-lucide [img]="repositoryIcon" size="24" class="text-sky-600"></i-lucide>
+          <i-lucide [img]="repositoryIcon" size="24" class="text-sky-600" aria-hidden="true"></i-lucide>
         </div>
-        <h3 class="mt-4 font-semibold text-slate-900 group-hover:text-sky-700 transition">Repositorio Raw</h3>
+        <h3 class="mt-4 font-semibold text-slate-900 transition-colors group-hover:text-sky-700">Repositorio Raw</h3>
         <p class="mt-2 text-sm leading-6 text-slate-600">
           Accede a informes técnicos.
         </p>
         <span class="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
           ACCEDER REPORTES
-          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0"></i-lucide>
+          <i-lucide [img]="arrowRightIcon" size="12" class="shrink-0" aria-hidden="true"></i-lucide>
         </span>
       </a>
     </section>

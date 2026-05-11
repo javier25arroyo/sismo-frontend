@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { filter } from 'rxjs/operators';
@@ -36,6 +36,13 @@ export class HeaderComponent {
 
   toggleMenu(): void {
     this.mobileOpen.update(v => !v);
+  }
+
+  @HostListener('document:keydown.escape')
+  closeMenuOnEscape(): void {
+    if (this.mobileOpen()) {
+      this.mobileOpen.set(false);
+    }
   }
 
   logout(): void {

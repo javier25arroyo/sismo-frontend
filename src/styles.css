@@ -150,8 +150,8 @@ input[type="datetime-local"]:hover {
   background-color: var(--color-surface);
 }
 
-input[type="date"]:focus,
-input[type="datetime-local"]:focus {
+input[type="date"]:focus-visible,
+input[type="datetime-local"]:focus-visible {
   border-color: var(--ui-focus);
   background-color: var(--color-surface);
   box-shadow:

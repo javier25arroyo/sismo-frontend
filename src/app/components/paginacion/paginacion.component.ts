@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
           type="button"
           (click)="ir(paginaActual() - 1)"
           [disabled]="paginaActual() <= 1"
-          class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-all duration-200 ease-out hover:bg-white hover:text-slate-700 hover:shadow-sm active:scale-95 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500 disabled:hover:shadow-none"
+          class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-white hover:text-slate-700 hover:shadow-sm active:scale-95 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500 disabled:hover:shadow-none"
           aria-label="Página anterior">
           ‹
         </button>
@@ -30,7 +30,7 @@ import { CommonModule } from '@angular/common';
             [class]="p === paginaActual()
               ? 'gradient-cta text-white shadow-sm'
               : 'text-slate-600 hover:bg-white hover:text-slate-800 hover:shadow-sm'"
-            class="flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-label-sm font-semibold tabular-nums transition-all duration-200 ease-out active:scale-95">
+            class="flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-label-sm font-semibold tabular-nums transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-95">
             {{ p }}
           </button>
         </ng-container>
@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
           type="button"
           (click)="ir(paginaActual() + 1)"
           [disabled]="paginaActual() >= totalPaginas()"
-          class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-all duration-200 ease-out hover:bg-white hover:text-slate-700 hover:shadow-sm active:scale-95 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500 disabled:hover:shadow-none"
+          class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-white hover:text-slate-700 hover:shadow-sm active:scale-95 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-slate-500 disabled:hover:shadow-none"
           aria-label="Página siguiente">
           ›
         </button>

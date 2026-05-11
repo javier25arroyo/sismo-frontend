@@ -120,7 +120,7 @@
         <!-- Estado de ubicación card (primary) -->
         <div
           *ngIf="ultimoSismo()"
-          [ngClass]="'relative overflow-hidden rounded-3xl border p-6 shadow-sm transition-all duration-200 ' +
+          [ngClass]="'relative overflow-hidden rounded-3xl border p-6 shadow-sm transition-[background-color,border-color,box-shadow] duration-200 ' +
           (getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'border-green-200 bg-gradient-to-br from-green-50 to-white' :
            getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-white' :
            'border-slate-200 bg-white')">
