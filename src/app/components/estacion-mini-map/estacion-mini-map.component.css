@@ -1,1 +1,11 @@
 @import 'leaflet/dist/leaflet.css';
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.leaflet-container {
+  background: #EAF1F3;
+  font-family: "Aptos", "Inter", "Segoe UI", sans-serif;
+}
