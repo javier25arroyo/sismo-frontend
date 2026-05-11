@@ -129,6 +129,69 @@ textarea {
   border-radius: var(--ui-radius);
 }
 
+input[type="date"],
+input[type="datetime-local"] {
+  color-scheme: light;
+  min-height: 2.25rem;
+  border-color: var(--ui-border);
+  background-color: color-mix(in srgb, var(--color-surface) 94%, var(--color-surface-container-low));
+  color: var(--color-text-primary);
+  box-shadow: var(--ui-shadow-sm);
+  font-variant-numeric: tabular-nums;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+input[type="date"]:hover,
+input[type="datetime-local"]:hover {
+  border-color: var(--ui-border-strong);
+  background-color: var(--color-surface);
+}
+
+input[type="date"]:focus,
+input[type="datetime-local"]:focus {
+  border-color: var(--ui-focus);
+  background-color: var(--color-surface);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ui-focus) 18%, transparent),
+    var(--ui-shadow-sm);
+}
+
+input[type="date"]:disabled,
+input[type="datetime-local"]:disabled {
+  color: var(--ui-muted);
+  background-color: var(--color-surface-container-low);
+  box-shadow: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-inline-start: 0.45rem;
+  padding: 0.22rem;
+  border-radius: var(--ui-radius-sm);
+  cursor: pointer;
+  opacity: 0.72;
+  transition:
+    background-color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 11%, transparent);
+  opacity: 1;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:active,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:active {
+  transform: scale(0.96);
+}
+
 table {
   border-color: var(--ui-border);
   font-variant-numeric: tabular-nums;

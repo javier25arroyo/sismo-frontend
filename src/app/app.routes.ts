@@ -14,7 +14,6 @@ export const routes: Routes = [
       { path: 'umbrales-estaciones', loadComponent: () => import('./pages/umbrales-estaciones/umbrales-estaciones.page').then(m => m.UmbralesEstacionesPage), canActivate: [AdminGuard] },
       { path: 'repositorio', loadComponent: () => import('./pages/repositorio/repositorio.page').then(m => m.RepositorioPage), canActivate: [AdminGuard] },
       { path: 'consultas', loadComponent: () => import('./pages/consultas/consultas.page').then(m => m.ConsultasPage) },
-      { path: 'mapa', loadComponent: () => import('./pages/mapa/mapa.page').then(m => m.MapaPage) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage), canActivate: [AdminGuard] },
     ]
   },
