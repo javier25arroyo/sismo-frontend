@@ -1,70 +1,43 @@
-<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md">
-  <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+<header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/88 shadow-sm backdrop-blur-xl">
+  <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:px-8">
 
     <!-- BRAND -->
     <a routerLink="/"
-      class="flex items-center gap-2 text-headline-sm font-bold tracking-tight text-primary transition-colors duration-200 hover:text-primary-container">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary" aria-hidden="true">
-        <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>
-      </svg>
-      <span>SISMOLOGÍA<span class="text-secondary"> - ICE</span></span>
+      class="flex items-center gap-3 text-text-primary transition-colors duration-200 hover:text-primary">
+      <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>
+        </svg>
+      </span>
+      <span class="leading-tight">
+        <span class="block text-sm font-bold">Sismología ICE</span>
+        <span class="block text-[0.68rem] font-semibold uppercase tracking-wide text-slate-500">Monitoreo acelerográfico</span>
+      </span>
     </a>
 
     <!-- NAV LINKS — desktop only -->
-    <ul class="hidden items-center gap-1 text-label-sm font-semibold uppercase tracking-wide text-text-primary lg:flex">
-      <li>
-        <a routerLink="/sismos"
-          routerLinkActive="bg-surface-container-highest text-primary"
-          class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-surface-container-highest active:scale-95 active:opacity-80">
-          Sismos
-        </a>
-      </li>
-      <li>
-        <a routerLink="/historial"
-          routerLinkActive="bg-surface-container-highest text-primary"
-          class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-surface-container-highest active:scale-95 active:opacity-80">
-          Historial
-        </a>
-      </li>
-      <li>
-        <a routerLink="/estaciones"
-          routerLinkActive="bg-surface-container-highest text-primary"
-          class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-surface-container-highest active:scale-95 active:opacity-80">
-          Estaciones
-        </a>
-      </li>
-      <li *ngIf="auth.isAdmin()">
-        <a routerLink="/umbrales-estaciones"
-          routerLinkActive="bg-surface-container-highest text-primary"
-          class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-surface-container-highest active:scale-95 active:opacity-80">
-          Umbrales
-        </a>
-      </li>
-      <li>
-        <a routerLink="/consultas"
-          routerLinkActive="bg-surface-container-highest text-primary"
-          class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-surface-container-highest active:scale-95 active:opacity-80">
-          Consultas
-        </a>
-      </li>
-      <li>
-        <a routerLink="/repositorio"
-          routerLinkActive="bg-surface-container-highest text-primary"
-          class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-surface-container-highest active:scale-95 active:opacity-80">
-          Reportes
-        </a>
-      </li>
+    <ul class="hidden items-center gap-1 rounded-lg border border-slate-200 bg-surface-container-low p-1 text-label-sm font-semibold uppercase tracking-wide text-slate-600 lg:flex">
+      @for (link of navLinks; track link.path) {
+        <li *ngIf="!link.adminOnly || auth.isAdmin()">
+          <a [routerLink]="link.path"
+            routerLinkActive="bg-white text-primary shadow-sm ring-1 ring-slate-200"
+            class="rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-white hover:text-primary active:scale-95 active:opacity-80">
+            {{ link.label }}
+          </a>
+        </li>
+      }
     </ul>
 
     <!-- AUTH — desktop only -->
     <div class="hidden items-center gap-3 lg:flex">
       <ng-container *ngIf="auth.isAuthenticated(); else loginLinkDesktop">
         <a routerLink="/profile"
-          class="flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-1.5 transition-all duration-200 hover:bg-surface-container-highest active:scale-95">
+          class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 shadow-sm transition-all duration-200 hover:border-primary/30 active:scale-95">
           <div class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-label-sm font-bold text-white">
             {{ auth.getRole()?.charAt(0) ?? 'U' }}
           </div>
-          <span class="text-label-sm font-medium text-text-primary">Admin Técnico</span>
+          <span class="text-label-sm font-semibold text-text-primary">Admin técnico</span>
         </a>
         <button (click)="logout()"
           title="Cerrar Sesión"
@@ -79,7 +52,7 @@
       </ng-container>
       <ng-template #loginLinkDesktop>
         <a routerLink="/acceso"
-          class="rounded-xl gradient-cta px-4 py-2 text-label-sm font-semibold uppercase tracking-wide text-white transition-all duration-200 hover:brightness-110 active:scale-95">
+          class="rounded-lg gradient-cta px-4 py-2 text-label-sm font-semibold uppercase tracking-wide text-white transition-all duration-200 active:scale-95">
           Acceso Técnico
         </a>
       </ng-template>
@@ -88,7 +61,7 @@
     <!-- HAMBURGER — mobile only, animated bars → X -->
     <button
       (click)="toggleMenu()"
-      class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition-all duration-200 hover:bg-slate-100 active:scale-90 lg:hidden"
+      class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-100 active:scale-90 lg:hidden"
       [attr.aria-expanded]="mobileOpen()"
       aria-label="Abrir menú de navegación">
       <div class="flex flex-col gap-[5px]">
@@ -125,7 +98,7 @@
 
   <!-- MOBILE DRAWER — slide down with max-height + opacity (no *ngIf = smooth animation) -->
   <div
-    class="relative z-50 overflow-hidden border-t border-slate-100 bg-white/95 backdrop-blur-md lg:hidden"
+    class="relative z-50 overflow-hidden border-t border-slate-200 bg-white/96 shadow-lg backdrop-blur-md lg:hidden"
     style="transition: max-height 350ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms ease-in-out"
     [style.max-height]="mobileOpen() ? '600px' : '0px'"
     [style.opacity]="mobileOpen() ? '1' : '0'">
@@ -138,7 +111,7 @@
           <li *ngIf="!link.adminOnly || auth.isAdmin()">
             <a [routerLink]="link.path"
               routerLinkActive="bg-surface-container-highest text-primary"
-              class="group flex items-center justify-between rounded-xl px-4 py-3 text-text-primary transition-all duration-200 hover:bg-surface-container-highest active:scale-[0.97] active:opacity-80">
+              class="group flex items-center justify-between rounded-lg px-4 py-3 text-text-primary transition-all duration-200 hover:bg-surface-container-highest active:scale-[0.97] active:opacity-80">
               <span>{{ link.label }}</span>
               <svg class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -154,7 +127,7 @@
         <ng-container *ngIf="auth.isAuthenticated(); else loginLinkMobile">
           <div class="flex items-center justify-between">
             <a routerLink="/profile"
-              class="flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-2 transition-all duration-200 hover:bg-surface-container-highest active:scale-[0.97]">
+              class="flex items-center gap-2 rounded-lg border border-slate-200 bg-surface-container-low px-3 py-2 transition-all duration-200 hover:bg-surface-container-highest active:scale-[0.97]">
               <div class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-label-sm font-bold text-white">
                 {{ auth.getRole()?.charAt(0) ?? 'U' }}
               </div>
@@ -174,7 +147,7 @@
         </ng-container>
         <ng-template #loginLinkMobile>
           <a routerLink="/acceso"
-            class="flex w-full items-center justify-center rounded-xl gradient-cta px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-all duration-200 hover:brightness-110 active:scale-[0.97]">
+            class="flex w-full items-center justify-center rounded-lg gradient-cta px-4 py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-all duration-200 active:scale-[0.97]">
             Acceso Técnico
           </a>
         </ng-template>

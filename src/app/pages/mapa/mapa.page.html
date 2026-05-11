@@ -1,12 +1,10 @@
-<div class="min-h-screen bg-slate-50">
+<div class="min-h-screen bg-background">
 
   <!-- ═══════════════════════════════════════════════════════════
        HERO — Command Center band
        ═══════════════════════════════════════════════════════════ -->
-  <section class="relative overflow-hidden bg-slate-950 text-white">
+  <section class="relative overflow-hidden app-command-band text-white">
     <div class="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]"></div>
-    <div class="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-sky-600/20 blur-3xl"></div>
-    <div class="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-rose-600/10 blur-3xl"></div>
 
     <div class="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
 
@@ -24,7 +22,7 @@
 
       <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <h1 class="text-5xl font-black leading-none tracking-tighter sm:text-6xl lg:text-7xl">
+          <h1 class="text-5xl font-black leading-none tracking-tight sm:text-6xl lg:text-7xl">
             Monitor<br>
             <span class="text-sky-400">sísmico.</span>
           </h1>
@@ -87,7 +85,7 @@
 
             <div class="mt-6 flex items-baseline gap-3">
               <span class="text-xl font-bold text-slate-400">M</span>
-              <span class="text-8xl font-black leading-none tracking-tighter sm:text-9xl"
+              <span class="text-8xl font-black leading-none tracking-tight sm:text-9xl"
                 [ngClass]="magnitudColorClass(sismoMasReciente.magnitud)">
                 {{ sismoMasReciente.magnitud.toFixed(1) }}
               </span>

@@ -30,9 +30,11 @@ export interface ScatterDato {
   standalone: true,
   selector: 'app-scatter-chart',
   template: `
-    <div class="rounded-xl border border-slate-200 bg-white p-3">
-      <p class="mb-2 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">{{ titulo() }}</p>
-      <canvas #canvas></canvas>
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-600">{{ titulo() }}</p>
+      <div class="min-h-48">
+        <canvas #canvas></canvas>
+      </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -100,12 +102,14 @@ export class ScatterChartComponent implements AfterViewInit, OnDestroy {
         },
         scales: {
           x: {
-            title: { display: true, text: tituloX, font: { size: 11 } },
-            grid: { color: '#f1f5f9' }
+            title: { display: true, text: tituloX, font: { size: 11, weight: 600 } },
+            grid: { color: '#e8eef1' },
+            ticks: { color: '#64748b' }
           },
           y: {
-            title: { display: true, text: tituloY, font: { size: 11 } },
-            grid: { color: '#f1f5f9' }
+            title: { display: true, text: tituloY, font: { size: 11, weight: 600 } },
+            grid: { color: '#e8eef1' },
+            ticks: { color: '#64748b' }
           }
         }
       }

@@ -6,7 +6,10 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="relative w-full overflow-hidden border-y border-slate-100 bg-white" [style.height]="height()">
+    <div class="relative w-full overflow-hidden border-y border-slate-200 bg-white" [style.height]="height()">
+      <div class="pointer-events-none absolute left-3 top-3 z-10 rounded-md bg-white/85 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 ring-1 ring-slate-200 backdrop-blur">
+        Señal en vivo
+      </div>
       <!-- Imagen estática -->
       <div 
         class="h-full w-full bg-no-repeat bg-contain bg-center"
@@ -14,9 +17,9 @@ import { CommonModule } from '@angular/common';
         style="mix-blend-multiply">
       </div>
       
-      <!-- Decoración minimalista tipo papel milimetrado muy tenue -->
+      <!-- Trama técnica tenue para lectura de señal. -->
       <div class="pointer-events-none absolute inset-0 opacity-[0.03]" 
-           style="background-image: radial-gradient(#000 1px, transparent 0); background-size: 20px 20px;"></div>
+           style="background-image: linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px); background-size: 20px 20px;"></div>
     </div>
   `,
   styles: [``]
