@@ -1,13 +1,23 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { StatCardComponent } from '../../components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { EstacionMiniMapComponent } from '../../components/estacion-mini-map/estacion-mini-map.component';
 import { EstacionFormModalComponent } from '../../components/estacion-form-modal/estacion-form-modal.component';
-import { EstacionRespuesta, EstadoEstacion, CrearEstacionSolicitud, ActualizarEstacionSolicitud } from '../../interfaces/api.interfaces';
+import {
+  ActualizarEstacionSolicitud,
+  AlarmaPorEstacionRespuesta,
+  CrearEstacionSolicitud,
+  EstacionRespuesta,
+  EstadoEstacion,
+  ParametroIntensidadRespuesta
+} from '../../interfaces/api.interfaces';
+import { AlarmaService } from '../../services/alarma.service';
 import { CentroService } from '../../services/centro.service';
 import { AuthService } from '../../services/auth.service';
-import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert, Wrench, CheckCircle, XCircle, Pencil, Plus } from 'lucide-angular';
+import { ParametroIntensidadService } from '../../services/parametro-intensidad.service';
+import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert, Wrench, CheckCircle, XCircle, Pencil, Plus, SlidersHorizontal } from 'lucide-angular';
 
 interface EstacionVista extends EstacionRespuesta {
   tipoSensor: string;
@@ -23,6 +33,7 @@ interface EstacionVista extends EstacionRespuesta {
     StatusBadgeComponent,
     EstacionMiniMapComponent,
     EstacionFormModalComponent,
+    RouterLink,
     LucideAngularModule,
   ],
   templateUrl: './estaciones.page.html'
@@ -43,6 +54,13 @@ export class EstacionesPage implements OnInit {
   guardandoEstacion     = signal(false);
   mensajeCrud           = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
+  // Umbrales por estación
+  alarmasEstacion       = signal<AlarmaPorEstacionRespuesta[]>([]);
+  cargandoAlarmas       = signal(false);
+  parametros            = signal<ParametroIntensidadRespuesta[]>([]);
+  cargandoCatalogos     = signal(false);
+  mensajeUmbral         = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
+
   readonly serverIcon    = Server;
   readonly satelliteIcon = Satellite;
   readonly warningIcon   = TriangleAlert;
@@ -52,21 +70,34 @@ export class EstacionesPage implements OnInit {
   readonly xIcon         = XCircle;
   readonly editIcon      = Pencil;
   readonly plusIcon      = Plus;
+  readonly slidersIcon   = SlidersHorizontal;
 
-  constructor(private centroService: CentroService, public auth: AuthService) {}
+  constructor(
+    private centroService: CentroService,
+    private alarmaService: AlarmaService,
+    private parametroService: ParametroIntensidadService,
+    public auth: AuthService
+  ) {}
 
-  ngOnInit(): void { this.cargarEstaciones(); }
+  ngOnInit(): void {
+    void this.cargarEstaciones();
+    if (this.auth.isAdmin()) void this.cargarCatalogosUmbrales();
+  }
 
   private async cargarEstaciones(): Promise<void> {
     try {
       const page = await this.centroService.getTodasEstaciones({ size: 500 });
       const vistas = page.content.map(e => this.toVista(e));
       this.estaciones.set(vistas);
-      if (vistas.length > 0) this.estacionSeleccionada.set(vistas[0]);
+      if (vistas.length > 0) {
+        this.estacionSeleccionada.set(vistas[0]);
+        void this.cargarAlarmasEstacion(vistas[0]);
+      }
     } catch {
       const mocks = this.mockEstaciones();
       this.estaciones.set(mocks);
       this.estacionSeleccionada.set(mocks[0]);
+      this.alarmasEstacion.set([]);
     } finally {
       this.cargando.set(false);
     }
@@ -81,7 +112,10 @@ export class EstacionesPage implements OnInit {
     };
   }
 
-  seleccionar(e: EstacionVista): void { this.estacionSeleccionada.set(e); }
+  seleccionar(e: EstacionVista): void {
+    this.estacionSeleccionada.set(e);
+    void this.cargarAlarmasEstacion(e);
+  }
 
   get total(): number          { return this.estaciones().length; }
   get enLinea(): number        { return this.estaciones().filter(e => e.estado === 'ACTIVA').length; }
@@ -175,6 +209,62 @@ export class EstacionesPage implements OnInit {
       this.guardandoEstacion.set(false);
       setTimeout(() => this.mensajeCrud.set(null), 3000);
     }
+  }
+
+  // ─── Umbrales por estación ────────────────────────────────────────────────
+
+  private async cargarAlarmasEstacion(est: EstacionVista): Promise<void> {
+    this.cargandoAlarmas.set(true);
+    try {
+      const page = await this.alarmaService.getAlarmas({
+        codCentroPrd: est.codCentroPrd,
+        codEstacion: est.codEstacion,
+        size: 100
+      });
+      this.alarmasEstacion.set(this.ordenarAlarmas(page.content));
+    } catch (err) {
+      this.alarmasEstacion.set([]);
+      this.mostrarMensajeUmbral('error', (err as Error).message || 'No se pudieron cargar los umbrales de la estación');
+    } finally {
+      this.cargandoAlarmas.set(false);
+    }
+  }
+
+  private async cargarCatalogosUmbrales(): Promise<void> {
+    if (!this.auth.isAdmin() || this.cargandoCatalogos() || this.parametros().length > 0) return;
+
+    this.cargandoCatalogos.set(true);
+    try {
+      const page = await this.parametroService.getParametros(0, 100);
+      this.parametros.set(
+        [...page.content].sort((a, b) => a.codParametro - b.codParametro)
+      );
+    } catch (err) {
+      this.parametros.set([]);
+      this.mostrarMensajeUmbral('error', (err as Error).message || 'No se pudieron cargar los parámetros de intensidad');
+    } finally {
+      this.cargandoCatalogos.set(false);
+    }
+  }
+
+  parametroLabel(codParametro: number): string {
+    const parametro = this.parametros().find(p => p.codParametro === codParametro);
+    if (!parametro) return `Parámetro ${codParametro}`;
+    return `${parametro.nomParametro} (${parametro.simboloUnidad})`;
+  }
+
+  private ordenarAlarmas(alarmas: AlarmaPorEstacionRespuesta[]): AlarmaPorEstacionRespuesta[] {
+    return [...alarmas].sort((a, b) =>
+      a.codParametro - b.codParametro ||
+      a.codUmbral.localeCompare(b.codUmbral, 'es', { numeric: true })
+    );
+  }
+
+  private mostrarMensajeUmbral(tipo: 'ok' | 'error', texto: string): void {
+    this.mensajeUmbral.set({ tipo, texto });
+    setTimeout(() => {
+      if (this.mensajeUmbral()?.texto === texto) this.mensajeUmbral.set(null);
+    }, 4000);
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
