@@ -28,8 +28,9 @@ describe('StatusBadgeComponent', () => {
   it('applies success styles for NIVEL 1', () => {
     const badge = render('NIVEL 1');
 
-    expect(badge.className).toContain('bg-green-100');
+    expect(badge.className).toContain('bg-green-50');
     expect(badge.className).toContain('text-green-700');
+    expect(badge.className).toContain('ring-green-200');
     expect(badge.textContent).toContain('NIVEL 1');
     expect(badge.querySelector('span')?.className).toContain('bg-green-500');
   });
@@ -37,16 +38,18 @@ describe('StatusBadgeComponent', () => {
   it('normalizes accented online status', () => {
     const badge = render('EN LÍNEA');
 
-    expect(badge.className).toContain('bg-green-100');
+    expect(badge.className).toContain('bg-green-50');
     expect(badge.className).toContain('text-green-700');
+    expect(badge.className).toContain('ring-green-200');
     expect(badge.querySelector('span')?.className).toContain('bg-green-500');
   });
 
   it('renders fuera de servicio with the friendly label', () => {
     const badge = render('FUERA_DE_SERVICIO');
 
-    expect(badge.className).toContain('bg-rose-100');
+    expect(badge.className).toContain('bg-rose-50');
     expect(badge.className).toContain('text-rose-700');
+    expect(badge.className).toContain('ring-rose-200');
     expect(badge.textContent).toContain('FUERA DE SERVICIO');
     expect(badge.querySelector('span')?.className).toContain('bg-rose-500');
   });
