@@ -7,6 +7,8 @@ export interface Sismo {
   coordenadaX: number;
   coordenadaY: number;
   profundidad: number;
+  distanciaHipocentral?: number | null;
+  distanciaEpicentral?: number | null;
   sentido?: string;
   fuente?: string;
   codCentroPrd?: string;

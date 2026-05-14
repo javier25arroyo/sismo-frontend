@@ -49,6 +49,8 @@ export interface SismoRespuesta {
   coordenadaX: number;
   coordenadaY: number;
   profundidad: number;
+  distanciaHipocentral?: number | null;
+  distanciaEpicentral?: number | null;
   sentido?: string;
 }
 
@@ -67,6 +69,8 @@ export interface SismoResumenRespuesta {
   ubicacion: string;
   coordenadaX: number;
   coordenadaY: number;
+  distanciaHipocentral?: number | null;
+  distanciaEpicentral?: number | null;
   /** No retornado por el backend; se mantiene por compatibilidad con vistas existentes */
   fuente?: string;
 }
@@ -79,6 +83,8 @@ export interface SismoUltimoRespuesta {
   coordenadaX: number;
   coordenadaY: number;
   profundidad: number;
+  distanciaHipocentral?: number | null;
+  distanciaEpicentral?: number | null;
 }
 
 // ─── Centros de producción ────────────────────────────────────────────────────

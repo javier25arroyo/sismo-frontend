@@ -202,13 +202,16 @@ export class ConsultasPage {
   // ── Mapa ─────────────────────────────────────────────────────
 
   get sismosMapaAcel(): SismoResumenRespuesta[] {
-    const vistos = new Set<string>();
-    return this.historialDatos()
-      .filter(h => {
-        if (vistos.has(h.feSismo)) return false;
-        vistos.add(h.feSismo);
-        return true;
-      })
+    const eventosPorSismo = new Map<string, HistorialSismoRespuesta>();
+
+    for (const h of this.historialDatos()) {
+      const actual = eventosPorSismo.get(h.feSismo);
+      if (!actual || this.distanciaParaOrden(h.distanciaHipocentral) < this.distanciaParaOrden(actual.distanciaHipocentral)) {
+        eventosPorSismo.set(h.feSismo, h);
+      }
+    }
+
+    return Array.from(eventosPorSismo.values())
       .map(h => this.toSismoResumen(h));
   }
 
@@ -224,7 +227,9 @@ export class ConsultasPage {
       profundidad: r.profundidad,
       ubicacion: r.ubicacion,
       coordenadaX: r.coordenadaX,
-      coordenadaY: r.coordenadaY
+      coordenadaY: r.coordenadaY,
+      distanciaHipocentral: r.distanciaHipocentral,
+      distanciaEpicentral: r.distanciaEpicentral
     }));
   }
 
@@ -242,8 +247,14 @@ export class ConsultasPage {
       profundidad:  h.profundidad,
       ubicacion:    h.ubicacion,
       coordenadaX:  h.coordenadaX,
-      coordenadaY:  h.coordenadaY
+      coordenadaY:  h.coordenadaY,
+      distanciaHipocentral: h.distanciaHipocentral,
+      distanciaEpicentral:  h.distanciaEpicentral
     };
+  }
+
+  private distanciaParaOrden(distancia: number | null): number {
+    return typeof distancia === 'number' && Number.isFinite(distancia) ? distancia : Number.POSITIVE_INFINITY;
   }
 
   // ── Datos para gráficas ───────────────────────────────────────
