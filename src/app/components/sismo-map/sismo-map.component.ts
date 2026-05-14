@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
 import { EstacionRespuesta, SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
+import { categorizarSismo, type ConsecutivoSismo } from '../../utils/sismo-criterios';
 
 @Component({
   standalone: true,
@@ -39,7 +40,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Altura del contenedor del mapa */
   height = input<string>('500px');
 
-  /** Si se debe mostrar la leyenda de magnitudes */
+  /** Si se debe mostrar la leyenda de criterios */
   showLegend = input<boolean>(true);
 
   /** Sismo a marcar como epicentro destacado (anillo pulsante + crosshair) */
@@ -54,7 +55,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private estacionesLayer!: L.LayerGroup;
   private isInitialized = false;
 
-  /** Estilos según magnitud del sismo */
+  /** Estilos segun criterio oficial del sismo */
   private normalizarUbicacion(u: string | null | undefined): string {
     if (!u) return '';
     let txt = u.trim().replace(/\s*\)\s*$/, '');
@@ -62,12 +63,13 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
   }
 
-  private readonly magnitudStyles: Record<string, MagnitudStyle> = {
-    nivel1: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },      // 3.5-4.0 Mw (Nivel 1)
-    nivel2: { color: '#eab308', radius: 8, fillOpacity: 0.7 },      // 4.0-5.0 Mw (Nivel 2)
-    nivel3: { color: '#f97316', radius: 10, fillOpacity: 0.8 },     // 5.0-6.0 Mw (Nivel 3)
-    nivel4: { color: '#ef4444', radius: 14, fillOpacity: 0.9 }      // >= 6.0 Mw (Nivel 4)
+  private readonly criterioStyles: Record<ConsecutivoSismo, MagnitudStyle> = {
+    1: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },
+    2: { color: '#eab308', radius: 8, fillOpacity: 0.7 },
+    3: { color: '#f97316', radius: 10, fillOpacity: 0.8 },
+    4: { color: '#ef4444', radius: 14, fillOpacity: 0.9 }
   };
+  private readonly estiloSinCriterio: MagnitudStyle = { color: '#94a3b8', radius: 4, fillOpacity: 0.6 };
 
   constructor() {
     effect(() => {
@@ -159,7 +161,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.markersLayer.clearLayers();
 
     sismos.forEach(sismo => {
-      const style = this.getStyleForMagnitud(sismo.magnitud);
+      const style = this.getStyleForSismo(sismo);
       
       const marker = L.circleMarker([sismo.coordenadaY, sismo.coordenadaX], {
         radius: style.radius,
@@ -181,6 +183,8 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
           <p class="text-sm text-gray-600">${fechaFormateada}</p>
           <p class="mt-1">${this.normalizarUbicacion(sismo.ubicacion)}</p>
           <p class="text-sm">Profundidad: ${sismo.profundidad} km</p>
+          ${this.renderDistanciaHipocentral(sismo.distanciaHipocentral)}
+          ${this.renderCriterio(sismo.magnitud, sismo.distanciaHipocentral)}
           ${sismo.fuente ? `<p class="text-xs text-gray-500 mt-1">Fuente: ${sismo.fuente}</p>` : ''}
         </div>
       `);
@@ -197,12 +201,22 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private getStyleForMagnitud(magnitud: number): MagnitudStyle {
-    if (magnitud >= 6.0) return this.magnitudStyles['nivel4'];
-    if (magnitud >= 5.0) return this.magnitudStyles['nivel3'];
-    if (magnitud >= 4.0) return this.magnitudStyles['nivel2'];
-    if (magnitud >= 3.5) return this.magnitudStyles['nivel1'];
-    return { color: '#94a3b8', radius: 4, fillOpacity: 0.6 }; // Sismos menores (<3.5) en gris
+  private getStyleForSismo(sismo: Pick<Sismo, 'magnitud' | 'distanciaHipocentral'>): MagnitudStyle {
+    const criterio = categorizarSismo(sismo.magnitud, sismo.distanciaHipocentral);
+    return criterio ? this.criterioStyles[criterio.consecutivo] : this.estiloSinCriterio;
+  }
+
+  private renderDistanciaHipocentral(distancia: number | null | undefined): string {
+    return typeof distancia === 'number' && Number.isFinite(distancia)
+      ? `<p class="text-sm">Distancia hipocentral: ${distancia.toFixed(2)} km</p>`
+      : '';
+  }
+
+  private renderCriterio(magnitud: number, distancia: number | null | undefined): string {
+    const criterio = categorizarSismo(magnitud, distancia);
+    return criterio
+      ? `<p class="text-xs text-gray-500 mt-1">Consecutivo ${criterio.consecutivo}</p>`
+      : `<p class="text-xs text-gray-500 mt-1">Sin criterio aplicable</p>`;
   }
 
   private addEpicentroMarker(epicentro: SismoUltimoRespuesta | null): void {
@@ -211,7 +225,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!epicentro) return;
 
     const s = epicentro;
-    const color = this.getStyleForMagnitud(s.magnitud).color;
+    const color = this.getStyleForSismo(s).color;
     const fechaFormateada = new Date(s.feSismo).toLocaleString('es-CR', {
       dateStyle: 'medium',
       timeStyle: 'short'
@@ -252,6 +266,8 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
         <p style="margin:0 0 2px;font-size:12px;color:#475569;">${fechaFormateada}</p>
         <p style="margin:0 0 2px;font-size:12px;">${this.normalizarUbicacion(s.ubicacion)}</p>
         <p style="margin:0;font-size:12px;color:#64748b;">Profundidad: ${s.profundidad} km</p>
+        ${this.renderDistanciaHipocentral(s.distanciaHipocentral)}
+        ${this.renderCriterio(s.magnitud, s.distanciaHipocentral)}
       </div>
     `);
     marker.addTo(this.epicentroLayer);
@@ -283,25 +299,21 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     legend.onAdd = () => {
       const div = L.DomUtil.create('div', 'leaflet-legend');
+      const niveles: readonly ConsecutivoSismo[] = [1, 2, 3, 4];
+      const filas = niveles.map((nivel) => {
+        const style = this.criterioStyles[nivel];
+        const size = style.radius * 2;
+        return `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0;">
+            <span style="width: ${size}px; height: ${size}px; background: ${style.color}; border-radius: 50%; flex: 0 0 auto;"></span>
+            <span style="min-width: 54px; text-align: center;">Nivel ${nivel}</span>
+          </div>
+        `;
+      }).join('');
       div.innerHTML = `
-        <div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-          <h4 style="margin: 0 0 8px 0; font-weight: bold;">Criterios</h4>
-          <div style="display: flex; align-items: center; margin: 4px 0;">
-            <span style="width: 12px; height: 12px; background: #22c55e; border-radius: 50%; margin-right: 8px;"></span>
-            <span>Nivel 1</span>
-          </div>
-          <div style="display: flex; align-items: center; margin: 4px 0;">
-            <span style="width: 14px; height: 14px; background: #eab308; border-radius: 50%; margin-right: 8px;"></span>
-            <span>Nivel 2</span>
-          </div>
-          <div style="display: flex; align-items: center; margin: 4px 0;">
-            <span style="width: 16px; height: 16px; background: #f97316; border-radius: 50%; margin-right: 8px;"></span>
-            <span>Nivel 3</span>
-          </div>
-          <div style="display: flex; align-items: center; margin: 4px 0;">
-            <span style="width: 18px; height: 18px; background: #ef4444; border-radius: 50%; margin-right: 8px;"></span>
-            <span>Nivel 4</span>
-          </div>
+        <div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); text-align: center;">
+          <h4 style="margin: 0 0 8px 0; font-weight: bold; text-align: center;">Criterios</h4>
+          ${filas}
         </div>
       `;
       return div;
