@@ -27,6 +27,7 @@ export class AuthService {
     this.token = respuesta.token;
     this.role = respuesta.role;
     this.passwordExpiraDiasSig.set(respuesta.passwordExpiraDias ?? null);
+    this.pendingUsernameSig.set(null);
     try {
       localStorage.setItem(this.tokenKey, respuesta.token);
       localStorage.setItem(this.roleKey, respuesta.role);
@@ -42,6 +43,7 @@ export class AuthService {
     this.token = null;
     this.role = null;
     this.passwordExpiraDiasSig.set(null);
+    this.pendingUsernameSig.set(null);
     try {
       localStorage.removeItem(this.tokenKey);
       localStorage.removeItem(this.roleKey);

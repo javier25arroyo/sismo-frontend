@@ -62,9 +62,10 @@ export class ApiService {
       let data: Record<string, unknown> | undefined;
       try {
         const body = await res.json();
-        data = body as Record<string, unknown>;
         mensaje = this.extractErrorMessage(body, mensaje);
-        codigo = typeof data['codigo'] === 'string' ? data['codigo'] : undefined;
+        const payload = body && typeof body === 'object' ? (body as Record<string, unknown>) : undefined;
+        data = payload;
+        codigo = typeof payload?.['codigo'] === 'string' ? payload['codigo'] : undefined;
       } catch {
         // ignore JSON parsing errors and keep the HTTP status text
       }
