@@ -10,13 +10,24 @@ export class AuthService {
   private role: string | null = null;
 
   private readonly passwordExpiraDiasSig = signal<number | null>(this.leerDiasStorage());
+  private readonly pendingUsernameSig = signal<string | null>(null);
 
   readonly passwordExpiraDias = computed(() => this.passwordExpiraDiasSig());
+  readonly pendingUsername = computed(() => this.pendingUsernameSig());
+
+  setPendingUsername(username: string): void {
+    this.pendingUsernameSig.set(username);
+  }
+
+  clearPendingUsername(): void {
+    this.pendingUsernameSig.set(null);
+  }
 
   login(respuesta: RespuestaLogin): void {
     this.token = respuesta.token;
     this.role = respuesta.role;
     this.passwordExpiraDiasSig.set(respuesta.passwordExpiraDias ?? null);
+    this.pendingUsernameSig.set(null);
     try {
       localStorage.setItem(this.tokenKey, respuesta.token);
       localStorage.setItem(this.roleKey, respuesta.role);
@@ -32,6 +43,7 @@ export class AuthService {
     this.token = null;
     this.role = null;
     this.passwordExpiraDiasSig.set(null);
+    this.pendingUsernameSig.set(null);
     try {
       localStorage.removeItem(this.tokenKey);
       localStorage.removeItem(this.roleKey);

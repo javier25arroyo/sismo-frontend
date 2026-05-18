@@ -29,6 +29,7 @@ export interface RespuestaLogin {
 }
 
 export interface CambiarContrasenaSolicitud {
+  nombreUsuario?: string;
   passwordActual: string;
   passwordNueva: string;
 }

@@ -15,6 +15,18 @@
         </div>
       </div>
 
+      @if (!sessionActiva && pendingUsername()) {
+        <div class="mt-4 rounded-2xl bg-sky-50 px-4 py-3 text-sm text-sky-700 ring-1 ring-sky-200">
+          Usuario: <strong>{{ pendingUsername() }}</strong>
+        </div>
+      }
+      @if (!sessionActiva && !pendingUsername()) {
+        <div class="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200" role="alert">
+          Sesión no encontrada.
+          <a routerLink="/acceso" class="underline font-semibold">Vuelva a iniciar sesión.</a>
+        </div>
+      }
+
       <div class="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
         La nueva contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y símbolo.
       </div>

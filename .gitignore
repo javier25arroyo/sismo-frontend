@@ -117,3 +117,4 @@ CLAUDE.md
 skills-lock.json
 /.junie
 /.gemini
+*.md
