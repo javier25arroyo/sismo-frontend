@@ -71,7 +71,7 @@ Scripts disponibles:
 |---|---|
 | `pnpm start` | Servidor de desarrollo con hot reload |
 | `pnpm build` | Build de producción en `dist/` |
-| `pnpm test` | Ejecutar tests unitarios con Karma |
+| `pnpm test` | Tests unitarios con Vitest (via `@angular/build:unit-test`) |
 | `pnpm watch` | Build en modo watch (desarrollo) |
 
 ---
@@ -154,13 +154,14 @@ src/app/
 ├── pages/               # Vistas enrutadas (lazy-loaded)
 │   ├── home/
 │   ├── sismos/          # Lista paginada de sismos
-│   ├── historial/       # Historial RSS
+│   ├── historial/       # Catálogo histórico RSS
 │   ├── estaciones/      # Gestión de estaciones
 │   ├── consultas/       # Acelerógrafos + RSN (tabs + mapa + gráficas)
-│   ├── repositorio/     # Reportes PDF
-│   ├── mapa/            # Mapa interactivo
-│   ├── profile/         # Perfil del usuario autenticado
-│   ├── login/           # Acceso técnico
+│   ├── repositorio/     # Reportes y archivos generados
+│   ├── umbrales-estaciones/  # Admin: configuración de umbrales por estación
+│   ├── profile/         # Admin: perfil del usuario autenticado
+│   ├── login/           # Acceso técnico (/acceso)
+│   ├── recuperar-acceso/
 │   └── cambiar-contrasena/
 ├── services/            # Capa de acceso al API
 ├── guards/              # AuthGuard (protege rutas privadas)
@@ -174,18 +175,19 @@ src/app/
 
 ## Rutas
 
-| Ruta | Componente | Requiere auth |
+| Ruta | Componente | Guardia |
 |---|---|---|
-| `/` | `HomePage` | No |
-| `/sismos` | `SismosPage` | No |
-| `/historial` | `HistorialPage` | No |
-| `/estaciones` | `EstacionesPage` | No |
-| `/consultas` | `ConsultasPage` | No |
-| `/repositorio` | `RepositorioPage` | No |
-| `/mapa` | `MapaPage` | No |
-| `/profile` | `ProfilePage` | Sí (`AuthGuard`) |
-| `/acceso` | `LoginPage` | No |
-| `/cambiar-contrasena` | `CambiarContrasenaPage` | Sí (`AuthGuard`) |
+| `/` | `HomePage` | — |
+| `/sismos` | `SismosPage` | — |
+| `/historial` | `HistorialPage` | — |
+| `/estaciones` | `EstacionesPage` | — |
+| `/consultas` | `ConsultasPage` | — |
+| `/umbrales-estaciones` | `UmbralesEstacionesPage` | `AdminGuard` |
+| `/repositorio` | `RepositorioPage` | `AdminGuard` |
+| `/profile` | `ProfilePage` | `AdminGuard` |
+| `/acceso` | `LoginPage` | — |
+| `/recuperar-acceso` | `RecuperarAccesoPage` | — |
+| `/cambiar-contrasena` | `CambiarContrasenaPage` | — |
 
 ---
 
@@ -194,26 +196,31 @@ src/app/
 ### Convenciones
 
 - **100% standalone components** — no hay `NgModules`.
-- **Signals** (`signal()`, `computed()`) para estado local reactivo en lugar de RxJS.
+- **Signals** (`signal()`, `computed()`, `effect()`) para estado local reactivo; sin RxJS en componentes.
 - **`ApiService`** como capa única de HTTP — usa `fetch` nativo, no `HttpClient`. Adjunta el token JWT automáticamente desde `localStorage`.
 - **Lazy loading** — cada página es un chunk independiente cargado bajo demanda.
-- **Tailwind CSS v4** con tokens de diseño personalizados.
+- **Tailwind CSS v4** — sin `tailwind.config.js`; configuración vía `src/styles.css`.
+- **Vitest** como motor de tests, integrado via `@angular/build:unit-test`.
 
 ### Autenticación
 
 - Login POST `/api/autenticacion/iniciar-sesion` → recibe JWT.
 - Token almacenado en `localStorage` via `AuthService`.
-- `ApiService` inyecta `Authorization: Bearer <token>` en cada petición.
-- `AuthGuard` bloquea rutas privadas y redirige a `/acceso` si no autenticado.
+- `auth.interceptor.ts` inyecta `Authorization: Bearer <token>` en cada petición.
+- `AdminGuard` bloquea rutas administrativas y redirige a `/acceso` si no autenticado.
 
 ### Componentes compartidos clave
 
 | Selector | Inputs principales | Propósito |
 |---|---|---|
-| `app-sismo-map` | `[sismos]`, `[height]`, `[zoom]`, `[center]` | Mapa Leaflet con marcadores por magnitud |
+| `app-sismo-map` | `[sismos]`, `[height]`, `[zoom]`, `[center]`, `[showLegend]` | Mapa Leaflet con marcadores por magnitud |
 | `app-scatter-chart` | `[datos]`, `[tituloX]`, `[tituloY]`, `[titulo]`, `[colorPunto]` | Gráfica de dispersión Chart.js |
-| `app-paginacion` | `[paginaActual]`, `[totalPaginas]`, `(paginaCambio)` | Paginador con output `paginaCambio` |
-| `app-magnitud-badge` | `[magnitud]` | Badge con color según escala Richter |
+| `app-paginacion` | `[paginaActual]`, `[totalPaginas]`, `(paginaCambio)` | Paginador genérico |
+| `app-magnitud-badge` | `[magnitud]` | Badge con color según escala de magnitud |
+| `app-status-badge` | `[estado]` | Badge de estado operativo de estación |
+| `app-stat-card` | `[titulo]`, `[valor]` | Tarjeta de estadística |
+| `app-confirm-dialog` | `[visible]`, `[title]`, `[message]`, `[action]`, `(confirm)`, `(cancel)` | Modal de confirmación |
+| `app-password-expiration-warning` | — | Aviso de contraseña por vencer |
 
 ---
 

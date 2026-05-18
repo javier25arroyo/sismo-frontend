@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
@@ -107,8 +106,7 @@ export const routes: Routes = [
       description: 'Actualizacion segura de contrasena para usuarios autorizados del sistema.',
       robots: 'noindex,nofollow'
     },
-    loadComponent: () => import('./pages/cambiar-contrasena/cambiar-contrasena.page').then(m => m.CambiarContrasenaPage),
-    canActivate: [AdminGuard]
+    loadComponent: () => import('./pages/cambiar-contrasena/cambiar-contrasena.page').then(m => m.CambiarContrasenaPage)
   },
   { path: 'login', redirectTo: 'acceso', pathMatch: 'full' },
   { path: '**', redirectTo: '' }

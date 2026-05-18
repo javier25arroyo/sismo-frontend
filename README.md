@@ -4,15 +4,17 @@ Frontend Angular 21 para monitoreo y consulta sismológica del ICE. La app usa c
 
 ## Stack
 
-- Angular 21
-- TypeScript 5.9
-- PNPM 10
-- Tailwind CSS 4
-- PostCSS
-- RxJS
-- Leaflet
-- Chart.js
-- Lucide Angular
+| Tecnología | Versión |
+|---|---|
+| Angular | 21.2.x |
+| TypeScript | 5.9.x |
+| PNPM | 10.32.x |
+| Tailwind CSS | 4.x |
+| RxJS | 7.8.x |
+| Leaflet | 1.9.x |
+| Chart.js | 4.x |
+| Lucide Angular | 1.x |
+| Vitest | 4.x (via `@angular/build:unit-test`) |
 
 ## Funcionalidad actual
 
@@ -25,20 +27,20 @@ Frontend Angular 21 para monitoreo y consulta sismológica del ICE. La app usa c
 
 ## Rutas principales
 
-| Ruta | Acceso | Descripción |
-| --- | --- | --- |
-| `/` | Público | Inicio de la aplicación. |
-| `/sismos` | Público | Análisis de eventos sísmicos recientes. |
-| `/historial` | Público | Catálogo histórico de sismos con filtros. |
-| `/estaciones` | Público | Estado operativo de la red de estaciones. |
-| `/consultas` | Público | Consultas técnicas y exportación de resultados. |
-| `/acceso` | Público | Ingreso técnico para personal autorizado. |
-| `/login` | Redirección | Alias de compatibilidad hacia `/acceso`. |
-| `/recuperar-acceso` | Público | Recuperación de acceso. |
-| `/cambiar-contrasena` | Protegido | Cambio de contraseña inicial. |
-| `/umbrales-estaciones` | Admin | Administración técnica de umbrales por estación. |
-| `/repositorio` | Admin | Repositorio de reportes y archivos generados. |
-| `/profile` | Admin | Gestión del perfil técnico. |
+| Ruta | Acceso | Guardia | Descripción |
+| --- | --- | --- | --- |
+| `/` | Público | — | Inicio: último sismo y estado de la red. |
+| `/sismos` | Público | — | Análisis de eventos sísmicos recientes. |
+| `/historial` | Público | — | Catálogo histórico de sismos con filtros. |
+| `/estaciones` | Público | — | Estado operativo de la red de estaciones. |
+| `/consultas` | Público | — | Acelerógrafos + RSN: tablas, mapas y gráficas. |
+| `/acceso` | Público | — | Ingreso técnico para personal autorizado. |
+| `/recuperar-acceso` | Público | — | Guía para recuperar acceso al sistema. |
+| `/cambiar-contrasena` | Público | — | Cambio de contraseña (flujo post-login). |
+| `/umbrales-estaciones` | Admin | `AdminGuard` | Configuración de umbrales por estación. |
+| `/repositorio` | Admin | `AdminGuard` | Reportes y archivos generados por el sistema. |
+| `/profile` | Admin | `AdminGuard` | Gestión del perfil y usuarios autorizados. |
+| `/login` | Redirección | — | Alias de compatibilidad → redirige a `/acceso`. |
 
 La definición está en [src/app/app.routes.ts](src/app/app.routes.ts). La ruta raíz carga `MainLayoutComponent`.
 
@@ -55,14 +57,16 @@ La definición está en [src/app/app.routes.ts](src/app/app.routes.ts). La ruta 
 
 Distribución por carpetas:
 
-- `src/app/pages/`: pantallas completas.
-- `src/app/components/`: piezas reutilizables.
-- `src/app/services/`: acceso a API y lógica compartida.
-- `src/app/guards/`: protección de rutas.
-- `src/app/interceptors/`: comportamiento transversal de HTTP.
-- `src/app/interfaces/`: contratos de datos.
-- `src/app/pipes/`: transformaciones de presentación.
-- `src/environments/`: configuración por entorno.
+| Carpeta | Propósito |
+|---|---|
+| `src/app/pages/` | Pantallas completas (lazy-loaded por ruta) |
+| `src/app/components/` | Piezas reutilizables entre páginas |
+| `src/app/services/` | Acceso a API y lógica de dominio compartida |
+| `src/app/guards/` | `AdminGuard` — protege rutas de administración |
+| `src/app/interceptors/` | `auth.interceptor.ts` — inyecta token JWT en cada petición |
+| `src/app/interfaces/` | DTOs TypeScript (`api.interfaces.ts`) |
+| `src/app/pipes/` | Transformaciones de presentación (`utc-local.pipe.ts`) |
+| `src/environments/` | `environment.ts` (dev) / `environment.prod.ts` (prod) |
 
 ## Normas de desarrollo
 
@@ -74,6 +78,7 @@ Distribución por carpetas:
 - Dejar `src/styles.css` como entrada global de Tailwind y de los tokens visuales.
 - `public/` se usa para activos estáticos servidos tal cual.
 - Validar cambios con `pnpm build` y `pnpm test --watch=false` antes de publicar.
+- Usar `AdminGuard` (no `AuthGuard`) para proteger rutas administrativas.
 - Si alternas entre Windows y WSL, reinstala `node_modules` en el mismo entorno donde vas a ejecutar Angular.
 
 ## Configuración
@@ -220,10 +225,37 @@ git push origin v1.2.3
 src/
   app/
     components/
+      button/
+      confirm-dialog/
+      estacion-form-modal/
+      footer/
+      header/
+      main-layout/
+      password-expiration-warning/
+      paginacion/
+      scatter-chart/
+      sismo-map/
+      magnitud-badge/
+      stat-card/
+      status-badge/
     guards/
+      admin.guard.ts
     interceptors/
+      auth.interceptor.ts
     interfaces/
+      api.interfaces.ts
     pages/
+      cambiar-contrasena/
+      consultas/
+      estaciones/
+      historial/
+      home/
+      login/
+      profile/
+      recuperar-acceso/
+      repositorio/
+      sismos/
+      umbrales-estaciones/
     pipes/
     services/
     app.config.ts
@@ -235,6 +267,9 @@ src/
   main.ts
   styles.css
 public/
+  Iconos/
+docs/
+  DESPLIEGUE.md
 ```
 
 ## Archivos clave

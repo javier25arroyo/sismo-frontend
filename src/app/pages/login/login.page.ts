@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ArrowLeft, ArrowRight, LucideAngularModule } from 'lucide-angular';
-import { ApiService } from '../../services/api.service';
+import { ApiService, ApiError } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { SolicitudLogin, RespuestaLogin } from '../../interfaces/api.interfaces';
@@ -43,6 +43,11 @@ export class LoginPage {
         await this.router.navigate(['/sismos']);
       }
     } catch (err) {
+      if (err instanceof ApiError && err.codigo === 'PASSWORD_EXPIRED') {
+        this.auth.setPendingUsername(username);
+        await this.router.navigate(['/cambiar-contrasena']);
+        return;
+      }
       this.error = (err as Error).message || 'Credenciales incorrectas. Intente de nuevo.';
     } finally {
       this.loading = false;

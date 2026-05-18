@@ -244,11 +244,11 @@
                   </div>
                   <div>
                     <dt class="text-[11px] uppercase tracking-wide text-slate-500">Aceleración</dt>
-                    <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }}</dd>
+                    <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }} cm/s²</dd>
                   </div>
                   <div>
                     <dt class="text-[11px] uppercase tracking-wide text-slate-500">Desplazamiento</dt>
-                    <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }}</dd>
+                    <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }} cm</dd>
                   </div>
                 </dl>
               </article>
@@ -289,10 +289,10 @@
                       {{ evento.coordenadaX | number:'1.3-3' }}
                     </td>
                     <td class="px-2 py-3.5 text-right font-bold" [style.color]="colorMagnitud(evento.magnitud)">
-                      {{ evento.magnitud | number:'1.1-1' }}
+                      {{ evento.magnitud | number:'1.1-1' }} <span class="text-[9px] font-normal text-slate-400">Mw</span>
                     </td>
                     <td class="px-2 py-3.5 text-right tabular-nums text-slate-600">
-                      {{ evento.profundidad | number:'1.0-0' }}
+                      {{ evento.profundidad | number:'1.0-0' }} <span class="text-[9px] text-slate-400">km</span>
                     </td>
                     <td class="px-2 py-3.5 text-right tabular-nums text-slate-500 text-[11px]">
                       {{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} <span class="text-[9px]">km</span>
@@ -306,10 +306,10 @@
                       </span>
                     </td>
                     <td class="px-2 py-3.5 text-right tabular-nums text-sky-700 font-medium">
-                      {{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }}
+                      {{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }} <span class="text-[9px] font-normal text-slate-400">cm/s²</span>
                     </td>
                     <td class="px-2 py-3.5 text-right tabular-nums text-sky-700 font-medium">
-                      {{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }}
+                      {{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }} <span class="text-[9px] font-normal text-slate-400">cm</span>
                     </td>
                   </tr>
                 }
@@ -503,10 +503,10 @@
                       {{ evento.coordenadaX | number:'1.3-3' }}
                     </td>
                     <td class="px-3 py-3.5 text-right font-bold" [style.color]="colorMagnitud(evento.magnitud)">
-                      {{ evento.magnitud | number:'1.1-1' }}
+                      {{ evento.magnitud | number:'1.1-1' }} <span class="text-[9px] font-normal text-slate-400">Mw</span>
                     </td>
                     <td class="px-3 py-3.5 text-right tabular-nums text-slate-600">
-                      {{ evento.profundidad | number:'1.0-0' }}
+                      {{ evento.profundidad | number:'1.0-0' }} <span class="text-[9px] text-slate-400">km</span>
                     </td>
                     <td class="px-3 py-3.5 text-right tabular-nums text-slate-500 text-[11px]">
                       {{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} <span class="text-[9px]">km</span>
