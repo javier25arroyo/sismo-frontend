@@ -460,6 +460,10 @@ export class UmbralesEstacionesPage implements OnInit {
     return parametro ? `${parametro.nomParametro} (${parametro.simboloUnidad})` : `Parámetro ${codParametro}`;
   }
 
+  parametroSimbolo(codParametro: number): string {
+    return this.parametros().find(p => p.codParametro === codParametro)?.simboloUnidad ?? '';
+  }
+
   umbralesParametro(codParametro: number): UmbralRespuesta[] {
     return this.umbralesPorParametro()[codParametro] ?? [];
   }

@@ -2,6 +2,17 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly codigo?: string,
+    public readonly data?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly baseUrl = environment.apiUrl;
@@ -47,13 +58,17 @@ export class ApiService {
   private async handleResponse<T>(res: Response): Promise<T> {
     if (!res.ok) {
       let mensaje = `${res.status} ${res.statusText}`;
+      let codigo: string | undefined;
+      let data: Record<string, unknown> | undefined;
       try {
         const body = await res.json();
+        data = body as Record<string, unknown>;
         mensaje = this.extractErrorMessage(body, mensaje);
+        codigo = typeof data['codigo'] === 'string' ? data['codigo'] : undefined;
       } catch {
         // ignore JSON parsing errors and keep the HTTP status text
       }
-      throw new Error(mensaje);
+      throw new ApiError(mensaje, codigo, data);
     }
     const text = await res.text();
     return text ? (JSON.parse(text) as T) : ({} as T);
@@ -113,7 +128,7 @@ export class ApiService {
         const body = await res.json();
         mensaje = this.extractErrorMessage(body, mensaje);
       } catch { /* ignore */ }
-      throw new Error(mensaje);
+      throw new ApiError(mensaje);
     }
     return { blob: await res.blob(), headers: res.headers };
   }
