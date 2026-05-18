@@ -301,7 +301,7 @@ export class SismosPage implements OnInit, OnDestroy {
   }
 
   get mapHeight(): string {
-    if (typeof window === 'undefined') return '420px';
-    return window.innerWidth < 640 ? '300px' : window.innerWidth < 1024 ? '420px' : '560px';
+    if (typeof window === 'undefined') return '480px';
+    return window.innerWidth < 640 ? '320px' : window.innerWidth < 1024 ? '480px' : '640px';
   }
 }

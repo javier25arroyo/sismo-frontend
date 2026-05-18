@@ -7,9 +7,6 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="relative w-full overflow-hidden border-y border-slate-200 bg-white" [style.height]="height()">
-      <div class="pointer-events-none absolute left-3 top-3 z-10 rounded-md bg-white/85 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 ring-1 ring-slate-200 backdrop-blur">
-        Señal en vivo
-      </div>
       <!-- Imagen estática -->
       <div 
         class="h-full w-full bg-no-repeat bg-contain bg-center"
