@@ -43,6 +43,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Si se debe mostrar la leyenda de criterios */
   showLegend = input<boolean>(true);
 
+  /** Si el mapa debe volar automáticamente al epicentro cuando cargue */
+  flyToEpicentro = input<boolean>(false);
+
   /** Sismo a marcar como epicentro destacado (anillo pulsante + crosshair) */
   epicentro = input<SismoUltimoRespuesta | null>(null);
 
@@ -133,10 +136,11 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
       zoomControl: true
     });
 
-    // Capa base de OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 18
+    // Capa base CartoDB Positron — más limpia y con mejor contraste para marcadores
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
     }).addTo(this.map);
 
     // Capa para los marcadores de sismos
@@ -161,15 +165,13 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.markersLayer.clearLayers();
 
     sismos.forEach(sismo => {
-      const style = this.getStyleForSismo(sismo);
-      
       const marker = L.circleMarker([sismo.coordenadaY, sismo.coordenadaX], {
-        radius: style.radius,
-        fillColor: style.color,
+        radius: 6,
+        fillColor: '#94a3b8',
         color: '#fff',
         weight: 2,
         opacity: 1,
-        fillOpacity: style.fillOpacity
+        fillOpacity: 0.7
       });
 
       const fechaFormateada = new Date(sismo.feSismo).toLocaleString('es-CR', {
@@ -255,7 +257,11 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
       popupAnchor: [0, -28]
     });
 
-    const marker = L.marker([s.coordenadaY, s.coordenadaX], { icon, zIndexOffset: 1000 });
+    const marker = L.marker([s.coordenadaY, s.coordenadaX], {
+      icon,
+      zIndexOffset: 1000,
+      title: `Epicentro — M ${s.magnitud.toFixed(1)} ${this.normalizarUbicacion(s.ubicacion)}`
+    });
     marker.bindPopup(`
       <div style="min-width:170px;">
         <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;
@@ -271,6 +277,10 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
       </div>
     `);
     marker.addTo(this.epicentroLayer);
+
+    if (this.flyToEpicentro()) {
+      this.map.flyTo([s.coordenadaY, s.coordenadaX], 9, { duration: 1.2 });
+    }
   }
 
   private addEstaciones(estaciones: EstacionRespuesta[]): void {
@@ -280,12 +290,17 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     estaciones.forEach(e => {
       const icon = L.divIcon({
         className: '',
-        html: `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,13 1,13" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 13],
-        tooltipAnchor: [0, -14]
+        html: `<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,3 22,21 2,21" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 21],
+        tooltipAnchor: [0, -18]
       });
-      const marker = L.marker([e.coordenadaY, e.coordenadaX], { icon, zIndexOffset: 500 });
+      const marker = L.marker([e.coordenadaY, e.coordenadaX], {
+        icon,
+        zIndexOffset: 500,
+        title: `Estación ${e.codEstacion} — ${e.nomEstacion}`,
+        interactive: false
+      });
       marker.bindTooltip(`<strong>${e.codEstacion}</strong><br>${e.nomEstacion}`, {
         direction: 'top',
         offset: [0, -8]
