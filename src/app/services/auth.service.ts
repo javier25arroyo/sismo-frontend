@@ -10,8 +10,18 @@ export class AuthService {
   private role: string | null = null;
 
   private readonly passwordExpiraDiasSig = signal<number | null>(this.leerDiasStorage());
+  private readonly pendingUsernameSig = signal<string | null>(null);
 
   readonly passwordExpiraDias = computed(() => this.passwordExpiraDiasSig());
+  readonly pendingUsername = computed(() => this.pendingUsernameSig());
+
+  setPendingUsername(username: string): void {
+    this.pendingUsernameSig.set(username);
+  }
+
+  clearPendingUsername(): void {
+    this.pendingUsernameSig.set(null);
+  }
 
   login(respuesta: RespuestaLogin): void {
     this.token = respuesta.token;

@@ -181,9 +181,15 @@
                   </td>
                   <td class="whitespace-nowrap px-2.5 py-4 text-right font-bold text-slate-900">
                     {{ alarma.limiteInferior !== null ? (alarma.limiteInferior | number:'1.0-6') : 'Sin definir' }}
+                    @if (alarma.limiteInferior !== null) {
+                      <span class="ml-0.5 text-[9px] font-normal text-slate-400">{{ parametroSimbolo(alarma.codParametro) }}</span>
+                    }
                   </td>
                   <td class="whitespace-nowrap px-2.5 py-4 text-right font-semibold text-slate-600">
                     {{ limiteGlobal !== null && limiteGlobal !== undefined ? (limiteGlobal | number:'1.0-6') : 'Sin definir' }}
+                    @if (limiteGlobal !== null && limiteGlobal !== undefined) {
+                      <span class="ml-0.5 text-[9px] font-normal text-slate-400">{{ parametroSimbolo(alarma.codParametro) }}</span>
+                    }
                   </td>
                   <td class="px-2.5 py-4">
                     <p class="max-w-[150px] truncate text-slate-600">{{ global?.mensaje || 'Sin mensaje global' }}</p>
