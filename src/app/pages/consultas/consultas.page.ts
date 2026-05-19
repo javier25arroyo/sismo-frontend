@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { ScatterChartComponent, ScatterDato } from '../../components/scatter-chart/scatter-chart.component';
@@ -9,6 +9,7 @@ import { HistorialRsnService } from '../../services/historial-rsn.service';
 import { CentroService } from '../../services/centro.service';
 import {
   CentroProduccionRespuesta,
+  EstacionRespuesta,
   HistorialSismoRespuesta,
   HistorialRsnRespuesta
 } from '../../interfaces/api.interfaces';
@@ -41,11 +42,13 @@ interface EventoAgregado {
   ],
   templateUrl: './consultas.page.html'
 })
-export class ConsultasPage {
+export class ConsultasPage implements OnInit {
   readonly downloadIcon = Download;
   readonly searchIcon   = Search;
 
   tab = signal<'acelerografos' | 'rsn'>('acelerografos');
+
+  estaciones = signal<EstacionRespuesta[]>([]);
 
   centros = signal<CentroProduccionRespuesta[]>([]);
   centrosCargados = signal(false);
@@ -82,6 +85,19 @@ export class ConsultasPage {
     private historialRsnService: HistorialRsnService,
     private centroService: CentroService
   ) {}
+
+  ngOnInit(): void {
+    void this.cargarEstaciones();
+  }
+
+  private async cargarEstaciones(): Promise<void> {
+    try {
+      const page = await this.centroService.getTodasEstaciones({ size: 500 });
+      this.estaciones.set(page.content);
+    } catch {
+      this.estaciones.set([]);
+    }
+  }
 
   async cargarCentrosSiNecesario(): Promise<void> {
     if (this.centrosCargados() || this.cargandoCentros()) return;
