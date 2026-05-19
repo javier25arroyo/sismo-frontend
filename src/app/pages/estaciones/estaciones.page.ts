@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatCardComponent } from '../../components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
-import { EstacionMiniMapComponent } from '../../components/estacion-mini-map/estacion-mini-map.component';
+import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { EstacionFormModalComponent } from '../../components/estacion-form-modal/estacion-form-modal.component';
 import {
   ActualizarEstacionSolicitud,
@@ -31,7 +31,7 @@ interface EstacionVista extends EstacionRespuesta {
     CommonModule,
     StatCardComponent,
     StatusBadgeComponent,
-    EstacionMiniMapComponent,
+    SismoMapComponent,
     EstacionFormModalComponent,
     RouterLink,
     LucideAngularModule,
