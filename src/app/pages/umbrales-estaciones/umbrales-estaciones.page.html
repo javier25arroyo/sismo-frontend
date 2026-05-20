@@ -40,38 +40,41 @@
     </div>
   </section>
 
-  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+  <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="filters-title">
     <div class="mb-4 flex items-center gap-2">
       <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
         <i-lucide [img]="filterIcon" size="16"></i-lucide>
       </span>
-      <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">Filtros</h2>
+      <h2 id="filters-title" class="text-sm font-bold uppercase tracking-widest text-slate-700">Filtros</h2>
     </div>
 
     <div class="grid gap-3 md:grid-cols-4">
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Centro</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-centro">Centro</label>
         <input type="text"
+          id="filtro-centro"
           [value]="filtroCentro()"
           (input)="setFiltroCentro($event)"
           (keydown.enter)="aplicarFiltros()"
           placeholder="Ej. CB"
           class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
-      </label>
+      </div>
 
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estación</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-estacion">Estación</label>
         <input type="text"
+          id="filtro-estacion"
           [value]="filtroEstacion()"
           (input)="setFiltroEstacion($event)"
           (keydown.enter)="aplicarFiltros()"
           placeholder="Ej. 01"
           class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
-      </label>
+      </div>
 
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Parámetro</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-parametro">Parámetro</label>
         <select
+          id="filtro-parametro"
           [value]="filtroParametro()"
           (change)="setFiltroParametro($event)"
           class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
@@ -80,11 +83,12 @@
             <option [value]="parametro.codParametro">{{ parametro.nomParametro }}</option>
           }
         </select>
-      </label>
+      </div>
 
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Nivel</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-umbral">Nivel</label>
         <select
+          id="filtro-umbral"
           [value]="filtroUmbral()"
           (change)="setFiltroUmbral($event)"
           [disabled]="!filtroParametro()"
@@ -94,7 +98,7 @@
             <option [value]="umbral.codUmbral">{{ umbral.codUmbral }}</option>
           }
         </select>
-      </label>
+      </div>
     </div>
 
     <div class="mt-4 flex flex-wrap gap-2">
@@ -150,13 +154,13 @@
           <table class="w-full border-collapse text-[11px] lg:text-xs xl:text-[13px]">
             <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
               <tr class="border-b border-slate-200">
-                <th class="px-2.5 py-4 text-left">Estación</th>
-                <th class="px-2.5 py-4 text-left">Parámetro</th>
-                <th class="px-2.5 py-4 text-left">Nivel</th>
-                <th class="px-2.5 py-4 text-right">Límite estación</th>
-                <th class="px-2.5 py-4 text-right">Límite global</th>
-                <th class="px-2.5 py-4 text-left">Mensaje</th>
-                <th class="px-2.5 py-4 text-right">Acciones</th>
+                <th scope="col" class="px-2.5 py-4 text-left">Estación</th>
+                <th scope="col" class="px-2.5 py-4 text-left">Parámetro</th>
+                <th scope="col" class="px-2.5 py-4 text-left">Nivel</th>
+                <th scope="col" class="px-2.5 py-4 text-right">Límite estación</th>
+                <th scope="col" class="px-2.5 py-4 text-right">Límite global</th>
+                <th scope="col" class="px-2.5 py-4 text-left">Mensaje</th>
+                <th scope="col" class="px-2.5 py-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
