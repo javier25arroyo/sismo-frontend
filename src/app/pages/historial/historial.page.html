@@ -1,13 +1,15 @@
 <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
 
   <!-- HERO -->
-  <section class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+  <header class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
     <div class="max-w-3xl">
-      <a routerLink="/" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-sky-700 transition hover:text-sky-800">
-        <i-lucide [img]="arrowLeftIcon" size="12" class="shrink-0"></i-lucide>
-        Volver al inicio
-      </a>
-      <p class="mt-3 text-xs font-bold uppercase tracking-widest text-sky-700">Catálogo histórico</p>
+      <nav aria-label="Navegación de retorno">
+        <a routerLink="/" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-sky-700 transition hover:text-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 rounded-lg px-1">
+          <i-lucide [img]="arrowLeftIcon" size="12" class="shrink-0" aria-hidden="true"></i-lucide>
+          Volver al inicio
+        </a>
+      </nav>
+      <p class="mt-3 text-xs font-bold uppercase tracking-widest text-sky-700" aria-hidden="true">Catálogo histórico</p>
       <h1 class="mt-2 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
         Historial de Eventos Sísmicos
       </h1>
@@ -18,20 +20,20 @@
 
     <div class="w-full max-w-xs rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Eventos visibles</p>
-      <div class="mt-3 flex items-end gap-2">
+      <div class="mt-3 flex items-end gap-2" aria-live="polite">
         <span class="text-4xl font-bold tabular-nums text-slate-900">{{ eventosFiltrados.length }}</span>
         <span class="mb-1 text-sm text-slate-500">de {{ totalElementos() }}</span>
       </div>
       <p class="mt-2 text-xs text-slate-500">Página {{ pagina() }} de {{ totalPaginas() }}</p>
     </div>
-  </section>
+  </header>
 
   <!-- FILTERS -->
-  <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <section class="rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="filters-title">
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
       <div class="flex items-center gap-2">
-        <i-lucide [img]="filterIcon" size="14" class="text-slate-500"></i-lucide>
-        <p class="text-sm font-semibold text-slate-900">Filtros</p>
+        <i-lucide [img]="filterIcon" size="14" class="text-slate-500" aria-hidden="true"></i-lucide>
+        <h2 id="filters-title" class="text-sm font-semibold text-slate-900">Filtros</h2>
       </div>
       <span *ngIf="filtrosActivos > 0"
         class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
@@ -42,47 +44,55 @@
     <div class="space-y-5 px-5 py-5 sm:px-6">
       <div class="grid gap-5 lg:grid-cols-3">
         <article class="space-y-3">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Fecha</p>
-          <div class="flex flex-wrap gap-2">
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Fecha</h3>
+          <div class="flex flex-wrap gap-2" role="group" aria-label="Rangos de fecha rápidos">
             @for (rango of rangosRapidos; track rango.value) {
               <button
                 type="button"
                 (click)="setRangoRapido(rango.value)"
+                [attr.aria-pressed]="esRangoRapidoActivo(rango.value)"
                 [class]="esRangoRapidoActivo(rango.value)
                   ? 'border-sky-600 bg-sky-600 text-white'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-700'"
-                class="h-8 rounded-lg border px-3 text-xs font-medium transition">
+                class="h-8 rounded-lg border px-3 text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {{ rango.label }}
               </button>
             }
           </div>
           <div class="grid gap-2.5 sm:grid-cols-2">
-            <input
-              type="date"
-              [ngModel]="desdeDraft()"
-              (ngModelChange)="desdeDraft.set($event)"
-              aria-label="Fecha desde"
-              class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100" />
-            <input
-              type="date"
-              [ngModel]="hastaDraft()"
-              (ngModelChange)="hastaDraft.set($event)"
-              aria-label="Fecha hasta"
-              class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100" />
+            <div class="space-y-1">
+              <label for="fecha-desde" class="sr-only">Fecha desde</label>
+              <input
+                id="fecha-desde"
+                type="date"
+                [ngModel]="desdeDraft()"
+                (ngModelChange)="desdeDraft.set($event)"
+                class="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100" />
+            </div>
+            <div class="space-y-1">
+              <label for="fecha-hasta" class="sr-only">Fecha hasta</label>
+              <input
+                id="fecha-hasta"
+                type="date"
+                [ngModel]="hastaDraft()"
+                (ngModelChange)="hastaDraft.set($event)"
+                class="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100" />
+            </div>
           </div>
         </article>
 
         <article class="space-y-3">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Zona</p>
-          <div class="grid gap-2 sm:grid-cols-2">
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Zona</h3>
+          <div class="grid gap-2 sm:grid-cols-2" role="group" aria-label="Filtro por zona geográfica">
             @for (zona of zonasFiltro; track zona.value) {
               <button
                 type="button"
                 (click)="localizacionDraft.set(zona.value)"
+                [attr.aria-pressed]="localizacionDraft() === zona.value"
                 [class]="localizacionDraft() === zona.value
                   ? 'border-sky-600 bg-sky-600 text-white'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-700'"
-                class="h-9 rounded-lg border px-3 text-left text-xs font-medium transition">
+                class="h-9 rounded-lg border px-3 text-left text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {{ zona.label }}
               </button>
             }
@@ -90,18 +100,19 @@
         </article>
 
         <article class="space-y-3">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Percepción</p>
-          <div class="grid gap-2">
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Percepción</h3>
+          <div class="grid gap-2" role="group" aria-label="Filtro por percepción del sismo">
             @for (opcion of sentidoOpciones; track opcion.value) {
               <button
                 type="button"
                 (click)="filtroSentidoDraft.set(opcion.value)"
+                [attr.aria-pressed]="filtroSentidoDraft() === opcion.value"
                 [class]="filtroSentidoDraft() === opcion.value
                   ? opcion.value === 'sentido'
                     ? 'border-green-600 bg-green-600 text-white'
                     : 'border-sky-600 bg-sky-600 text-white'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-700'"
-                class="h-9 rounded-lg border px-3 text-left text-xs font-medium transition">
+                class="h-9 rounded-lg border px-3 text-left text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {{ opcion.label }}
               </button>
             }
@@ -110,15 +121,15 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-        <p class="text-xs text-slate-500">
+        <p class="text-xs text-slate-500" aria-live="polite">
           {{ hayCambiosPendientes ? 'Hay cambios pendientes por aplicar.' : 'Sin cambios pendientes.' }}
         </p>
         <div class="flex items-center gap-2">
           <button
             type="button"
             (click)="limpiarFiltros()"
-            class="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:text-rose-600">
-            Limpiar
+            class="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500">
+            Limpiar filtros
           </button>
           <button
             type="button"
@@ -127,9 +138,9 @@
             [class]="hayCambiosPendientes
               ? 'bg-sky-600 text-white hover:bg-sky-700'
               : 'cursor-not-allowed bg-slate-200 text-slate-500'"
-            class="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold transition">
-            <i-lucide [img]="checkIcon" size="13" class="shrink-0"></i-lucide>
-            Aplicar
+            class="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <i-lucide [img]="checkIcon" size="13" class="shrink-0" aria-hidden="true"></i-lucide>
+            Aplicar filtros
           </button>
         </div>
       </div>
@@ -140,13 +151,13 @@
   <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
 
     <!-- EVENT LIST -->
-    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="event-list-title">
       <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Eventos listados</h2>
-          <p class="mt-1 text-xs text-slate-500">Vista compacta en lista, similar al diseño original del historial.</p>
+          <h2 id="event-list-title" class="text-lg font-bold text-slate-900">Eventos listados</h2>
+          <p class="mt-1 text-xs text-slate-500">Vista compacta en lista de los últimos registros acelerográficos.</p>
         </div>
-        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600" aria-live="polite">
           {{ eventosFiltrados.length }} visibles
         </span>
       </div>

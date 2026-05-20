@@ -166,12 +166,13 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     sismos.forEach(sismo => {
       const marker = L.circleMarker([sismo.coordenadaY, sismo.coordenadaX], {
-        radius: 6,
+        radius: 8,
         fillColor: '#94a3b8',
         color: '#fff',
         weight: 2,
         opacity: 1,
-        fillOpacity: 0.7
+        fillOpacity: 0.7,
+        interactive: false
       });
 
       const fechaFormateada = new Date(sismo.feSismo).toLocaleString('es-CR', {
@@ -290,16 +291,17 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     estaciones.forEach(e => {
       const icon = L.divIcon({
         className: '',
-        html: `<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,3 22,21 2,21" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 21],
-        tooltipAnchor: [0, -18]
+        html: `<svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,3 22,21 2,21" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 24],
+        tooltipAnchor: [0, -20]
       });
       const marker = L.marker([e.coordenadaY, e.coordenadaX], {
         icon,
         zIndexOffset: 500,
         title: `Estación ${e.codEstacion} — ${e.nomEstacion}`,
-        interactive: false
+        interactive: true,
+        keyboard: true
       });
       marker.bindTooltip(`<strong>${e.codEstacion}</strong><br>${e.nomEstacion}`, {
         direction: 'top',
