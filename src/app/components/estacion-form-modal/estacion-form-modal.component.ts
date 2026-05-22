@@ -1,4 +1,4 @@
-import { Component, effect, input, output } from '@angular/core';
+import { Component, effect, input, output, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CrearEstacionSolicitud, ActualizarEstacionSolicitud, EstadoEstacion } from '../../interfaces/api.interfaces';
@@ -61,6 +61,8 @@ function formVacio(): FormEstacion {
   templateUrl: './estacion-form-modal.component.html',
 })
 export class EstacionFormModalComponent {
+  private readonly el = inject(ElementRef<HTMLElement>);
+
   visible = input<boolean>(false);
   mode    = input<'create' | 'edit'>('create');
   datos   = input<DatosEstacion | null>(null);
@@ -90,8 +92,15 @@ export class EstacionFormModalComponent {
           base.modInst      = d.modInst      ?? '';
           base.estado       = d.estado       ?? 'ACTIVA';
         }
-        this.formData       = { ...base };
+        this.formData        = { ...base };
         this.mostrarAvanzado = false;
+
+        // Mover foco al primer campo interactivo del modal
+        setTimeout(() => {
+          const selector = 'input:not([disabled]), select:not([disabled]), button:not([disabled])';
+          const first = this.el.nativeElement.querySelector<HTMLElement>(selector);
+          first?.focus();
+        }, 50);
       }
     });
   }

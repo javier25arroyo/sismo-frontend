@@ -1,7 +1,37 @@
-<div class="sismo-map-container w-full h-full rounded-lg overflow-hidden">
+<div class="sismo-map-container w-full h-full rounded-lg overflow-hidden"
+     role="img"
+     [attr.aria-label]="ariaLabel()">
   <div
     #mapContainer
     class="w-full h-full"
     [style.minHeight]="height()"
+    aria-hidden="true"
   ></div>
+
+  <!-- Alternativa textual para screen readers -->
+  @if (estaciones().length > 0) {
+    <table class="sr-only">
+      <caption>Red sísmica — listado de estaciones en el mapa</caption>
+      <thead>
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">Latitud</th>
+          <th scope="col">Longitud</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (e of estaciones(); track e.codEstacion) {
+          <tr>
+            <td>{{ e.codEstacion }}</td>
+            <td>{{ e.nomEstacion }}</td>
+            <td>{{ e.coordenadaY }}</td>
+            <td>{{ e.coordenadaX }}</td>
+            <td>{{ e.estado }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
 </div>
