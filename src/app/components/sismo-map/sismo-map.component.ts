@@ -1,6 +1,7 @@
 import {
   Component,
   input,
+  computed,
   OnInit,
   OnDestroy,
   ElementRef,
@@ -51,6 +52,24 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Estaciones sísmicas a mostrar en el mapa */
   estaciones = input<EstacionRespuesta[]>([]);
+
+  readonly ariaLabel = computed(() => {
+    const epicentro  = this.epicentro();
+    const sismos     = this.sismos();
+    const estaciones = this.estaciones();
+
+    if (epicentro) {
+      const ubicacion = epicentro.ubicacion ?? 'Costa Rica';
+      return `Mapa sísmico. Epicentro: magnitud ${epicentro.magnitud.toFixed(1)}, ${ubicacion}, profundidad ${epicentro.profundidad} km`;
+    }
+    if (sismos.length > 0) {
+      return `Mapa sísmico con ${sismos.length} evento${sismos.length !== 1 ? 's' : ''}`;
+    }
+    if (estaciones.length > 0) {
+      return `Mapa de red sísmica con ${estaciones.length} estación${estaciones.length !== 1 ? 'es' : ''}`;
+    }
+    return 'Mapa sísmico sin datos';
+  });
 
   private map!: L.Map;
   private markersLayer!: L.LayerGroup;

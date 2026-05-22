@@ -210,6 +210,9 @@
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
             <div class="relative">
               <button type="button" (click)="toggleDropdown()" [disabled]="cambiandoEstado()"
+                [attr.aria-expanded]="mostrarDropdown()"
+                aria-haspopup="listbox"
+                aria-label="Cambiar estado operativo de la estación"
                 class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 outline-none transition hover:border-sky-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50">
                 <div class="flex items-center gap-2">
                   <span class="h-2 w-2 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
