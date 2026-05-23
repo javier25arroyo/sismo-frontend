@@ -11,9 +11,11 @@
     <button
       role="tab"
       [attr.aria-selected]="tab() === 'acelerografos'"
+      [attr.tabindex]="tab() === 'acelerografos' ? 0 : -1"
       aria-controls="panel-acelerografos"
       id="tab-acelerografos"
       (click)="setTab('acelerografos')"
+      (keydown)="onTabKeydown($event, 'acelerografos')"
       [class.bg-white]="tab() === 'acelerografos'"
       [class.text-primary]="tab() === 'acelerografos'"
       [class.shadow-sm]="tab() === 'acelerografos'"
@@ -24,9 +26,11 @@
     <button
       role="tab"
       [attr.aria-selected]="tab() === 'rsn'"
+      [attr.tabindex]="tab() === 'rsn' ? 0 : -1"
       aria-controls="panel-rsn"
       id="tab-rsn"
       (click)="setTab('rsn')"
+      (keydown)="onTabKeydown($event, 'rsn')"
       [class.bg-white]="tab() === 'rsn'"
       [class.text-primary]="tab() === 'rsn'"
       [class.shadow-sm]="tab() === 'rsn'"
