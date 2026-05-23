@@ -139,7 +139,7 @@
       @if (cargando()) {
         <div class="space-y-3 p-5">
           @for (i of [1,2,3,4,5,6]; track i) {
-            <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
+            <div class="h-16 rounded-xl bg-slate-100 skeleton-shimmer"></div>
           }
         </div>
       } @else if (alarmasPagina().length === 0) {

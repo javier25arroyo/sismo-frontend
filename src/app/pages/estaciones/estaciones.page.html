@@ -36,7 +36,7 @@
       </div>
 
       <div *ngIf="cargando()" class="p-6 space-y-3">
-        <div *ngFor="let i of [1,2,3,4,5]" class="h-12 rounded-xl bg-slate-100 animate-pulse"></div>
+        <div *ngFor="let i of [1,2,3,4,5]" class="h-12 rounded-xl bg-slate-100 skeleton-shimmer"></div>
       </div>
 
       <div *ngIf="!cargando()" class="overflow-x-auto">
@@ -170,7 +170,7 @@
             </div>
 
             <div *ngIf="cargandoAlarmas()" class="space-y-2">
-              <div *ngFor="let i of [1,2,3]" class="h-14 rounded-xl bg-slate-100 animate-pulse"></div>
+              <div *ngFor="let i of [1,2,3]" class="h-14 rounded-xl bg-slate-100 skeleton-shimmer"></div>
             </div>
 
             <div *ngIf="!cargandoAlarmas() && alarmasEstacion().length > 0" class="divide-y divide-slate-100 rounded-xl border border-slate-200">
