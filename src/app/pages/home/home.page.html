@@ -3,10 +3,13 @@
   <!-- HERO -->
   <section class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 py-4">
     <div class="animate-in fade-in slide-in-from-left duration-700">
-      <h1 class="mt-6 text-3xl font-bold leading-tight tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
-        MONITOREO ACELERÓGRAFICO-<br>
-        <span class="text-primary">MOVIMIENTO SÍSMICO FUERTE.</span>
+      <h1 class="mt-6 text-5xl font-black leading-none tracking-tighter text-text-primary sm:text-6xl lg:text-7xl">
+        Monitoreo
+        <span class="text-primary">Acelerográfico.</span>
       </h1>
+      <p class="mt-4 max-w-lg text-sm leading-relaxed text-slate-500 sm:text-base">
+        Plataforma de monitoreo sísmico en tiempo real de la Red Acelerográfica Nacional del ICE.
+      </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="https://rsn.ucr.ac.cr/index.php/actividad-sismica/ultimos-sismos" target="_blank" rel="noopener noreferrer"
           class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition-colors hover:brightness-110 active:scale-95">
@@ -25,6 +28,22 @@
     </div>
   </section>
 
+  <!-- STATS STRIP -->
+  <div class="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white/60 shadow-sm backdrop-blur-sm">
+    <div class="px-4 py-4 text-center sm:px-6">
+      <p class="text-2xl font-black text-slate-900 sm:text-3xl">+30</p>
+      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">Estaciones</p>
+    </div>
+    <div class="px-4 py-4 text-center sm:px-6">
+      <p class="text-2xl font-black text-slate-900 sm:text-3xl">24/7</p>
+      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">Monitoreo</p>
+    </div>
+    <div class="px-4 py-4 text-center sm:px-6">
+      <p class="text-2xl font-black text-slate-900 sm:text-3xl">CR</p>
+      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">Cobertura</p>
+    </div>
+  </div>
+
   @defer (on idle) {
     <!-- ÚLTIMO EVENTO SIGNIFICATIVO -->
     <section>
@@ -38,7 +57,7 @@
         </a>
       </div>
 
-      <div *ngIf="cargando()" class="rounded-2xl bg-slate-100 h-40 animate-pulse"></div>
+      <div *ngIf="cargando()" class="rounded-2xl bg-slate-100 h-40 skeleton-shimmer"></div>
 
       <div *ngIf="!cargando() && ultimoSismo()" class="rounded-2xl bg-slate-900 text-white overflow-hidden shadow-xl">
         <div class="grid gap-0 lg:grid-cols-[auto_1fr_auto]">
@@ -91,7 +110,7 @@
     <!-- FEATURE CARDS -->
     <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <a routerLink="/historial"
-        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:border-sky-200 hover:shadow-md">
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-sky-200 hover:shadow-lg">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
           <i-lucide [img]="historyIcon" size="24" class="text-sky-600" aria-hidden="true"></i-lucide>
         </div>
@@ -106,7 +125,7 @@
       </a>
 
       <a routerLink="/estaciones"
-        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:border-green-200 hover:shadow-md">
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-lg">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
           <i-lucide [img]="networkIcon" size="24" class="text-green-600" aria-hidden="true"></i-lucide>
         </div>
@@ -121,7 +140,7 @@
       </a>
 
       <a routerLink="/repositorio"
-        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:border-sky-200 hover:shadow-md">
+        class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-sky-200 hover:shadow-lg">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50">
           <i-lucide [img]="repositoryIcon" size="24" class="text-sky-600" aria-hidden="true"></i-lucide>
         </div>
@@ -136,8 +155,8 @@
       </a>
     </section>
   } @placeholder {
-    <div class="h-40 rounded-2xl bg-slate-100 animate-pulse"></div>
-    <div class="h-48 rounded-2xl bg-slate-100 animate-pulse"></div>
+    <div class="h-40 rounded-2xl bg-slate-100 skeleton-shimmer"></div>
+    <div class="h-48 rounded-2xl bg-slate-100 skeleton-shimmer"></div>
   }
 
 </div>
