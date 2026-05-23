@@ -1,7 +1,6 @@
 import {
   Component,
   input,
-  computed,
   ChangeDetectionStrategy,
   AfterViewInit,
   OnDestroy,

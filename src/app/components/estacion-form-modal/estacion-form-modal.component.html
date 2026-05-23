@@ -1,11 +1,10 @@
-<div *ngIf="visible()" class="fixed inset-0 z-[1000] overflow-y-auto bg-black/50 backdrop-blur-sm" (click)="onCancel()" aria-hidden="false">
-  <div class="flex min-h-full items-start justify-center p-4 pt-10 pb-10">
+<div *ngIf="visible()" class="fixed inset-0 z-[1000] overflow-y-auto" aria-hidden="false">
+  <button type="button" class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-label="Cerrar modal de estación" (click)="onCancel()"></button>
+  <div class="relative flex min-h-full items-start justify-center p-4 pt-10 pb-10">
     <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl"
          role="dialog"
          aria-modal="true"
-         aria-labelledby="modal-estacion-titulo"
-         (click)="$event.stopPropagation()">
-
+         aria-labelledby="modal-estacion-titulo">
       <!-- Header -->
       <div class="flex items-center justify-between rounded-t-2xl border-b border-slate-100 px-6 py-4">
         <div>

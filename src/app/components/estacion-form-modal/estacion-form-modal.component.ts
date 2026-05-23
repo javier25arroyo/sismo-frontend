@@ -1,4 +1,4 @@
-import { Component, effect, input, output, ElementRef, inject } from '@angular/core';
+import { Component, afterNextRender, effect, input, output, ElementRef, inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CrearEstacionSolicitud, ActualizarEstacionSolicitud, EstadoEstacion } from '../../interfaces/api.interfaces';
@@ -63,6 +63,7 @@ function formVacio(): FormEstacion {
 export class EstacionFormModalComponent {
   private readonly el: ElementRef<HTMLElement> = inject(ElementRef);
 
+  private readonly injector = inject(Injector);
   visible = input<boolean>(false);
   mode    = input<'create' | 'edit'>('create');
   datos   = input<DatosEstacion | null>(null);
@@ -95,14 +96,15 @@ export class EstacionFormModalComponent {
         this.formData        = { ...base };
         this.mostrarAvanzado = false;
 
-        // Mover foco al primer campo interactivo del modal
-        setTimeout(() => {
-          const selector = 'input:not([disabled]), select:not([disabled]), button:not([disabled])';
-          const first = this.el.nativeElement.querySelector<HTMLElement>(selector);
-          first?.focus();
-        }, 50);
+        afterNextRender(() => this.focusPrimerCampo(), { injector: this.injector });
       }
     });
+  }
+
+  private focusPrimerCampo(): void {
+    const selector = 'input:not([disabled]), select:not([disabled]), button:not([disabled])';
+    const first = this.el.nativeElement.querySelector<HTMLElement>(selector);
+    first?.focus();
   }
 
   private num(v: string): number | undefined { return v !== '' ? parseFloat(v)    : undefined; }
