@@ -330,7 +330,7 @@ export class RepositorioPage implements OnInit, OnDestroy {
 
   formatFecha(fecha: string): string {
     try {
-      const utc = /[Z+\-]\d*$/.test(fecha.trim()) ? fecha : fecha + 'Z';
+      const utc = /[Z+-]\d*$/.test(fecha.trim()) ? fecha : fecha + 'Z';
       return new Date(utc).toLocaleDateString('es-CR', { day: '2-digit', month: 'short', year: 'numeric' });
     } catch { return fecha; }
   }

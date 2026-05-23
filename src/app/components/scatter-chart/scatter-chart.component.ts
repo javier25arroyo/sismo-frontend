@@ -1,7 +1,6 @@
 import {
   Component,
   input,
-  computed,
   ChangeDetectionStrategy,
   AfterViewInit,
   OnDestroy,
@@ -31,9 +30,16 @@ export interface ScatterDato {
   selector: 'app-scatter-chart',
   template: `
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-600">{{ titulo() }}</p>
-      <div class="min-h-48">
-        <canvas #canvas></canvas>
+      <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-600" id="chart-title-{{ uniqueId }}">{{ titulo() }}</p>
+      <div class="min-h-48 relative">
+        <canvas #canvas
+          role="img"
+          [attr.aria-label]="'Gráfico de dispersión: ' + titulo() + '. Eje X: ' + tituloX() + ', Eje Y: ' + tituloY()"
+          [attr.aria-describedby]="'chart-desc-' + uniqueId">
+        </canvas>
+        <div [id]="'chart-desc-' + uniqueId" class="sr-only">
+          Este gráfico muestra la relación entre {{ tituloX() }} y {{ tituloY() }} para {{ datos().length }} eventos sísmicos.
+        </div>
       </div>
     </div>
   `,
@@ -47,6 +53,8 @@ export class ScatterChartComponent implements AfterViewInit, OnDestroy {
   tituloY = input<string>('Y');
   titulo = input<string>('');
   colorPunto = input<string>('#22c55e');
+
+  protected readonly uniqueId = Math.random().toString(36).substring(2, 9);
 
   private chart: Chart | null = null;
   private isInitialized = false;

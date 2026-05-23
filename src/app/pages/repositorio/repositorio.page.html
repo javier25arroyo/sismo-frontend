@@ -96,19 +96,19 @@
       @if (mostrarFiltros()) {
         <div class="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-3">
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Autor</label>
-            <input type="text" placeholder="Nombre del autor"
+            <label for="repo-filtro-autor" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Autor</label>
+            <input id="repo-filtro-autor" type="text" placeholder="Nombre del autor"
               [value]="filtroAutor()" (input)="filtroAutor.set($any($event.target).value)"
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
-            <input type="date" [value]="filtroDesde()" (input)="filtroDesde.set($any($event.target).value)"
+            <label for="repo-filtro-desde" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
+            <input id="repo-filtro-desde" type="date" [value]="filtroDesde()" (input)="filtroDesde.set($any($event.target).value)"
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
-            <input type="date" [value]="filtroHasta()" (input)="filtroHasta.set($any($event.target).value)"
+            <label for="repo-filtro-hasta" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
+            <input id="repo-filtro-hasta" type="date" [value]="filtroHasta()" (input)="filtroHasta.set($any($event.target).value)"
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
           </div>
         </div>
@@ -606,17 +606,17 @@
           </p>
           <div class="grid grid-cols-2 gap-2">
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <label for="csv-sismo-desde" class="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Desde <span class="text-rose-600">*</span>
               </label>
-              <input type="date" required [value]="csvSismoDesde()" (input)="csvSismoDesde.set($any($event.target).value)"
+              <input id="csv-sismo-desde" type="date" required [value]="csvSismoDesde()" (input)="csvSismoDesde.set($any($event.target).value)"
                 class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
             </div>
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <label for="csv-sismo-hasta" class="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Hasta <span class="text-rose-600">*</span>
               </label>
-              <input type="date" required [value]="csvSismoHasta()" (input)="csvSismoHasta.set($any($event.target).value)"
+              <input id="csv-sismo-hasta" type="date" required [value]="csvSismoHasta()" (input)="csvSismoHasta.set($any($event.target).value)"
                 class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
             </div>
           </div>
@@ -690,13 +690,13 @@
         <div class="mb-4 space-y-3">
           <div class="grid grid-cols-2 gap-2">
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
-              <input type="date" [value]="csvHistDesde()" (input)="csvHistDesde.set($any($event.target).value)"
+              <label for="csv-hist-desde" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Desde</label>
+              <input id="csv-hist-desde" type="date" [value]="csvHistDesde()" (input)="csvHistDesde.set($any($event.target).value)"
                 class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
             </div>
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
-              <input type="date" [value]="csvHistHasta()" (input)="csvHistHasta.set($any($event.target).value)"
+              <label for="csv-hist-hasta" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hasta</label>
+              <input id="csv-hist-hasta" type="date" [value]="csvHistHasta()" (input)="csvHistHasta.set($any($event.target).value)"
                 class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
             </div>
           </div>
@@ -780,5 +780,5 @@
   confirmText="Sí, cancelar"
   cancelText="No"
   (confirm)="confirmarCancelar()"
-  (cancel)="cancelarDialogId.set(null)"
+  (cancelado)="cancelarDialogId.set(null)"
 />

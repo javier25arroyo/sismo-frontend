@@ -64,7 +64,7 @@ export class HistorialPage implements OnInit {
   readonly mapPinIcon       = MapPin;
   readonly filterIcon       = SlidersHorizontal;
 
-  readonly rangosRapidos: ReadonlyArray<{ value: RangoRapido; label: string }> = [
+  readonly rangosRapidos: readonly { value: RangoRapido; label: string }[] = [
     { value: 'hoy', label: 'Hoy' },
     { value: '7d', label: '7 días' },
     { value: '30d', label: '30 días' },
@@ -72,7 +72,7 @@ export class HistorialPage implements OnInit {
     { value: 'anio', label: 'Este año' }
   ];
 
-  readonly zonasFiltro: ReadonlyArray<{ value: FiltroLocalizacion; label: string }> = [
+  readonly zonasFiltro: readonly { value: FiltroLocalizacion; label: string }[] = [
     { value: '', label: 'Todo el territorio' },
     { value: 'valle_central', label: 'Central' },
     { value: 'zona_atlantica', label: 'Huetar Atlántica' },
@@ -80,7 +80,7 @@ export class HistorialPage implements OnInit {
     { value: 'zona_sur', label: 'Zona Sur' }
   ];
 
-  readonly sentidoOpciones: ReadonlyArray<{ value: FiltroSentido; label: string }> = [
+  readonly sentidoOpciones: readonly { value: FiltroSentido; label: string }[] = [
     { value: '', label: 'Todos' },
     { value: 'sentido', label: 'Sentidos' },
     { value: 'no_sentido', label: 'No sentidos' }
@@ -206,17 +206,17 @@ export class HistorialPage implements OnInit {
   private async cargarTodosLosEventos(): Promise<SismoRespuesta[]> {
     const acumulados: SismoRespuesta[] = [];
     let page = 0;
-    let totalPages = 1;
 
-    do {
+    while (true) {
       const res = await this.sismoService.listarSismos({
         page,
         size: this.fetchPageSize,
       });
       acumulados.push(...res.content);
-      totalPages = res.totalPages || 1;
       page += 1;
-    } while (page < totalPages);
+
+      if (page >= (res.totalPages || 1)) break;
+    }
 
     return acumulados;
   }
