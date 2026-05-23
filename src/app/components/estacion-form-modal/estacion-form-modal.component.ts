@@ -102,7 +102,11 @@ export class EstacionFormModalComponent {
   }
 
   private focusPrimerCampo(): void {
-    const selector = 'input:not([disabled]), select:not([disabled]), button:not([disabled])';
+    const selector = [
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])'
+    ].join(', ');
     const first = this.el.nativeElement.querySelector<HTMLElement>(selector);
     first?.focus();
   }
