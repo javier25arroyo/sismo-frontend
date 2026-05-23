@@ -9,7 +9,7 @@
         <ol class="flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-300">
           <li class="flex items-center gap-2">
             <a routerLink="/" class="transition-colors hover:text-white">Centro</a>
-            <svg class="h-2.5 w-2.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <svg class="h-2.5 w-2.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
           </li>
@@ -44,7 +44,7 @@
   <section class="rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="filters-title">
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
       <div class="flex items-center gap-2">
-        <i-lucide [img]="filterIcon" size="14" class="text-slate-500" aria-hidden="true"></i-lucide>
+        <i-lucide [img]="filterIcon" size="14" class="text-slate-600" aria-hidden="true"></i-lucide>
         <h2 id="filters-title" class="text-sm font-semibold text-slate-900">Filtros</h2>
       </div>
       <span *ngIf="filtrosActivos > 0"
@@ -56,7 +56,7 @@
     <div class="space-y-5 px-5 py-5 sm:px-6">
       <div class="grid gap-5 lg:grid-cols-3">
         <article class="space-y-3">
-          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Fecha</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-600">Fecha</h3>
           <div class="flex flex-wrap gap-2" role="group" aria-label="Rangos de fecha rápidos">
             @for (rango of rangosRapidos; track rango.value) {
               <button
@@ -64,7 +64,7 @@
                 (click)="setRangoRapido(rango.value)"
                 [attr.aria-pressed]="esRangoRapidoActivo(rango.value)"
                 [class]="esRangoRapidoActivo(rango.value)
-                  ? 'border-sky-600 bg-sky-600 text-white'
+                  ? 'border-sky-700 bg-sky-700 text-white'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-700'"
                 class="h-8 rounded-lg border px-3 text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {{ rango.label }}
@@ -94,7 +94,7 @@
         </article>
 
         <article class="space-y-3">
-          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Zona</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-600">Zona</h3>
           <div class="grid gap-2 sm:grid-cols-2" role="group" aria-label="Filtro por zona geográfica">
             @for (zona of zonasFiltro; track zona.value) {
               <button
@@ -102,7 +102,7 @@
                 (click)="localizacionDraft.set(zona.value)"
                 [attr.aria-pressed]="localizacionDraft() === zona.value"
                 [class]="localizacionDraft() === zona.value
-                  ? 'border-sky-600 bg-sky-600 text-white'
+                  ? 'border-sky-700 bg-sky-700 text-white'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-700'"
                 class="h-9 rounded-lg border px-3 text-left text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {{ zona.label }}
@@ -112,7 +112,7 @@
         </article>
 
         <article class="space-y-3">
-          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Percepción</h3>
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-600">Percepción</h3>
           <div class="grid gap-2" role="group" aria-label="Filtro por percepción del sismo">
             @for (opcion of sentidoOpciones; track opcion.value) {
               <button
@@ -121,8 +121,8 @@
                 [attr.aria-pressed]="filtroSentidoDraft() === opcion.value"
                 [class]="filtroSentidoDraft() === opcion.value
                   ? opcion.value === 'sentido'
-                    ? 'border-green-600 bg-green-600 text-white'
-                    : 'border-sky-600 bg-sky-600 text-white'
+                    ? 'border-green-700 bg-green-700 text-white'
+                    : 'border-sky-700 bg-sky-700 text-white'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:text-sky-700'"
                 class="h-9 rounded-lg border px-3 text-left text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500">
                 {{ opcion.label }}
@@ -133,7 +133,7 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-        <p class="text-xs text-slate-500" aria-live="polite">
+        <p class="text-xs text-slate-600" aria-live="polite">
           {{ hayCambiosPendientes ? 'Hay cambios pendientes por aplicar.' : 'Sin cambios pendientes.' }}
         </p>
         <div class="flex items-center gap-2">
@@ -148,8 +148,8 @@
             (click)="aplicarFiltros()"
             [disabled]="!hayCambiosPendientes"
             [class]="hayCambiosPendientes
-              ? 'bg-sky-600 text-white hover:bg-sky-700'
-              : 'cursor-not-allowed bg-slate-200 text-slate-500'"
+              ? 'bg-sky-700 text-white hover:bg-sky-800'
+              : 'cursor-not-allowed bg-slate-200 text-slate-600'"
             class="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-sky-500">
             <i-lucide [img]="checkIcon" size="13" class="shrink-0" aria-hidden="true"></i-lucide>
             Aplicar filtros
@@ -167,7 +167,7 @@
       <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
         <div>
           <h2 id="event-list-title" class="text-lg font-bold text-slate-900">Eventos listados</h2>
-          <p class="mt-1 text-xs text-slate-500">Vista compacta en lista de los últimos registros acelerográficos.</p>
+          <p class="mt-1 text-xs text-slate-600">Vista compacta en lista de los últimos registros acelerográficos.</p>
         </div>
         <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600" aria-live="polite">
           {{ eventosFiltrados.length }} visibles
@@ -202,7 +202,7 @@
                   <span *ngIf="first" class="rounded-full bg-sky-100 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-sky-700">
                     Último
                   </span>
-                  <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                  <span class="text-xs font-semibold uppercase tracking-widest text-slate-600">
                     {{ e.feSismo | utcLocal:'dd MMM yyyy · HH:mm' }}
                   </span>
                 </div>
@@ -211,7 +211,7 @@
                   {{ e.ubicacion | ubicacionNormalizada }}
                 </h3>
 
-                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
+                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600">
                   <span>{{ e.coordenadaY | number:'1.3-3' }}°N · {{ e.coordenadaX | number:'1.3-3' }}°W</span>
                   <span>Profundidad {{ e.profundidad }} km</span>
                   <span class="hidden sm:inline">Registro sísmico</span>
@@ -226,7 +226,7 @@
                   Sí
                 </span>
                 <ng-template #noSentido>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                     <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                     No
                   </span>
@@ -245,7 +245,7 @@
           <div class="px-6 py-12 text-center">
             <div class="mx-auto max-w-md rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-8 py-10">
               <p class="text-sm font-semibold text-slate-700">No hay eventos para los filtros seleccionados.</p>
-              <p class="mt-2 text-sm text-slate-500">Pruebe ampliar el rango de fechas o reducir la magnitud mínima.</p>
+              <p class="mt-2 text-sm text-slate-600">Pruebe ampliar el rango de fechas o reducir la magnitud mínima.</p>
             </div>
           </div>
         </ng-template>
@@ -275,13 +275,13 @@
           <span class="text-5xl font-bold tabular-nums text-slate-900">
             {{ eventos()[0].magnitud | number:'1.1-1' }}
           </span>
-          <span class="mb-1 text-sm text-slate-500">Mw</span>
+          <span class="mb-1 text-sm text-slate-600">Mw</span>
         </div>
         <p class="mt-2 text-sm font-medium leading-snug text-slate-700">{{ eventos()[0].ubicacion | ubicacionNormalizada }}</p>
-        <p class="mt-2 text-xs font-mono text-slate-500">
+        <p class="mt-2 text-xs font-mono text-slate-600">
           {{ eventos()[0].feSismo | utcLocal:'dd MMM yyyy · HH:mm' }}
         </p>
-        <p class="mt-1 text-xs text-slate-500">{{ eventos()[0].profundidad }} km de profundidad</p>
+        <p class="mt-1 text-xs text-slate-600">{{ eventos()[0].profundidad }} km de profundidad</p>
       </div>
 
     </aside>
@@ -302,6 +302,7 @@
 
   <!-- Panel lateral -->
   <aside
+    #panelDetalle
     class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-2xl"
     role="dialog"
     aria-modal="true"
@@ -332,7 +333,7 @@
             {{ s.magnitud | number:'1.1-1' }}
           </span>
           <div class="mb-1 flex flex-col gap-1">
-            <span class="text-sm font-semibold text-slate-500">Mw</span>
+            <span class="text-sm font-semibold text-slate-600">Mw</span>
           </div>
         </div>
       </div>
@@ -340,19 +341,19 @@
       <!-- Metadatos -->
       <div class="grid grid-cols-2 gap-px border-b border-slate-100 bg-slate-100">
         <div class="bg-white px-6 py-4">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Fecha y hora</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-600">Fecha y hora</p>
           <p class="mt-1 font-mono text-sm font-semibold text-slate-800">
             {{ s.feSismo | utcLocal:'dd MMM yyyy · HH:mm:ss' }}
           </p>
         </div>
 
         <div class="bg-white px-6 py-4">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Profundidad</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-600">Profundidad</p>
           <p class="mt-1 text-sm font-semibold text-slate-800">{{ s.profundidad }} km</p>
         </div>
 
         <div class="bg-white px-6 py-4">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">¿Fue sentido?</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-600">¿Fue sentido?</p>
           <div class="mt-1">
             <span *ngIf="esEventoSentido(s); else noSentidoDetalle"
               class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
@@ -360,7 +361,7 @@
               Sí, fue sentido
             </span>
             <ng-template #noSentidoDetalle>
-              <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+              <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                 <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                 No sentido
               </span>
@@ -369,7 +370,7 @@
         </div>
 
         <div class="bg-white px-6 py-4">
-          <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Coordenadas</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-600">Coordenadas</p>
           <p class="mt-1 font-mono text-xs text-slate-700">
             {{ s.coordenadaY | number:'1.4-4' }}°N
           </p>
@@ -383,7 +384,7 @@
       <div class="px-6 py-5">
         <div class="mb-3 flex items-center gap-2">
           <i-lucide [img]="mapPinIcon" size="14" class="text-sky-500"></i-lucide>
-          <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Localización del epicentro</p>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-600">Localización del epicentro</p>
         </div>
         <div class="h-[240px] overflow-hidden rounded-xl border border-slate-200 sm:h-[320px]">
           <app-sismo-map

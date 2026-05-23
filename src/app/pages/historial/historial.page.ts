@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild, effect, signal } from '@angular/core';
+import { FocusTrap } from '../../utils/focus-trap';
 import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
@@ -48,6 +49,10 @@ export class HistorialPage implements OnInit {
   // Panel de detalle
   sismoDetalle = signal<SismoRespuesta | null>(null);
   estaciones = signal<EstacionRespuesta[]>([]);
+
+  @ViewChild('panelDetalle') panelDetalleEl?: ElementRef<HTMLElement>;
+  private readonly trap = new FocusTrap();
+  private detalleTrigger: HTMLElement | null = null;
 
   // Sidebar stats
   magnitudPromedio = signal(0);
@@ -102,7 +107,23 @@ export class HistorialPage implements OnInit {
       || this.localizacionDraft() !== this.localizacion();
   }
 
-  constructor(private sismoService: SismoService, private centroService: CentroService, private router: Router) {}
+  constructor(private sismoService: SismoService, private centroService: CentroService, private router: Router) {
+    effect(() => {
+      if (this.sismoDetalle()) {
+        setTimeout(() => {
+          const panel = this.panelDetalleEl?.nativeElement;
+          if (!panel) return;
+          const closeBtn = panel.querySelector<HTMLElement>('button[aria-label="Cerrar panel"]');
+          this.trap.activate(panel, closeBtn ?? undefined, this.detalleTrigger ?? undefined);
+        });
+      }
+    });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.sismoDetalle()) this.cerrarDetalle();
+  }
 
   ngOnInit(): void {
     void this.cargarEventos();
@@ -342,6 +363,7 @@ export class HistorialPage implements OnInit {
   }
 
   verDetalle(e: SismoRespuesta): void {
+    this.detalleTrigger = document.activeElement as HTMLElement;
     this.sismoDetalle.set(e);
   }
 
@@ -353,6 +375,7 @@ export class HistorialPage implements OnInit {
   }
 
   cerrarDetalle(): void {
+    this.trap.deactivate();
     this.sismoDetalle.set(null);
   }
 
