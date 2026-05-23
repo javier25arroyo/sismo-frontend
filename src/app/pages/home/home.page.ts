@@ -36,7 +36,7 @@ export class HomePage implements OnInit {
   ngOnInit(): void {
     this.sismoService.listarSismos({ page: 0, size: 1 })
       .then(res => this.ultimoSismo.set(res.content[0] ?? null))
-      .catch(() => {})
+      .catch(() => this.ultimoSismo.set(null))
       .finally(() => this.cargando.set(false));
   }
 }

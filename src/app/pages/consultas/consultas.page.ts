@@ -329,7 +329,7 @@ export class ConsultasPage implements OnInit {
 
   formatearFecha(fecha: string): string {
     if (!fecha) return '';
-    const utc = /[Z+\-]\d*$/.test(fecha.trim()) ? fecha : fecha + 'Z';
+    const utc = /[Z+-]\d*$/.test(fecha.trim()) ? fecha : fecha + 'Z';
     return new Date(utc).toLocaleString('es-CR', { dateStyle: 'short', timeStyle: 'short' });
   }
 
