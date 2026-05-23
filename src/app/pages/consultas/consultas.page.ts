@@ -46,6 +46,7 @@ export class ConsultasPage implements OnInit {
   readonly downloadIcon = Download;
   readonly searchIcon   = Search;
 
+  private readonly tabs: ('acelerografos' | 'rsn')[] = ['acelerografos', 'rsn'];
   tab = signal<'acelerografos' | 'rsn'>('acelerografos');
 
   estaciones = signal<EstacionRespuesta[]>([]);
@@ -115,6 +116,27 @@ export class ConsultasPage implements OnInit {
 
   setTab(t: 'acelerografos' | 'rsn'): void {
     this.tab.set(t);
+  }
+
+  onTabKeydown(event: KeyboardEvent, currentTab: 'acelerografos' | 'rsn'): void {
+    let nextTab: 'acelerografos' | 'rsn' | null = null;
+    const currentIndex = this.tabs.indexOf(currentTab);
+
+    if (event.key === 'ArrowRight') {
+      nextTab = this.tabs[(currentIndex + 1) % this.tabs.length];
+    } else if (event.key === 'ArrowLeft') {
+      nextTab = this.tabs[(currentIndex - 1 + this.tabs.length) % this.tabs.length];
+    } else if (event.key === 'Home') {
+      nextTab = this.tabs[0];
+    } else if (event.key === 'End') {
+      nextTab = this.tabs[this.tabs.length - 1];
+    }
+
+    if (!nextTab) return;
+
+    event.preventDefault();
+    this.setTab(nextTab);
+    document.getElementById(`tab-${nextTab}`)?.focus();
   }
 
   setAnio(valor: string): void {
