@@ -91,11 +91,13 @@
           </div>
 
           <!-- Remember me -->
-          <label class="flex cursor-pointer items-center gap-3">
-            <input type="checkbox" name="remember"
-              class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"/>
-            <span class="text-sm text-slate-600">Mantener sesión activa</span>
-          </label>
+          <div class="flex items-center gap-3">
+            <input type="checkbox" name="remember" id="remember-me"
+              class="h-4 w-4 cursor-pointer rounded border-slate-300 text-sky-600 focus:ring-sky-500"/>
+            <label for="remember-me" class="cursor-pointer text-sm text-slate-600">
+              Mantener sesión activa
+            </label>
+          </div>
 
           <!-- Error -->
           <div *ngIf="error" class="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700" aria-live="polite">

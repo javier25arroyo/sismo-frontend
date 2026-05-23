@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 import { ActivatedRoute } from '@angular/router';
@@ -13,6 +13,7 @@ import {
 import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   LucideAngularModule,
   Share2,
@@ -47,6 +48,7 @@ export class SismosPage implements OnInit, OnDestroy {
   mensajeAccion = signal('');
   estadoReporte = signal<GeneracionReporteRespuesta | null>(null);
   generandoPdf = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
   private pollingId: ReturnType<typeof setTimeout> | null = null;
   private destruido = false;
 
@@ -74,7 +76,7 @@ export class SismosPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     void this.cargarEstaciones();
     const sismoFromState = (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null;
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const id = params['id'];
       void this.cargar(id, sismoFromState);
     });

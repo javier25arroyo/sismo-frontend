@@ -8,12 +8,20 @@
 
     <div class="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 
-      <nav aria-label="Ruta de navegación" class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-slate-400">
-        <span>Centro</span>
-        <i-lucide [img]="chevronIcon" size="10" class="text-slate-500"></i-lucide>
-        <span>En línea</span>
-        <i-lucide [img]="chevronIcon" size="10" class="text-slate-500"></i-lucide>
-        <span class="text-sky-400">Evento activo</span>
+      <nav aria-label="Ruta de navegación" class="mb-4">
+        <ol class="flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-300">
+          <li class="flex items-center gap-2">
+            <a routerLink="/" class="hover:text-white transition-colors">Centro</a>
+            <i-lucide [img]="chevronIcon" size="10" class="text-slate-500" aria-hidden="true"></i-lucide>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-slate-400">En línea</span>
+            <i-lucide [img]="chevronIcon" size="10" class="text-slate-500" aria-hidden="true"></i-lucide>
+          </li>
+          <li>
+            <span class="text-sky-400" aria-current="page">Evento activo</span>
+          </li>
+        </ol>
       </nav>
 
       <div class="mt-4 flex flex-wrap items-start justify-between gap-6">

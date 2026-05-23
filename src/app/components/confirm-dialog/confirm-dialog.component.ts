@@ -17,7 +17,7 @@ export class ConfirmDialogComponent {
   cancelText = input<string>('Cancelar');
   
   confirm = output<void>();
-  cancel = output<void>();
+  cancelado = output<void>();
 
   confirmButtonText = computed(() => {
     if (this.confirmText()) return this.confirmText()!;
@@ -34,10 +34,7 @@ export class ConfirmDialogComponent {
   }
 
   onCancel(): void {
-    this.cancel.emit();
+    this.cancelado.emit();
   }
 
-  stopPropagation(ev: Event) {
-    ev.stopPropagation();
-  }
 }

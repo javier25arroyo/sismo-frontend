@@ -1,4 +1,4 @@
-import { Component, effect, input, output } from '@angular/core';
+import { Component, afterNextRender, effect, input, output, ElementRef, inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CrearEstacionSolicitud, ActualizarEstacionSolicitud, EstadoEstacion } from '../../interfaces/api.interfaces';
@@ -61,6 +61,9 @@ function formVacio(): FormEstacion {
   templateUrl: './estacion-form-modal.component.html',
 })
 export class EstacionFormModalComponent {
+  private readonly el: ElementRef<HTMLElement> = inject(ElementRef);
+
+  private readonly injector = inject(Injector);
   visible = input<boolean>(false);
   mode    = input<'create' | 'edit'>('create');
   datos   = input<DatosEstacion | null>(null);
@@ -90,10 +93,22 @@ export class EstacionFormModalComponent {
           base.modInst      = d.modInst      ?? '';
           base.estado       = d.estado       ?? 'ACTIVA';
         }
-        this.formData       = { ...base };
+        this.formData        = { ...base };
         this.mostrarAvanzado = false;
+
+        afterNextRender(() => this.focusPrimerCampo(), { injector: this.injector });
       }
     });
+  }
+
+  private focusPrimerCampo(): void {
+    const selector = [
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])'
+    ].join(', ');
+    const first = this.el.nativeElement.querySelector<HTMLElement>(selector);
+    first?.focus();
   }
 
   private num(v: string): number | undefined { return v !== '' ? parseFloat(v)    : undefined; }

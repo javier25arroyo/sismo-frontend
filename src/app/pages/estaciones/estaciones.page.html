@@ -43,18 +43,23 @@
       <table class="w-full border-collapse text-xs xl:text-sm">
         <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
           <tr class="border-b border-slate-200">
-            <th class="w-[20%] px-4 py-4 text-left">ID Estación</th>
-            <th class="w-[40%] px-4 py-4 text-left">Ubicación Geográfica</th>
-            <th class="w-[20%] px-4 py-4 text-left">Tipo Sensor</th>
-            <th class="w-[15%] px-4 py-4 text-left">Estado</th>
-            <th *ngIf="auth.isAdmin()" class="w-[5%] px-4 py-4"></th>
+            <th scope="col" class="w-[20%] px-4 py-4 text-left">ID Estación</th>
+            <th scope="col" class="w-[40%] px-4 py-4 text-left">Ubicación Geográfica</th>
+            <th scope="col" class="w-[20%] px-4 py-4 text-left">Tipo Sensor</th>
+            <th scope="col" class="w-[15%] px-4 py-4 text-left">Estado</th>
+            <th *ngIf="auth.isAdmin()" scope="col" class="w-[5%] px-4 py-4"><span class="sr-only">Acciones</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
           <tr *ngFor="let e of filtradas"
             (click)="seleccionar(e)"
+            (keydown.enter)="seleccionar(e)"
+            (keydown.space)="$event.preventDefault(); seleccionar(e)"
+            tabindex="0"
+            role="button"
+            [attr.aria-pressed]="estacionSeleccionada()?.codEstacion === e.codEstacion"
             [class.bg-sky-50/50]="estacionSeleccionada()?.codEstacion === e.codEstacion"
-            class="group cursor-pointer transition hover:bg-sky-50/30">
+            class="group cursor-pointer transition hover:bg-sky-50/30 outline-none focus:bg-sky-50/50 focus:ring-2 focus:ring-inset focus:ring-sky-500">
             <td class="px-4 py-3.5">
               <p class="font-bold text-sky-700">{{ e.codEstacion }}</p>
               <p class="text-[10px] text-slate-400 font-medium">{{ e.codCentroPrd }}</p>
@@ -68,10 +73,11 @@
               <app-status-badge [estado]="e.estado"></app-status-badge>
             </td>
             <td *ngIf="auth.isAdmin()" class="px-4 py-3.5" (click)="$event.stopPropagation()">
-              <div class="flex items-center justify-end opacity-0 transition group-hover:opacity-100">
+              <div class="flex items-center justify-end opacity-0 transition group-hover:opacity-100 group-focus:opacity-100">
                 <button (click)="abrirEditar(e)"
+                  [attr.aria-label]="'Editar estación ' + e.codEstacion"
                   title="Editar estación"
-                  class="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white hover:text-sky-600 hover:shadow-sm ring-1 ring-transparent hover:ring-slate-200">
+                  class="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white hover:text-sky-600 hover:shadow-sm ring-1 ring-transparent hover:ring-slate-200 focus:outline-none focus:ring-sky-500">
                   <i-lucide [img]="editIcon" size="14"></i-lucide>
                 </button>
               </div>
@@ -107,12 +113,14 @@
           <p class="text-sm text-slate-500">{{ est.nomEstacion }}</p>
 
           <!-- Mapa de ubicación -->
-          <div class="mt-4 h-44 w-full rounded-xl overflow-hidden border border-slate-200 isolate">
-            @defer (on viewport) {
-              <app-estacion-mini-map [lat]="est.coordenadaY" [lng]="est.coordenadaX" [label]="est.nomEstacion"></app-estacion-mini-map>
-            } @placeholder {
-              <div class="w-full h-full bg-slate-100 animate-pulse"></div>
-            }
+          <div class="mt-4 overflow-hidden rounded-xl border border-slate-200">
+            <app-sismo-map
+              [sismos]="[]"
+              [estaciones]="estaciones()"
+              [height]="'260px'"
+              [zoom]="7"
+              [showLegend]="false">
+            </app-sismo-map>
           </div>
           <p class="mt-1 text-xs text-slate-500 text-right">
             <i-lucide [img]="mapPinIcon" size="11" class="inline-block mr-0.5 align-text-bottom"></i-lucide>
@@ -202,6 +210,9 @@
             <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Cambiar Estado Operativo</p>
             <div class="relative">
               <button type="button" (click)="toggleDropdown()" [disabled]="cambiandoEstado()"
+                [attr.aria-expanded]="mostrarDropdown()"
+                aria-haspopup="listbox"
+                aria-label="Cambiar estado operativo de la estación"
                 class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 outline-none transition hover:border-sky-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-200 disabled:opacity-50">
                 <div class="flex items-center gap-2">
                   <span class="h-2 w-2 rounded-full" [class]="telemetriaDotClass(est.estado)"></span>
