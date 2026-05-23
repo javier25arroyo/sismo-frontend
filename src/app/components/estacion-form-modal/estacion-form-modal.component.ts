@@ -61,7 +61,7 @@ function formVacio(): FormEstacion {
   templateUrl: './estacion-form-modal.component.html',
 })
 export class EstacionFormModalComponent {
-  private readonly el = inject(ElementRef<HTMLElement>);
+  private readonly el: ElementRef<HTMLElement> = inject(ElementRef);
 
   visible = input<boolean>(false);
   mode    = input<'create' | 'edit'>('create');
