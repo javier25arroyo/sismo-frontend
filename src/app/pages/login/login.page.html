@@ -24,7 +24,7 @@
           <p class="mt-3 text-xs font-bold uppercase tracking-widest text-slate-600">ICE INSTITUCIONAL</p>
           <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Acelerografía</h1>
           <p class="mt-2 text-sm font-semibold text-slate-700">Acceso Técnico</p>
-          <p class="mt-1 text-xs text-slate-500">
+          <p class="mt-1 text-xs text-slate-600">
             Sistemas de monitoreo y red de estaciones de visualización en tiempo real.
           </p>
         </div>
@@ -33,7 +33,7 @@
         <form class="mt-8 space-y-5" (submit)="onSubmit($event)">
           <!-- Username -->
           <div>
-            <label for="username" class="mb-1.5 block text-xs font-bold uppercase tracking-widest text-slate-500">
+            <label for="username" class="mb-1.5 block text-xs font-bold uppercase tracking-widest text-slate-600">
               Identificación de usuario
             </label>
             <div class="relative">
@@ -47,18 +47,19 @@
                 type="text"
                 name="username"
                 autocomplete="username"
+                [attr.aria-describedby]="error ? 'login-error' : null"
                 placeholder="Nombre de usuario…"
                 spellcheck="false"
                 autocapitalize="none"
                 required
-                class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-500 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"/>
+                class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"/>
             </div>
           </div>
 
           <!-- Password -->
           <div>
             <div class="mb-1.5 flex items-center justify-between">
-              <label for="password" class="block text-xs font-bold uppercase tracking-widest text-slate-500">Contraseña</label>
+              <label for="password" class="block text-xs font-bold uppercase tracking-widest text-slate-600">Contraseña</label>
               <a routerLink="/recuperar-acceso" class="text-xs font-medium text-sky-700 transition-colors hover:text-sky-800">¿Recuperar acceso?</a>
             </div>
             <div class="relative">
@@ -72,13 +73,14 @@
                 [type]="showPassword ? 'text' : 'password'"
                 name="password"
                 autocomplete="current-password"
+                [attr.aria-describedby]="error ? 'login-error' : null"
                 required
-                class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-500 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"/>
+                class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-200"/>
               <button
                 type="button"
                 (click)="showPassword = !showPassword"
                 [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-                class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-500 transition-colors hover:text-slate-700">
+                class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-600 transition-colors hover:text-slate-700">
                 <svg *ngIf="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -100,7 +102,7 @@
           </div>
 
           <!-- Error -->
-          <div *ngIf="error" class="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700" aria-live="polite">
+          <div *ngIf="error" id="login-error" class="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700" aria-live="polite">
             {{ error }}
           </div>
 

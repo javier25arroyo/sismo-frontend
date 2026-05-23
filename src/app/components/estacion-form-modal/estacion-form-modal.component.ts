@@ -1,6 +1,7 @@
-import { Component, afterNextRender, effect, input, output, ElementRef, inject, Injector } from '@angular/core';
+import { Component, HostListener, afterNextRender, effect, input, output, ElementRef, inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FocusTrap } from '../../utils/focus-trap';
 import { CrearEstacionSolicitud, ActualizarEstacionSolicitud, EstadoEstacion } from '../../interfaces/api.interfaces';
 
 interface DatosEstacion {
@@ -76,12 +77,15 @@ export class EstacionFormModalComponent {
 
   readonly estadoOpciones = ['ACTIVA', 'MANTENIMIENTO', 'FUERA_DE_SERVICIO'];
 
+  private readonly trap = new FocusTrap();
+
   get titulo(): string { return this.mode() === 'create' ? 'Nueva Estación' : 'Editar Estación'; }
   get esEdicion(): boolean { return this.mode() === 'edit'; }
 
   constructor() {
     effect(() => {
       if (this.visible()) {
+        const trigger = document.activeElement as HTMLElement;
         const d    = this.datos();
         const base = formVacio();
         if (d) {
@@ -96,19 +100,26 @@ export class EstacionFormModalComponent {
         this.formData        = { ...base };
         this.mostrarAvanzado = false;
 
-        afterNextRender(() => this.focusPrimerCampo(), { injector: this.injector });
+        afterNextRender(() => {
+          const container = this.el.nativeElement.querySelector<HTMLElement>('[role="dialog"]');
+          if (!container) return;
+          const inputSelector = [
+            'input:not([disabled]):not([type="hidden"])',
+            'select:not([disabled])',
+            'textarea:not([disabled])'
+          ].join(', ');
+          const firstInput = container.querySelector<HTMLElement>(inputSelector) ?? undefined;
+          this.trap.activate(container, firstInput, trigger);
+        }, { injector: this.injector });
+      } else {
+        this.trap.deactivate();
       }
     });
   }
 
-  private focusPrimerCampo(): void {
-    const selector = [
-      'input:not([disabled]):not([type="hidden"])',
-      'select:not([disabled])',
-      'textarea:not([disabled])'
-    ].join(', ');
-    const first = this.el.nativeElement.querySelector<HTMLElement>(selector);
-    first?.focus();
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.visible()) this.onCancel();
   }
 
   private num(v: string): number | undefined { return v !== '' ? parseFloat(v)    : undefined; }

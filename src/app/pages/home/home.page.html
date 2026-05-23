@@ -7,17 +7,17 @@
         Monitoreo
         <span class="text-primary">Acelerográfico.</span>
       </h1>
-      <p class="mt-4 max-w-lg text-sm leading-relaxed text-slate-500 sm:text-base">
+      <p class="mt-4 max-w-lg text-sm leading-relaxed text-slate-600 sm:text-base">
         Plataforma de monitoreo sísmico en tiempo real de la Red Acelerográfica Nacional del ICE.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="https://rsn.ucr.ac.cr/index.php/actividad-sismica/ultimos-sismos" target="_blank" rel="noopener noreferrer"
           class="rounded-xl gradient-cta px-6 py-3 text-body-md font-semibold text-white transition-colors hover:brightness-110 active:scale-95">
-          RSN Últimos sismos
+          RSN Últimos sismos<span class="sr-only"> (abre en nueva pestaña)</span>
         </a>
         <a href="https://rsn.ucr.ac.cr/losentiste/" target="_blank" rel="noopener noreferrer"
           class="rounded-xl bg-surface-container-highest px-6 py-3 text-body-md font-semibold text-text-primary transition-colors hover:bg-slate-200 active:scale-95">
-          ¿Lo sentiste?
+          ¿Lo sentiste?<span class="sr-only"> (abre en nueva pestaña)</span>
         </a>
       </div>
     </div>
@@ -32,15 +32,15 @@
   <div class="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white/60 shadow-sm backdrop-blur-sm">
     <div class="px-4 py-4 text-center sm:px-6">
       <p class="text-2xl font-black text-slate-900 sm:text-3xl">+30</p>
-      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">Estaciones</p>
+      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-600">Estaciones</p>
     </div>
     <div class="px-4 py-4 text-center sm:px-6">
       <p class="text-2xl font-black text-slate-900 sm:text-3xl">24/7</p>
-      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">Monitoreo</p>
+      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-600">Monitoreo</p>
     </div>
     <div class="px-4 py-4 text-center sm:px-6">
       <p class="text-2xl font-black text-slate-900 sm:text-3xl">CR</p>
-      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-500">Cobertura</p>
+      <p class="mt-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-600">Cobertura</p>
     </div>
   </div>
 
@@ -102,7 +102,7 @@
       </div>
 
       <div *ngIf="!cargando() && !ultimoSismo()"
-        class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
+        class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-600">
         No hay datos del último evento disponibles.
       </div>
     </section>
