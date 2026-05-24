@@ -18,7 +18,7 @@
 <section class="mt-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
   <div class="mb-6">
     <h2 class="text-lg font-semibold text-slate-900">Agregar usuario</h2>
-    <p class="mt-1 text-sm text-slate-500">Crea una nueva cuenta de usuario en el sistema.</p>
+    <p class="mt-1 text-sm text-slate-600">Crea una nueva cuenta de usuario en el sistema.</p>
   </div>
 
   <form (submit)="onCrearUsuario($event)" novalidate>
@@ -26,67 +26,67 @@
 
       <!-- Cédula -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-cedula">Cédula</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-cedula">Cédula</label>
         <input
           id="c-cedula" name="cedula" type="text" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="Ej. 123456789"
         />
       </div>
 
       <!-- Nombre completo -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-nombre">Nombre completo</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-nombre">Nombre completo</label>
         <input
           id="c-nombre" name="nombreCompl" type="text" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="Apellidos Nombre"
         />
       </div>
 
       <!-- Correo -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-correo">Correo electrónico</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-correo">Correo electrónico</label>
         <input
           id="c-correo" name="correoE" type="email" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="usuario@ice.go.cr"
         />
       </div>
 
       <!-- Nombre de usuario -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-username">Nombre de usuario</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-username">Nombre de usuario</label>
         <input
           id="c-username" name="usuarioNombre" type="text" required
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="usuario.sistema"
         />
       </div>
 
       <!-- Teléfono oficina -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-tel">Teléfono oficina</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-tel">Teléfono oficina</label>
         <input
           id="c-tel" name="telOficina" type="tel"
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="2XXX-XXXX (opcional)"
         />
       </div>
 
       <!-- Celular -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-cel">Número celular</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-cel">Número celular</label>
         <input
           id="c-cel" name="numCelular" type="tel"
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           placeholder="8XXX-XXXX (opcional)"
         />
       </div>
 
       <!-- Contraseña -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-pass">Contraseña temporal</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-pass">Contraseña temporal</label>
         <div class="flex gap-2">
           <div class="relative flex-1">
             <input
@@ -94,13 +94,13 @@
               [type]="passwordCrearVisible() ? 'text' : 'password'"
               [value]="passwordCrear()"
               (input)="passwordCrear.set($any($event.target).value)"
-              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
               placeholder="Generar o ingresar"
             />
             <button
               type="button"
               (click)="passwordCrearVisible.set(!passwordCrearVisible())"
-              class="absolute inset-y-0 right-2 flex items-center text-slate-500 hover:text-slate-600"
+              class="absolute inset-y-0 right-2 flex items-center text-slate-600 hover:text-slate-600"
               [attr.aria-label]="passwordCrearVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             >
               @if (passwordCrearVisible()) {
@@ -124,12 +124,12 @@
             Generar
           </button>
         </div>
-        <p class="text-xs text-slate-500">12 caracteres · mayúscula · minúscula · dígito · especial (!@#$%&amp;*)</p>
+        <p class="text-xs text-slate-600">12 caracteres · mayúscula · minúscula · dígito · especial (!@#$%&amp;*)</p>
       </div>
 
       <!-- Estado activo -->
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="c-estado">Estado</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="c-estado">Estado</label>
         <select
           id="c-estado" name="estadoActivo"
           class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
@@ -176,7 +176,7 @@
 <section class="mt-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
   <div class="mb-6">
     <h2 class="text-lg font-semibold text-slate-900">Actualizar usuario</h2>
-    <p class="mt-1 text-sm text-slate-500">Busca un usuario por cédula para modificar sus datos.</p>
+    <p class="mt-1 text-sm text-slate-600">Busca un usuario por cédula para modificar sus datos.</p>
   </div>
 
   <!-- Buscador -->
@@ -187,7 +187,7 @@
       (input)="buscarCedula.set($any($event.target).value)"
       (keydown.enter)="buscarUsuario()"
       placeholder="Ingresa la cédula"
-      class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+      class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
     />
     <button
       type="button"
@@ -226,69 +226,69 @@
 
         <!-- Nombre completo -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-nombre">Nombre completo</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-nombre">Nombre completo</label>
           <input
             id="u-nombre" name="nombreCompl" type="text" required
             [value]="usuarioCargado()!.nombreCompl"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
         <!-- Correo -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-correo">Correo electrónico</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-correo">Correo electrónico</label>
           <input
             id="u-correo" name="correoE" type="email" required
             [value]="usuarioCargado()!.correoE"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
         <!-- Nombre de usuario -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-username">Nombre de usuario</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-username">Nombre de usuario</label>
           <input
             id="u-username" name="usuarioNombre" type="text" required
             [value]="usuarioCargado()!.usuarioNombre"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
         <!-- Teléfono oficina -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-tel">Teléfono oficina</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-tel">Teléfono oficina</label>
           <input
             id="u-tel" name="telOficina" type="tel"
             [value]="usuarioCargado()!.telOficina ?? ''"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="Opcional"
           />
         </div>
 
         <!-- Celular -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-cel">Número celular</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-cel">Número celular</label>
           <input
             id="u-cel" name="numCelular" type="tel"
             [value]="usuarioCargado()!.numCelular ?? ''"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="Opcional"
           />
         </div>
 
         <!-- Nueva contraseña -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-pass">Nueva contraseña</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-pass">Nueva contraseña</label>
           <input
             id="u-pass" name="password" type="password"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="Dejar vacío para no cambiar"
           />
         </div>
 
         <!-- Estado activo -->
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="u-estado">Estado</label>
+          <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="u-estado">Estado</label>
           <select
             id="u-estado" name="estadoActivo"
             class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"

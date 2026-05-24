@@ -1,39 +1,59 @@
-<footer class="mt-auto border-t border-slate-200/80 bg-white/80 py-8 backdrop-blur">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col items-center justify-between gap-6 md:flex-row">
-      <!-- Logos Section -->
-      <div class="flex flex-wrap items-center justify-center gap-6 md:justify-start">
-        <picture>
-          <img
-            src="/icons-footer/logo_grupo%20ICE.png"
-            alt="Grupo ICE"
-            loading="lazy"
-            width="120"
-            height="48"
-            class="h-10 w-auto object-contain opacity-75 grayscale transition hover:opacity-100 hover:grayscale-0"
-          />
-        </picture>
-<picture>
-          <img
-            src="/icons-footer/rsn.png"
-            alt="RSN"
-            loading="lazy"
-            width="100"
-            height="40"
-            class="h-9 w-auto object-contain opacity-75 grayscale transition hover:opacity-100 hover:grayscale-0"
-          />
-        </picture>
+<footer class="mt-auto bg-slate-950">
+  <div class="h-px bg-gradient-to-r from-transparent via-sky-600/40 to-transparent"></div>
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+
+      <!-- Logos -->
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-5">
+          <picture>
+            <img
+              src="/icons-footer/logo_grupo%20ICE.png"
+              alt="Grupo ICE"
+              loading="lazy"
+              width="120"
+              height="48"
+              class="h-9 w-auto object-contain opacity-50 brightness-200 grayscale transition hover:opacity-90 hover:grayscale-0"
+            />
+          </picture>
+          <picture>
+            <img
+              src="/icons-footer/rsn.png"
+              alt="RSN"
+              loading="lazy"
+              width="100"
+              height="40"
+              class="h-8 w-auto object-contain opacity-50 brightness-200 grayscale transition hover:opacity-90 hover:grayscale-0"
+            />
+          </picture>
+        </div>
+        <p class="text-xs text-slate-400">Red Acelerográfica Nacional</p>
       </div>
 
-      <!-- Legend & Copyright Section -->
-      <div class="flex flex-col items-center text-center md:items-end md:text-right">
-        <span class="text-label-sm font-bold uppercase tracking-wide text-slate-700">
-          INSTITUTO COSTARRICENSE DE ELECTRICIDAD
-        </span>
-        <p class="mt-1 text-body-md text-slate-500">
-          Plataforma de monitoreo sísmico. © 2026
-        </p>
+      <!-- Navegación rápida -->
+      <nav aria-label="Navegación de pie de página">
+        <p class="mb-3 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Navegación</p>
+        <ul class="space-y-2">
+          <li><a routerLink="/historial" class="text-sm text-slate-400 transition-colors hover:text-white">Historial sísmico</a></li>
+          <li><a routerLink="/estaciones" class="text-sm text-slate-400 transition-colors hover:text-white">Red de estaciones</a></li>
+          <li><a routerLink="/repositorio" class="text-sm text-slate-400 transition-colors hover:text-white">Repositorio</a></li>
+          <li><a routerLink="/acceso" class="text-sm text-slate-400 transition-colors hover:text-white">Acceso técnico</a></li>
+        </ul>
+      </nav>
+
+      <!-- Estado + Copyright -->
+      <div class="flex flex-col gap-3 md:items-end">
+        <div class="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5">
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-green-400"></span>
+          </span>
+          <span class="text-xs font-semibold text-green-400">Sistema en Producción</span>
+        </div>
+        <p class="text-[0.65rem] font-bold uppercase tracking-wide text-slate-400">Instituto Costarricense de Electricidad</p>
+        <p class="text-xs text-slate-400">Plataforma de monitoreo sísmico · © 2026</p>
       </div>
+
     </div>
   </div>
 </footer>
