@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnDestroy, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 import { ActivatedRoute } from '@angular/router';
@@ -52,6 +52,7 @@ export class SismosPage implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private pollingId: ReturnType<typeof setTimeout> | null = null;
   private destruido = false;
+  private readonly windowWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   readonly shareIcon = Share2;
   readonly fileTextIcon = FileText;
@@ -84,6 +85,18 @@ export class SismosPage implements OnInit, OnDestroy {
     if (this.generandoPdf()) return 'Generando...';
     return this.auth.isAdmin() ? 'Solicitar PDF' : 'PDF';
   });
+
+  readonly mapHeight = computed(() => {
+    const w = this.windowWidth();
+    if (w < 640) return '320px';
+    if (w < 1024) return '480px';
+    return '640px';
+  });
+
+  @HostListener('window:resize', ['$event'])
+  onResize(e: UIEvent): void {
+    this.windowWidth.set((e.target as Window).innerWidth);
+  }
 
   constructor(
     private sismoService: SismoService,
@@ -274,8 +287,4 @@ export class SismosPage implements OnInit, OnDestroy {
     }
   }
 
-  get mapHeight(): string {
-    if (typeof window === 'undefined') return '480px';
-    return window.innerWidth < 640 ? '320px' : window.innerWidth < 1024 ? '480px' : '640px';
-  }
 }

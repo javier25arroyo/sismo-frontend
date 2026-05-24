@@ -2,10 +2,10 @@
 
   <!-- STATS ROW -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <app-stat-card label="Infraestructura Total"  [value]="total"          unit="nodos"      [icon]="serverIcon"></app-stat-card>
-    <app-stat-card label="Estado Operativo"        [value]="enLinea"        unit="En línea"   [icon]="satelliteIcon" variant="success"></app-stat-card>
-    <app-stat-card label="En Mantenimiento"        [value]="enMantenimiento" unit=""           sublabel="Fuera de servicio temporal" [icon]="wrenchIcon"   [variant]="enMantenimiento > 0 ? 'warning' : 'default'"></app-stat-card>
-    <app-stat-card label="Incidencias Críticas"    [value]="incidencias"    unit=""           sublabel="Estaciones inactivas"       [icon]="warningIcon"  [variant]="incidencias > 0 ? 'danger' : 'default'"></app-stat-card>
+    <app-stat-card label="Infraestructura Total"  [value]="total()"          unit="nodos"      [icon]="serverIcon"></app-stat-card>
+    <app-stat-card label="Estado Operativo"        [value]="enLinea()"        unit="En línea"   [icon]="satelliteIcon" variant="success"></app-stat-card>
+    <app-stat-card label="En Mantenimiento"        [value]="enMantenimiento()" unit=""           sublabel="Fuera de servicio temporal" [icon]="wrenchIcon"   [variant]="enMantenimiento() > 0 ? 'warning' : 'default'"></app-stat-card>
+    <app-stat-card label="Incidencias Críticas"    [value]="incidencias()"    unit=""           sublabel="Estaciones inactivas"       [icon]="warningIcon"  [variant]="incidencias() > 0 ? 'danger' : 'default'"></app-stat-card>
   </div>
 
   <!-- MAIN GRID: tabla + detalle -->
@@ -51,7 +51,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-          <tr *ngFor="let e of filtradas; trackBy: trackByEstacion"
+          <tr *ngFor="let e of filtradas(); trackBy: trackByEstacion"
             (click)="seleccionar(e)"
             (keydown.enter)="seleccionar(e)"
             (keydown.space)="$event.preventDefault(); seleccionar(e)"
@@ -87,7 +87,7 @@
       </table>
       </div>
 
-      <div *ngIf="!cargando() && filtradas.length === 0"
+      <div *ngIf="!cargando() && filtradas().length === 0"
         class="p-10 text-center text-sm text-slate-600">Sin resultados para "{{ busqueda() }}"</div>
     </div>
 

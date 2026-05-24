@@ -123,25 +123,23 @@ export class HistorialPage implements OnInit {
     { value: 'no_sentido', label: 'No sentidos' }
   ];
 
-  get filtrosActivos(): number {
+  readonly filtrosActivos = computed(() => {
     let n = 0;
     if (this.desdeDraft()) n++;
     if (this.hastaDraft()) n++;
     if (this.filtroSentidoDraft()) n++;
     if (this.localizacionDraft()) n++;
     return n;
-  }
+  });
 
-  get hayCambiosPendientes(): boolean {
-    return this.desdeDraft() !== this.desde()
-      || this.hastaDraft() !== this.hasta()
-      || this.filtroSentidoDraft() !== this.filtroSentido()
-      || this.localizacionDraft() !== this.localizacion();
-  }
+  readonly hayCambiosPendientes = computed(() =>
+    this.desdeDraft() !== this.desde()
+    || this.hastaDraft() !== this.hasta()
+    || this.filtroSentidoDraft() !== this.filtroSentido()
+    || this.localizacionDraft() !== this.localizacion()
+  );
 
-  get eventosFiltrados(): SismoRespuesta[] {
-    return this.eventosFiltradosLocalizacion();
-  }
+  readonly eventosFiltrados = computed(() => this.eventosFiltradosLocalizacion());
 
   constructor(
     private sismoService: SismoService,
