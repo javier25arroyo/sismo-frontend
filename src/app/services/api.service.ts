@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
@@ -15,9 +16,17 @@ export class ApiError extends Error {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private readonly baseUrl = environment.apiUrl;
+  private readonly baseUrl: string;
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService) {
+    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      this.baseUrl = environment.apiUrl;
+    } else {
+      this.baseUrl = (typeof process !== 'undefined' && process.env['SSR_API_URL'])
+        ? process.env['SSR_API_URL']
+        : 'http://localhost:8080';
+    }
+  }
 
   private extractErrorMessage(body: unknown, fallback: string): string {
     if (!body || typeof body !== 'object') {
