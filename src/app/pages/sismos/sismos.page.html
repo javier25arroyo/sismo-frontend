@@ -45,7 +45,7 @@
           <button
             type="button"
             (click)="compartirDatos()"
-            [disabled]="!puedeCompartir"
+            [disabled]="!puedeCompartir()"
             title="Compartir resumen del sismo"
             class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition duration-200 hover:border-white/30 hover:bg-white/10 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">
             <i-lucide [img]="shareIcon" size="16"></i-lucide>
@@ -54,11 +54,11 @@
           <button
             type="button"
             (click)="solicitarPdf()"
-            [disabled]="!puedeSolicitarPdf"
+            [disabled]="!puedeSolicitarPdf()"
             [title]="auth.isAdmin() ? 'Solicitar PDF del reporte' : 'Solo administradores pueden generar reportes PDF'"
             class="inline-flex items-center gap-2 rounded-full bg-sky-500 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-sky-500/25 transition duration-200 hover:bg-sky-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-slate-400 disabled:shadow-none">
             <i-lucide [img]="generandoPdf() ? loaderIcon : fileTextIcon" size="16" [class.animate-spin]="generandoPdf()"></i-lucide>
-            {{ etiquetaPdf }}
+            {{ etiquetaPdf() }}
           </button>
         </div>
       </div>
@@ -218,7 +218,7 @@
 
           <div class="mt-5 flex items-baseline gap-3">
             <span class="text-7xl font-black leading-none tracking-tight tabular-nums sm:text-8xl lg:text-9xl"
-              [style.color]="magnitudColor">
+              [style.color]="magnitudColor()">
               {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
             </span>
             <div class="flex flex-col">

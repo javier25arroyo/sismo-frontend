@@ -51,7 +51,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-          <tr *ngFor="let e of filtradas"
+          <tr *ngFor="let e of filtradas; trackBy: trackByEstacion"
             (click)="seleccionar(e)"
             (keydown.enter)="seleccionar(e)"
             (keydown.space)="$event.preventDefault(); seleccionar(e)"
@@ -174,7 +174,7 @@
             </div>
 
             <div *ngIf="!cargandoAlarmas() && alarmasEstacion().length > 0" class="divide-y divide-slate-100 rounded-xl border border-slate-200">
-              <div *ngFor="let alarma of alarmasEstacion()" class="flex items-center justify-between gap-3 px-3 py-3">
+              <div *ngFor="let alarma of alarmasEstacion(); trackBy: trackByAlarma" class="flex items-center justify-between gap-3 px-3 py-3">
                 <div class="min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
                     <app-status-badge [estado]="alarma.codUmbral"></app-status-badge>

@@ -195,7 +195,7 @@
         [class.pointer-events-none]="cargando()">
 
         <ul *ngIf="eventosFiltrados.length > 0; else emptyResults" class="divide-y divide-slate-100">
-          <li *ngFor="let e of eventosFiltrados; let first = first" class="group px-6 py-4 transition hover:bg-slate-50">
+          <li *ngFor="let e of eventosFiltrados; trackBy: trackBySismo; let first = first" class="group px-6 py-4 transition hover:bg-slate-50">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
