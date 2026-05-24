@@ -1,4 +1,5 @@
-import { Component, DestroyRef, HostListener, OnDestroy, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnDestroy, OnInit, inject, signal, computed, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 import { ActivatedRoute } from '@angular/router';
@@ -98,6 +99,8 @@ export class SismosPage implements OnInit, OnDestroy {
     this.windowWidth.set((e.target as Window).innerWidth);
   }
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   constructor(
     private sismoService: SismoService,
     private historicoService: HistoricoService,
@@ -109,7 +112,9 @@ export class SismosPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     void this.cargarEstaciones();
-    const sismoFromState = (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null;
+    const sismoFromState = this.isBrowser
+      ? (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null
+      : null;
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const id = params['id'];
       void this.cargar(id, sismoFromState);
