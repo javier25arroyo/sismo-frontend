@@ -17,7 +17,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe';
-import { parseUtcDate, UtcLocalPipe } from '../../pipes/utc-local.pipe';
+import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 
 type FiltroSentido = '' | 'sentido' | 'no_sentido';
 type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica' | 'zona_sur';
