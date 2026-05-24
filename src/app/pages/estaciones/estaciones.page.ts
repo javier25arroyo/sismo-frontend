@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatCardComponent } from '../../components/stat-card/stat-card.component';
@@ -120,12 +120,12 @@ export class EstacionesPage implements OnInit {
     void this.cargarAlarmasEstacion(e);
   }
 
-  get total(): number          { return this.estaciones().length; }
-  get enLinea(): number        { return this.estaciones().filter(e => e.estado === 'ACTIVA').length; }
-  get enMantenimiento(): number { return this.estaciones().filter(e => e.estado === 'MANTENIMIENTO').length; }
-  get incidencias(): number    { return this.estaciones().filter(e => e.estado === 'FUERA_DE_SERVICIO').length; }
+  readonly total          = computed(() => this.estaciones().length);
+  readonly enLinea        = computed(() => this.estaciones().filter(e => e.estado === 'ACTIVA').length);
+  readonly enMantenimiento = computed(() => this.estaciones().filter(e => e.estado === 'MANTENIMIENTO').length);
+  readonly incidencias    = computed(() => this.estaciones().filter(e => e.estado === 'FUERA_DE_SERVICIO').length);
 
-  get filtradas(): EstacionVista[] {
+  readonly filtradas = computed(() => {
     const q = this.busqueda().toLowerCase();
     if (!q) return this.estaciones();
     return this.estaciones().filter(e =>
@@ -133,7 +133,7 @@ export class EstacionesPage implements OnInit {
       e.nomEstacion.toLowerCase().includes(q) ||
       e.ubicacionDetalle.toLowerCase().includes(q)
     );
-  }
+  });
 
   setBusqueda(ev: Event): void {
     this.busqueda.set((ev.target as HTMLInputElement).value);

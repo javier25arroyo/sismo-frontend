@@ -47,9 +47,9 @@
         <i-lucide [img]="filterIcon" size="14" class="text-slate-600" aria-hidden="true"></i-lucide>
         <h2 id="filters-title" class="text-sm font-semibold text-slate-900">Filtros</h2>
       </div>
-      <span *ngIf="filtrosActivos > 0"
+      <span *ngIf="filtrosActivos() > 0"
         class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-        {{ filtrosActivos }} activo{{ filtrosActivos > 1 ? 's' : '' }}
+        {{ filtrosActivos() }} activo{{ filtrosActivos() > 1 ? 's' : '' }}
       </span>
     </div>
 
@@ -134,7 +134,7 @@
 
       <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
         <p class="text-xs text-slate-600" aria-live="polite">
-          {{ hayCambiosPendientes ? 'Hay cambios pendientes por aplicar.' : 'Sin cambios pendientes.' }}
+          {{ hayCambiosPendientes() ? 'Hay cambios pendientes por aplicar.' : 'Sin cambios pendientes.' }}
         </p>
         <div class="flex items-center gap-2">
           <button
@@ -146,8 +146,8 @@
           <button
             type="button"
             (click)="aplicarFiltros()"
-            [disabled]="!hayCambiosPendientes"
-            [class]="hayCambiosPendientes
+            [disabled]="!hayCambiosPendientes()"
+            [class]="hayCambiosPendientes()
               ? 'bg-sky-700 text-white hover:bg-sky-800'
               : 'cursor-not-allowed bg-slate-200 text-slate-600'"
             class="inline-flex h-9 items-center gap-2 rounded-lg px-5 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-sky-500">
@@ -170,7 +170,7 @@
           <p class="mt-1 text-xs text-slate-600">Vista compacta en lista de los últimos registros acelerográficos.</p>
         </div>
         <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600" aria-live="polite">
-          {{ eventosFiltrados.length }} visibles
+          {{ eventosFiltrados().length }} visibles
         </span>
       </div>
 
@@ -194,8 +194,8 @@
         [class.opacity-40]="cargando()"
         [class.pointer-events-none]="cargando()">
 
-        <ul *ngIf="eventosFiltrados.length > 0; else emptyResults" class="divide-y divide-slate-100">
-          <li *ngFor="let e of eventosFiltrados; trackBy: trackBySismo; let first = first" class="group px-6 py-4 transition hover:bg-slate-50">
+        <ul *ngIf="eventosFiltrados().length > 0; else emptyResults" class="divide-y divide-slate-100">
+          <li *ngFor="let e of eventosFiltrados(); trackBy: trackBySismo; let first = first" class="group px-6 py-4 transition hover:bg-slate-50">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
