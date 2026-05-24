@@ -3,7 +3,7 @@
   <!-- Título -->
   <div class="mb-6">
     <h1 class="text-headline-sm font-bold text-primary">Historial de Sismos</h1>
-    <p class="text-label-sm text-slate-500 mt-1">Consulta histórica de eventos sísmicos con registro acelerográfico y RSN</p>
+    <p class="text-label-sm text-slate-600 mt-1">Consulta histórica de eventos sísmicos con registro acelerográfico y RSN</p>
   </div>
 
   <!-- Tabs -->
@@ -19,7 +19,7 @@
       [class.bg-white]="tab() === 'acelerografos'"
       [class.text-primary]="tab() === 'acelerografos'"
       [class.shadow-sm]="tab() === 'acelerografos'"
-      [class.text-slate-500]="tab() !== 'acelerografos'"
+      [class.text-slate-600]="tab() !== 'acelerografos'"
       class="rounded-lg px-4 py-2 text-label-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary">
       Acelerógrafos
     </button>
@@ -34,7 +34,7 @@
       [class.bg-white]="tab() === 'rsn'"
       [class.text-primary]="tab() === 'rsn'"
       [class.shadow-sm]="tab() === 'rsn'"
-      [class.text-slate-500]="tab() !== 'rsn'"
+      [class.text-slate-600]="tab() !== 'rsn'"
       class="rounded-lg px-4 py-2 text-label-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary">
       RSN: UCR-ICE
     </button>
@@ -42,12 +42,12 @@
 
   <!-- Panel de filtros -->
   <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="filter-params-title">
-    <p id="filter-params-title" class="mb-4 text-label-sm font-semibold text-slate-500 uppercase tracking-wide">Parámetros de búsqueda</p>
+    <p id="filter-params-title" class="mb-4 text-label-sm font-semibold text-slate-600 uppercase tracking-wide">Parámetros de búsqueda</p>
     <div class="flex flex-wrap items-end gap-3">
 
       <!-- Año -->
       <div class="flex w-full flex-col gap-1 sm:w-auto">
-        <label for="select-anio" class="text-xs font-medium text-slate-500">Año</label>
+        <label for="select-anio" class="text-xs font-medium text-slate-600">Año</label>
         <select
           id="select-anio"
           [ngModel]="anioSeleccionado()"
@@ -62,7 +62,7 @@
 
       <!-- Planta -->
       <div class="flex w-full flex-col gap-1 sm:w-auto">
-        <label for="select-planta" class="text-xs font-medium text-slate-500">Planta / Estación</label>
+        <label for="select-planta" class="text-xs font-medium text-slate-600">Planta / Estación</label>
         <select
           id="select-planta"
           [ngModel]="plantaSeleccionada()?.codCentroPrd ?? ''"
@@ -110,7 +110,7 @@
     @if (cargandoHistorial()) {
       <div class="flex items-center justify-center py-16" aria-live="polite">
         <div class="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <span class="ml-4 text-slate-500">Cargando datos acelerográficos...</span>
+        <span class="ml-4 text-slate-600">Cargando datos acelerográficos...</span>
       </div>
     }
 
@@ -123,14 +123,14 @@
 
     <!-- Sin búsqueda -->
     @if (!cargandoHistorial() && !errorHistorial() && !hasBuscadoAcel()) {
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-500">
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-600">
         Seleccioná los filtros y presioná <strong>Buscar</strong> para ver los resultados.
       </div>
     }
 
     <!-- Resultados vacíos -->
     @if (!cargandoHistorial() && !errorHistorial() && hasBuscadoAcel() && historialDatos().length === 0) {
-      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-500" aria-live="polite">
+      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-600" aria-live="polite">
         No se encontraron eventos sísmicos con los filtros seleccionados.
       </div>
     }
@@ -141,8 +141,8 @@
 
         <!-- Título resultado -->
         <div class="rounded-xl bg-surface-container px-5 py-3">
-          <p class="font-semibold text-primary" id="title-map-acel">{{ tituloResultado }}</p>
-          <p class="text-xs text-slate-500 mt-0.5">
+          <p class="font-semibold text-primary" id="title-map-acel">{{ tituloResultado() }}</p>
+          <p class="text-xs text-slate-600 mt-0.5">
             Mapa de localización epicentral de los sismos sentidos y registrados por el sistema acelerográfico
           </p>
         </div>
@@ -151,7 +151,7 @@
           <!-- Mapa -->
           <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" role="region" aria-labelledby="title-map-acel">
             <app-sismo-map
-              [sismos]="sismosMapaAcel"
+              [sismos]="sismosMapaAcel()"
               [estaciones]="estaciones()"
               [height]="'380px'"
               [zoom]="7"
@@ -161,19 +161,19 @@
 
           <!-- Gráficas: 2×2 grid -->
           <section aria-labelledby="charts-sismo-title">
-            <h3 id="charts-sismo-title" class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
+            <h3 id="charts-sismo-title" class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-600">
               Gráficas de información sismológica
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <app-scatter-chart
-                [datos]="chartMagnitudDistanciaAcel"
+                [datos]="chartMagnitudDistanciaAcel()"
                 tituloX="Distancia (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Distancia"
                 colorPunto="#22c55e">
               </app-scatter-chart>
               <app-scatter-chart
-                [datos]="chartMagnitudProfundidadAcel"
+                [datos]="chartMagnitudProfundidadAcel()"
                 tituloX="Profundidad (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Profundidad"
@@ -183,19 +183,19 @@
           </section>
 
           <section aria-labelledby="charts-acel-title">
-            <h3 id="charts-acel-title" class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
+            <h3 id="charts-acel-title" class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-600">
               Gráficas de información acelerográfica
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <app-scatter-chart
-                [datos]="chartAcelMagnitud"
+                [datos]="chartAcelMagnitud()"
                 tituloX="Aceleración Pico (cm/s²)"
                 tituloY="Magnitud (Mw)"
                 titulo="Aceleración Pico - Magnitud"
                 colorPunto="#22c55e">
               </app-scatter-chart>
               <app-scatter-chart
-                [datos]="chartAcelDistancia"
+                [datos]="chartAcelDistancia()"
                 tituloX="Aceleración Pico (cm/s²)"
                 tituloY="Distancia Hipocentral (km)"
                 titulo="Aceleración Pico - Distancia Hipocentral"
@@ -211,16 +211,16 @@
             <h3 id="table-acel-title" class="font-semibold text-slate-800">
               Eventos sísmicos con registro acelerográfico en el sitio de monitoreo
             </h3>
-            <p class="text-xs text-slate-500 mt-0.5" aria-live="polite">
-              {{ historialDatos().length }} eventos &middot; Página {{ paginaHistorial() }} de {{ historialTotalPaginas }}
+            <p class="text-xs text-slate-600 mt-0.5" aria-live="polite">
+              {{ historialDatos().length }} eventos &middot; Página {{ paginaHistorial() }} de {{ historialTotalPaginas() }}
             </p>
           </div>
           <div class="lg:hidden divide-y divide-slate-100">
-            @for (evento of historialPagina; track evento.feSismo + evento.codEstacion; let idx = $index) {
+            @for (evento of historialPagina(); track evento.feSismo + evento.codEstacion; let idx = $index) {
               <article class="p-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-600">
                       Evento {{ (paginaHistorial() - 1) * pageSizeHistorial + idx + 1 }}
                     </p>
                     <p class="text-sm font-medium text-slate-700">
@@ -233,37 +233,37 @@
                 </div>
                 <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Latitud</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Latitud</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.coordenadaY | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Longitud</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Longitud</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.coordenadaX | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Magnitud</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Magnitud</dt>
                     <dd class="text-sm font-bold" [style.color]="colorMagnitud(evento.magnitud)">
                       {{ evento.magnitud | number:'1.1-1' }} Mw
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Profundidad</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Profundidad</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.profundidad | number:'1.0-0' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Dist. Hipocentral</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Dist. Hipocentral</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Dist. Epicentral</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Dist. Epicentral</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.distanciaEpicentral ?? 0) | number:'1.2-2' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Aceleración</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Aceleración</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaAceleracion ?? 0) | number:'1.3-3' }} cm/s²</dd>
                   </div>
                   <div>
-                    <dt class="text-[11px] uppercase tracking-wide text-slate-500">Desplazamiento</dt>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-600">Desplazamiento</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.vaDesplazamiento ?? 0) | number:'1.3-3' }} cm</dd>
                   </div>
                 </dl>
@@ -274,7 +274,7 @@
           <!-- VISTA DESKTOP: tabla (oculto en móvil) -->
           <div class="hidden lg:block overflow-x-auto">
             <table class="w-full border-collapse text-xs xl:text-sm">
-              <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                 <tr class="border-b border-slate-200">
                   <th scope="col" class="w-[4%] px-2 py-4 text-left">No.</th>
                   <th scope="col" class="w-[14%] px-2 py-4 text-left">Fecha</th>
@@ -290,7 +290,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                @for (evento of historialPagina; track evento.feSismo + evento.codEstacion; let idx = $index) {
+                @for (evento of historialPagina(); track evento.feSismo + evento.codEstacion; let idx = $index) {
                   <tr class="transition hover:bg-sky-50/30">
                     <td class="px-2 py-3.5 text-slate-400 font-medium">
                       {{ (paginaHistorial() - 1) * pageSizeHistorial + idx + 1 }}
@@ -310,10 +310,10 @@
                     <td class="px-2 py-3.5 text-right tabular-nums text-slate-600">
                       {{ evento.profundidad | number:'1.0-0' }} <span class="text-[9px] text-slate-400">km</span>
                     </td>
-                    <td class="px-2 py-3.5 text-right tabular-nums text-slate-500 text-[11px]">
+                    <td class="px-2 py-3.5 text-right tabular-nums text-slate-600 text-[11px]">
                       {{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} <span class="text-[9px]">km</span>
                     </td>
-                    <td class="px-2 py-3.5 text-right tabular-nums text-slate-500 text-[11px]">
+                    <td class="px-2 py-3.5 text-right tabular-nums text-slate-600 text-[11px]">
                       {{ (evento.distanciaEpicentral ?? 0) | number:'1.2-2' }} <span class="text-[9px]">km</span>
                     </td>
                     <td class="px-2 py-3.5 text-center">
@@ -335,7 +335,7 @@
           <div class="border-t border-slate-100 px-5 py-3">
             <app-paginacion
               [paginaActual]="paginaHistorial()"
-              [totalPaginas]="historialTotalPaginas"
+              [totalPaginas]="historialTotalPaginas()"
               (paginaCambio)="cambiarPaginaHistorial($event)">
             </app-paginacion>
           </div>
@@ -354,7 +354,7 @@
     @if (cargandoRsn()) {
       <div class="flex items-center justify-center py-16" aria-live="polite">
         <div class="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <span class="ml-4 text-slate-500">Cargando datos RSN...</span>
+        <span class="ml-4 text-slate-600">Cargando datos RSN...</span>
       </div>
     }
 
@@ -367,14 +367,14 @@
 
     <!-- Sin búsqueda -->
     @if (!cargandoRsn() && !errorRsn() && !hasBuscadoRsn()) {
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-500">
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center text-slate-600">
         Seleccioná los filtros y presioná <strong>Buscar</strong> para ver los resultados RSN.
       </div>
     }
 
     <!-- Sin datos -->
     @if (!cargandoRsn() && !errorRsn() && hasBuscadoRsn() && rsnDatos().length === 0) {
-      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-500" aria-live="polite">
+      <div class="rounded-2xl border border-slate-200 bg-white py-16 text-center text-slate-600" aria-live="polite">
         No se encontraron eventos RSN con los filtros seleccionados.
       </div>
     }
@@ -385,8 +385,8 @@
 
         <!-- Título resultado -->
         <div class="rounded-xl bg-surface-container px-5 py-3">
-          <p class="font-semibold text-primary" id="title-map-rsn">{{ tituloResultado }}</p>
-          <p class="text-xs text-slate-500 mt-0.5">
+          <p class="font-semibold text-primary" id="title-map-rsn">{{ tituloResultado() }}</p>
+          <p class="text-xs text-slate-600 mt-0.5">
             Mapa de localización epicentral de los sismos reportados por la RSN: UCR-ICE
           </p>
         </div>
@@ -395,7 +395,7 @@
           <!-- Mapa RSN -->
           <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" role="region" aria-labelledby="title-map-rsn">
             <app-sismo-map
-              [sismos]="sismosMapaRsn"
+              [sismos]="sismosMapaRsn()"
               [estaciones]="estaciones()"
               [height]="'380px'"
               [zoom]="7"
@@ -405,19 +405,19 @@
 
           <!-- Gráficas RSN: 1×2 -->
           <section aria-labelledby="charts-rsn-title">
-            <h3 id="charts-rsn-title" class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-500">
+            <h3 id="charts-rsn-title" class="mb-3 text-label-sm font-bold uppercase tracking-wide text-slate-600">
               Gráficas de información sismológica
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <app-scatter-chart
-                [datos]="chartMagnitudDistanciaRsn"
+                [datos]="chartMagnitudDistanciaRsn()"
                 tituloX="Distancia (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Distancia"
                 colorPunto="#3b82f6">
               </app-scatter-chart>
               <app-scatter-chart
-                [datos]="chartMagnitudProfundidadRsn"
+                [datos]="chartMagnitudProfundidadRsn()"
                 tituloX="Profundidad (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Profundidad"
@@ -433,18 +433,18 @@
             <h3 id="table-rsn-title" class="font-semibold text-slate-800">
               Tabla de eventos sísmicos registrados por la RSN: UCR-ICE
             </h3>
-            <p class="text-xs text-slate-500 mt-0.5" aria-live="polite">
-              {{ rsnDatos().length }} eventos &middot; Página {{ paginaRsn() }} de {{ rsnTotalPaginas }}
+            <p class="text-xs text-slate-600 mt-0.5" aria-live="polite">
+              {{ rsnDatos().length }} eventos &middot; Página {{ paginaRsn() }} de {{ rsnTotalPaginas() }}
             </p>
           </div>
 
           <!-- VISTA MÓVIL: cards (oculto en lg+) -->
           <div class="lg:hidden divide-y divide-slate-100">
-            @for (evento of rsnPagina; track evento.feSismo; let idx = $index) {
+            @for (evento of rsnPagina(); track evento.feSismo; let idx = $index) {
               <article class="p-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-600">
                       Evento {{ (paginaRsn() - 1) * pageSizeRsn + idx + 1 }}
                     </p>
                     <p class="text-sm font-medium text-slate-700">
@@ -460,29 +460,29 @@
 
                 <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
                   <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Latitud</dt>
+                    <dt class="text-xs uppercase tracking-wide text-slate-600">Latitud</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.coordenadaY | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Longitud</dt>
+                    <dt class="text-xs uppercase tracking-wide text-slate-600">Longitud</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.coordenadaX | number:'1.3-3' }}</dd>
                   </div>
                   <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Magnitud</dt>
+                    <dt class="text-xs uppercase tracking-wide text-slate-600">Magnitud</dt>
                     <dd class="text-sm font-bold" [style.color]="colorMagnitud(evento.magnitud)">
                       {{ evento.magnitud | number:'1.1-1' }} Mw
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Profundidad</dt>
+                    <dt class="text-xs uppercase tracking-wide text-slate-600">Profundidad</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ evento.profundidad | number:'1.0-0' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Dist. Hipocentral</dt>
+                    <dt class="text-xs uppercase tracking-wide text-slate-600">Dist. Hipocentral</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} km</dd>
                   </div>
                   <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Dist. Epicentral</dt>
+                    <dt class="text-xs uppercase tracking-wide text-slate-600">Dist. Epicentral</dt>
                     <dd class="text-sm tabular-nums text-slate-600">{{ (evento.distanciaEpicentral ?? 0) | number:'1.2-2' }} km</dd>
                   </div>
                 </dl>
@@ -493,7 +493,7 @@
           <!-- VISTA DESKTOP: tabla (oculto en móvil) -->
           <div class="hidden lg:block overflow-x-auto">
             <table class="w-full border-collapse text-xs xl:text-sm">
-              <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                 <tr class="border-b border-slate-200">
                   <th scope="col" class="w-[4%] px-3 py-4 text-left">No.</th>
                   <th scope="col" class="w-[16%] px-3 py-4 text-left">Fecha</th>
@@ -507,7 +507,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                @for (evento of rsnPagina; track evento.feSismo; let idx = $index) {
+                @for (evento of rsnPagina(); track evento.feSismo; let idx = $index) {
                   <tr class="transition hover:bg-sky-50/30">
                     <td class="px-3 py-3.5 text-slate-400 font-medium">
                       {{ (paginaRsn() - 1) * pageSizeRsn + idx + 1 }}
@@ -527,10 +527,10 @@
                     <td class="px-3 py-3.5 text-right tabular-nums text-slate-600">
                       {{ evento.profundidad | number:'1.0-0' }} <span class="text-[9px] text-slate-400">km</span>
                     </td>
-                    <td class="px-3 py-3.5 text-right tabular-nums text-slate-500 text-[11px]">
+                    <td class="px-3 py-3.5 text-right tabular-nums text-slate-600 text-[11px]">
                       {{ (evento.distanciaHipocentral ?? 0) | number:'1.2-2' }} <span class="text-[9px]">km</span>
                     </td>
-                    <td class="px-3 py-3.5 text-right tabular-nums text-slate-500 text-[11px]">
+                    <td class="px-3 py-3.5 text-right tabular-nums text-slate-600 text-[11px]">
                       {{ (evento.distanciaEpicentral ?? 0) | number:'1.2-2' }} <span class="text-[9px]">km</span>
                     </td>
                     <td class="px-3 py-3.5 text-center">
@@ -551,7 +551,7 @@
           <div class="border-t border-slate-100 px-5 py-3">
             <app-paginacion
               [paginaActual]="paginaRsn()"
-              [totalPaginas]="rsnTotalPaginas"
+              [totalPaginas]="rsnTotalPaginas()"
               (paginaCambio)="cambiarPaginaRsn($event)">
             </app-paginacion>
           </div>

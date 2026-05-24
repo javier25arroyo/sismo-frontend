@@ -53,6 +53,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Estaciones sísmicas a mostrar en el mapa */
   estaciones = input<EstacionRespuesta[]>([]);
 
+  /** Cuando es true y hay exactamente una estación, vuela al mapa a su ubicación */
+  flyToEstacion = input<boolean>(false);
+
   readonly ariaLabel = computed(() => {
     const epicentro  = this.epicentro();
     const sismos     = this.sismos();
@@ -112,6 +115,9 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
       const estaciones = this.estaciones();
       if (this.isInitialized && this.estacionesLayer) {
         this.addEstaciones(estaciones);
+        if (this.flyToEstacion() && estaciones.length === 1) {
+          this.map.flyTo([estaciones[0].coordenadaY, estaciones[0].coordenadaX], 12, { duration: 0.8 });
+        }
       }
     });
   }

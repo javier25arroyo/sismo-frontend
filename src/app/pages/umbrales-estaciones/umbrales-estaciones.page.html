@@ -5,7 +5,7 @@
       <div>
         <p class="text-xs font-bold uppercase tracking-widest text-sky-700">Administración SISMO</p>
         <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Umbrales por estación</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
           Consulta la configuración completa de alarmas por estación y ajusta límites específicos sin salir de la vista.
         </p>
       </div>
@@ -26,15 +26,15 @@
 
     <div class="mt-5 grid gap-3 sm:grid-cols-3">
       <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Configuraciones</p>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-600">Configuraciones</p>
         <p class="mt-1 text-3xl font-black text-slate-900">{{ totalElementos() }}</p>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Estaciones cargadas</p>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-600">Estaciones cargadas</p>
         <p class="mt-1 text-3xl font-black text-slate-900">{{ estaciones().length }}</p>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Parámetros</p>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-600">Parámetros</p>
         <p class="mt-1 text-3xl font-black text-slate-900">{{ parametros().length }}</p>
       </div>
     </div>
@@ -50,29 +50,29 @@
 
     <div class="grid gap-3 md:grid-cols-4">
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-centro">Centro</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="filtro-centro">Centro</label>
         <input type="text"
           id="filtro-centro"
           [value]="filtroCentro()"
           (input)="setFiltroCentro($event)"
           (keydown.enter)="aplicarFiltros()"
           placeholder="Ej. CB"
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-estacion">Estación</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="filtro-estacion">Estación</label>
         <input type="text"
           id="filtro-estacion"
           [value]="filtroEstacion()"
           (input)="setFiltroEstacion($event)"
           (keydown.enter)="aplicarFiltros()"
           placeholder="Ej. 01"
-          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"/>
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-parametro">Parámetro</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="filtro-parametro">Parámetro</label>
         <select
           id="filtro-parametro"
           [value]="filtroParametro()"
@@ -86,7 +86,7 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-slate-500" for="filtro-umbral">Nivel</label>
+        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600" for="filtro-umbral">Nivel</label>
         <select
           id="filtro-umbral"
           [value]="filtroUmbral()"
@@ -133,26 +133,26 @@
           </span>
           <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">Configuraciones</h2>
         </div>
-        <p class="text-xs font-semibold text-slate-500">Página {{ pagina() + 1 }} de {{ totalPaginas() }}</p>
+        <p class="text-xs font-semibold text-slate-600">Página {{ pagina() + 1 }} de {{ totalPaginas() }}</p>
       </div>
 
       @if (cargando()) {
         <div class="space-y-3 p-5">
           @for (i of [1,2,3,4,5,6]; track i) {
-            <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
+            <div class="h-16 rounded-xl bg-slate-100 skeleton-shimmer"></div>
           }
         </div>
       } @else if (alarmasPagina().length === 0) {
         <div class="flex min-h-72 items-center justify-center px-5 py-10 text-center">
           <div>
             <p class="text-base font-semibold text-slate-700">Sin umbrales por estación</p>
-            <p class="mt-1 text-sm text-slate-500">Ajusta los filtros o crea una configuración nueva.</p>
+            <p class="mt-1 text-sm text-slate-600">Ajusta los filtros o crea una configuración nueva.</p>
           </div>
         </div>
       } @else {
         <div class="overflow-x-auto">
           <table class="w-full border-collapse text-[11px] lg:text-xs xl:text-[13px]">
-            <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
               <tr class="border-b border-slate-200">
                 <th scope="col" class="px-2.5 py-4 text-left">Estación</th>
                 <th scope="col" class="px-2.5 py-4 text-left">Parámetro</th>
@@ -171,7 +171,7 @@
                   [class.bg-sky-50]="alarmaEditando()?.codCentroPrd === alarma.codCentroPrd && alarmaEditando()?.codEstacion === alarma.codEstacion && alarmaEditando()?.codParametro === alarma.codParametro && alarmaEditando()?.codUmbral === alarma.codUmbral">
                   <td class="px-2.5 py-4">
                     <p class="font-bold text-sky-700">{{ alarma.codCentroPrd }}-{{ alarma.codEstacion }}</p>
-                    <p class="mt-0.5 max-w-[120px] truncate text-[10px] font-medium text-slate-500">{{ estacionLabel(alarma.codCentroPrd, alarma.codEstacion) }}</p>
+                    <p class="mt-0.5 max-w-[120px] truncate text-[10px] font-medium text-slate-600">{{ estacionLabel(alarma.codCentroPrd, alarma.codEstacion) }}</p>
                   </td>
                   <td class="px-2.5 py-4">
                     <p class="font-semibold text-slate-800">{{ parametroLabel(alarma.codParametro) }}</p>
@@ -204,13 +204,13 @@
                       <button type="button"
                         (click)="editar(alarma)"
                         title="Editar"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-sky-50 hover:text-sky-700">
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-sky-50 hover:text-sky-700">
                         <i-lucide [img]="editIcon" size="14"></i-lucide>
                       </button>
                       <button type="button"
                         (click)="pedirEliminar(alarma)"
                         title="Eliminar"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-700">
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">
                         <i-lucide [img]="trashIcon" size="14"></i-lucide>
                       </button>
                     </div>
@@ -222,7 +222,7 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
-          <p class="text-xs font-semibold text-slate-500">{{ totalElementos() }} configuraciones visibles</p>
+          <p class="text-xs font-semibold text-slate-600">{{ totalElementos() }} configuraciones visibles</p>
           <div class="flex gap-2">
             <button type="button"
               (click)="irPagina(-1)"
@@ -244,7 +244,7 @@
     <aside class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:sticky xl:top-24 xl:self-start">
       <div class="mb-5 flex items-center justify-between gap-3">
         <div>
-          <p class="text-xs font-bold uppercase tracking-widest text-slate-500">
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-600">
             {{ modoFormulario() === 'edit' ? 'Editar configuración' : 'Nueva configuración' }}
           </p>
           <h2 class="mt-1 text-xl font-bold tracking-tight text-slate-900">
@@ -262,12 +262,12 @@
 
       <form (submit)="guardar($event)" class="space-y-4">
         <label class="flex flex-col gap-1">
-          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Estación</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Estación</span>
           <select
             [value]="form().codCentroPrd + '|' + form().codEstacion"
             (change)="setFormEstacion($event)"
             [disabled]="modoFormulario() === 'edit'"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500">
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-600">
             <option value="|">Selecciona estación</option>
             @for (estacion of estacionesDisponibles(); track estacion.codCentroPrd + estacion.codEstacion) {
               <option [value]="estacionKey(estacion)">
@@ -278,12 +278,12 @@
         </label>
 
         <label class="flex flex-col gap-1">
-          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Parámetro</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Parámetro</span>
           <select
             [value]="form().codParametro"
             (change)="setFormParametro($event)"
             [disabled]="modoFormulario() === 'edit'"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500">
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-600">
             <option value="">Selecciona parámetro</option>
             @for (parametro of parametros(); track parametro.codParametro) {
               <option [value]="parametro.codParametro">
@@ -294,12 +294,12 @@
         </label>
 
         <label class="flex flex-col gap-1">
-          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Nivel</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Nivel</span>
           <select
             [value]="form().codUmbral"
             (change)="setFormUmbral($event)"
             [disabled]="modoFormulario() === 'edit' || !form().codParametro"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500">
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-600">
             <option value="">Selecciona nivel</option>
             @for (umbral of umbralesFormulario(); track umbral.codUmbral) {
               <option [value]="umbral.codUmbral">
@@ -317,11 +317,11 @@
               (change)="setUsarCalculoAutomatico($event)"
               class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"/>
           </label>
-          <p class="mt-1 text-xs leading-5 text-slate-500">Usa el cálculo del backend para ajustar el límite según los datos de la estación.</p>
+          <p class="mt-1 text-xs leading-5 text-slate-600">Usa el cálculo del backend para ajustar el límite según los datos de la estación.</p>
         </div>
 
         <label class="flex flex-col gap-1">
-          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Límite inferior</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Límite inferior</span>
           <input type="number"
             min="0"
             step="0.000001"
@@ -329,7 +329,7 @@
             (input)="setLimite($event)"
             [disabled]="form().usarCalculoAutomatico"
             placeholder="Se calculará automáticamente"
-            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-500"/>
+            class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:text-slate-600"/>
         </label>
 
         <button type="button"

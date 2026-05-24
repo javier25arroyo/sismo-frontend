@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { ScatterChartComponent, ScatterDato } from '../../components/scatter-chart/scatter-chart.component';
@@ -209,14 +209,14 @@ export class ConsultasPage implements OnInit {
 
   // ── Paginación Acelerógrafos ───────────────────────────────────
 
-  get historialPagina(): HistorialSismoRespuesta[] {
+  readonly historialPagina = computed((): HistorialSismoRespuesta[] => {
     const inicio = (this.paginaHistorial() - 1) * this.pageSizeHistorial;
     return this.historialDatos().slice(inicio, inicio + this.pageSizeHistorial);
-  }
+  });
 
-  get historialTotalPaginas(): number {
-    return Math.max(1, Math.ceil(this.historialDatos().length / this.pageSizeHistorial));
-  }
+  readonly historialTotalPaginas = computed((): number =>
+    Math.max(1, Math.ceil(this.historialDatos().length / this.pageSizeHistorial))
+  );
 
   cambiarPaginaHistorial(p: number): void {
     this.paginaHistorial.set(p);
@@ -224,14 +224,14 @@ export class ConsultasPage implements OnInit {
 
   // ── Paginación RSN ────────────────────────────────────────────
 
-  get rsnPagina(): HistorialRsnRespuesta[] {
+  readonly rsnPagina = computed((): HistorialRsnRespuesta[] => {
     const inicio = (this.paginaRsn() - 1) * this.pageSizeRsn;
     return this.rsnDatos().slice(inicio, inicio + this.pageSizeRsn);
-  }
+  });
 
-  get rsnTotalPaginas(): number {
-    return Math.max(1, Math.ceil(this.rsnDatos().length / this.pageSizeRsn));
-  }
+  readonly rsnTotalPaginas = computed((): number =>
+    Math.max(1, Math.ceil(this.rsnDatos().length / this.pageSizeRsn))
+  );
 
   cambiarPaginaRsn(p: number): void {
     this.paginaRsn.set(p);
@@ -239,7 +239,7 @@ export class ConsultasPage implements OnInit {
 
   // ── Mapa ─────────────────────────────────────────────────────
 
-  get sismosMapaAcel(): SismoResumenRespuesta[] {
+  readonly sismosMapaAcel = computed((): SismoResumenRespuesta[] => {
     const eventosPorSismo = new Map<string, HistorialSismoRespuesta>();
 
     for (const h of this.historialDatos()) {
@@ -251,10 +251,10 @@ export class ConsultasPage implements OnInit {
 
     return Array.from(eventosPorSismo.values())
       .map(h => this.toSismoResumen(h));
-  }
+  });
 
-  get sismosMapaRsn(): SismoResumenRespuesta[] {
-    return this.rsnDatos().map(r => ({
+  readonly sismosMapaRsn = computed((): SismoResumenRespuesta[] =>
+    this.rsnDatos().map(r => ({
       codCentroPrd: '',
       nomCentroPrd: r.nombre,
       codEstacion: '',
@@ -268,8 +268,8 @@ export class ConsultasPage implements OnInit {
       coordenadaY: r.coordenadaY,
       distanciaHipocentral: r.distanciaHipocentral,
       distanciaEpicentral: r.distanciaEpicentral
-    }));
-  }
+    }))
+  );
 
   private toSismoResumen(h: HistorialSismoRespuesta): SismoResumenRespuesta {
     return {
@@ -297,7 +297,7 @@ export class ConsultasPage implements OnInit {
 
   // ── Datos para gráficas ───────────────────────────────────────
 
-  private eventosAgregadosAcel(): EventoAgregado[] {
+  private readonly eventosAgregadosAcel = computed((): EventoAgregado[] => {
     const map = new Map<string, EventoAgregado>();
     for (const d of this.historialDatos()) {
       if (!map.has(d.feSismo)) {
@@ -321,31 +321,31 @@ export class ConsultasPage implements OnInit {
       }
     }
     return Array.from(map.values());
-  }
+  });
 
-  get chartMagnitudDistanciaAcel(): ScatterDato[] {
-    return this.eventosAgregadosAcel().map(e => ({ x: e.distanciaEpicentral, y: e.magnitud }));
-  }
+  readonly chartMagnitudDistanciaAcel = computed((): ScatterDato[] =>
+    this.eventosAgregadosAcel().map(e => ({ x: e.distanciaEpicentral, y: e.magnitud }))
+  );
 
-  get chartMagnitudProfundidadAcel(): ScatterDato[] {
-    return this.eventosAgregadosAcel().map(e => ({ x: e.profundidad, y: e.magnitud }));
-  }
+  readonly chartMagnitudProfundidadAcel = computed((): ScatterDato[] =>
+    this.eventosAgregadosAcel().map(e => ({ x: e.profundidad, y: e.magnitud }))
+  );
 
-  get chartAcelMagnitud(): ScatterDato[] {
-    return this.eventosAgregadosAcel().map(e => ({ x: e.vaAceleracion, y: e.magnitud }));
-  }
+  readonly chartAcelMagnitud = computed((): ScatterDato[] =>
+    this.eventosAgregadosAcel().map(e => ({ x: e.vaAceleracion, y: e.magnitud }))
+  );
 
-  get chartAcelDistancia(): ScatterDato[] {
-    return this.eventosAgregadosAcel().map(e => ({ x: e.vaAceleracion, y: e.distanciaHipocentral }));
-  }
+  readonly chartAcelDistancia = computed((): ScatterDato[] =>
+    this.eventosAgregadosAcel().map(e => ({ x: e.vaAceleracion, y: e.distanciaHipocentral }))
+  );
 
-  get chartMagnitudDistanciaRsn(): ScatterDato[] {
-    return this.rsnDatos().map(r => ({ x: r.distanciaEpicentral ?? 0, y: r.magnitud }));
-  }
+  readonly chartMagnitudDistanciaRsn = computed((): ScatterDato[] =>
+    this.rsnDatos().map(r => ({ x: r.distanciaEpicentral ?? 0, y: r.magnitud }))
+  );
 
-  get chartMagnitudProfundidadRsn(): ScatterDato[] {
-    return this.rsnDatos().map(r => ({ x: r.profundidad, y: r.magnitud }));
-  }
+  readonly chartMagnitudProfundidadRsn = computed((): ScatterDato[] =>
+    this.rsnDatos().map(r => ({ x: r.profundidad, y: r.magnitud }))
+  );
 
   // ── Helpers UI ────────────────────────────────────────────────
 
@@ -397,11 +397,11 @@ export class ConsultasPage implements OnInit {
     return '#94a3b8';
   }
 
-  get tituloResultado(): string {
+  readonly tituloResultado = computed((): string => {
     const planta = this.plantaSeleccionada()?.nomCentroPrd ?? 'todas las plantas';
     const anio   = this.anioSeleccionado() ?? 'todos los años';
     return this.tab() === 'acelerografos'
       ? `Registro de sismos para ${planta} durante ${anio}`
       : `Eventos RSN para ${planta} durante ${anio}`;
-  }
+  });
 }

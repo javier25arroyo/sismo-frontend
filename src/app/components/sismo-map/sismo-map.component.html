@@ -10,28 +10,30 @@
 
   <!-- Alternativa textual para screen readers -->
   @if (estaciones().length > 0) {
-    <table class="sr-only">
-      <caption>Red sísmica — listado de estaciones en el mapa</caption>
-      <thead>
-        <tr>
-          <th scope="col">Código</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Latitud</th>
-          <th scope="col">Longitud</th>
-          <th scope="col">Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (e of estaciones(); track e.codEstacion) {
+    <div class="sr-only">
+      <table>
+        <caption>Red sísmica — listado de estaciones en el mapa</caption>
+        <thead>
           <tr>
-            <td>{{ e.codEstacion }}</td>
-            <td>{{ e.nomEstacion }}</td>
-            <td>{{ e.coordenadaY }}</td>
-            <td>{{ e.coordenadaX }}</td>
-            <td>{{ e.estado }}</td>
+            <th scope="col">Código</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Latitud</th>
+            <th scope="col">Longitud</th>
+            <th scope="col">Estado</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (e of estaciones(); track e.codEstacion) {
+            <tr>
+              <td>{{ e.codEstacion }}</td>
+              <td>{{ e.nomEstacion }}</td>
+              <td>{{ e.coordenadaY }}</td>
+              <td>{{ e.coordenadaX }}</td>
+              <td>{{ e.estado }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </div>
