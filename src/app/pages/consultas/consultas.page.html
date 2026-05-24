@@ -141,7 +141,7 @@
 
         <!-- Título resultado -->
         <div class="rounded-xl bg-surface-container px-5 py-3">
-          <p class="font-semibold text-primary" id="title-map-acel">{{ tituloResultado }}</p>
+          <p class="font-semibold text-primary" id="title-map-acel">{{ tituloResultado() }}</p>
           <p class="text-xs text-slate-600 mt-0.5">
             Mapa de localización epicentral de los sismos sentidos y registrados por el sistema acelerográfico
           </p>
@@ -151,7 +151,7 @@
           <!-- Mapa -->
           <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" role="region" aria-labelledby="title-map-acel">
             <app-sismo-map
-              [sismos]="sismosMapaAcel"
+              [sismos]="sismosMapaAcel()"
               [estaciones]="estaciones()"
               [height]="'380px'"
               [zoom]="7"
@@ -166,14 +166,14 @@
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <app-scatter-chart
-                [datos]="chartMagnitudDistanciaAcel"
+                [datos]="chartMagnitudDistanciaAcel()"
                 tituloX="Distancia (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Distancia"
                 colorPunto="#22c55e">
               </app-scatter-chart>
               <app-scatter-chart
-                [datos]="chartMagnitudProfundidadAcel"
+                [datos]="chartMagnitudProfundidadAcel()"
                 tituloX="Profundidad (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Profundidad"
@@ -188,14 +188,14 @@
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <app-scatter-chart
-                [datos]="chartAcelMagnitud"
+                [datos]="chartAcelMagnitud()"
                 tituloX="Aceleración Pico (cm/s²)"
                 tituloY="Magnitud (Mw)"
                 titulo="Aceleración Pico - Magnitud"
                 colorPunto="#22c55e">
               </app-scatter-chart>
               <app-scatter-chart
-                [datos]="chartAcelDistancia"
+                [datos]="chartAcelDistancia()"
                 tituloX="Aceleración Pico (cm/s²)"
                 tituloY="Distancia Hipocentral (km)"
                 titulo="Aceleración Pico - Distancia Hipocentral"
@@ -212,11 +212,11 @@
               Eventos sísmicos con registro acelerográfico en el sitio de monitoreo
             </h3>
             <p class="text-xs text-slate-600 mt-0.5" aria-live="polite">
-              {{ historialDatos().length }} eventos &middot; Página {{ paginaHistorial() }} de {{ historialTotalPaginas }}
+              {{ historialDatos().length }} eventos &middot; Página {{ paginaHistorial() }} de {{ historialTotalPaginas() }}
             </p>
           </div>
           <div class="lg:hidden divide-y divide-slate-100">
-            @for (evento of historialPagina; track evento.feSismo + evento.codEstacion; let idx = $index) {
+            @for (evento of historialPagina(); track evento.feSismo + evento.codEstacion; let idx = $index) {
               <article class="p-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
@@ -290,7 +290,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                @for (evento of historialPagina; track evento.feSismo + evento.codEstacion; let idx = $index) {
+                @for (evento of historialPagina(); track evento.feSismo + evento.codEstacion; let idx = $index) {
                   <tr class="transition hover:bg-sky-50/30">
                     <td class="px-2 py-3.5 text-slate-400 font-medium">
                       {{ (paginaHistorial() - 1) * pageSizeHistorial + idx + 1 }}
@@ -335,7 +335,7 @@
           <div class="border-t border-slate-100 px-5 py-3">
             <app-paginacion
               [paginaActual]="paginaHistorial()"
-              [totalPaginas]="historialTotalPaginas"
+              [totalPaginas]="historialTotalPaginas()"
               (paginaCambio)="cambiarPaginaHistorial($event)">
             </app-paginacion>
           </div>
@@ -385,7 +385,7 @@
 
         <!-- Título resultado -->
         <div class="rounded-xl bg-surface-container px-5 py-3">
-          <p class="font-semibold text-primary" id="title-map-rsn">{{ tituloResultado }}</p>
+          <p class="font-semibold text-primary" id="title-map-rsn">{{ tituloResultado() }}</p>
           <p class="text-xs text-slate-600 mt-0.5">
             Mapa de localización epicentral de los sismos reportados por la RSN: UCR-ICE
           </p>
@@ -395,7 +395,7 @@
           <!-- Mapa RSN -->
           <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" role="region" aria-labelledby="title-map-rsn">
             <app-sismo-map
-              [sismos]="sismosMapaRsn"
+              [sismos]="sismosMapaRsn()"
               [estaciones]="estaciones()"
               [height]="'380px'"
               [zoom]="7"
@@ -410,14 +410,14 @@
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <app-scatter-chart
-                [datos]="chartMagnitudDistanciaRsn"
+                [datos]="chartMagnitudDistanciaRsn()"
                 tituloX="Distancia (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Distancia"
                 colorPunto="#3b82f6">
               </app-scatter-chart>
               <app-scatter-chart
-                [datos]="chartMagnitudProfundidadRsn"
+                [datos]="chartMagnitudProfundidadRsn()"
                 tituloX="Profundidad (km)"
                 tituloY="Magnitud (Mw)"
                 titulo="Magnitud - Profundidad"
@@ -434,13 +434,13 @@
               Tabla de eventos sísmicos registrados por la RSN: UCR-ICE
             </h3>
             <p class="text-xs text-slate-600 mt-0.5" aria-live="polite">
-              {{ rsnDatos().length }} eventos &middot; Página {{ paginaRsn() }} de {{ rsnTotalPaginas }}
+              {{ rsnDatos().length }} eventos &middot; Página {{ paginaRsn() }} de {{ rsnTotalPaginas() }}
             </p>
           </div>
 
           <!-- VISTA MÓVIL: cards (oculto en lg+) -->
           <div class="lg:hidden divide-y divide-slate-100">
-            @for (evento of rsnPagina; track evento.feSismo; let idx = $index) {
+            @for (evento of rsnPagina(); track evento.feSismo; let idx = $index) {
               <article class="p-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
@@ -507,7 +507,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                @for (evento of rsnPagina; track evento.feSismo; let idx = $index) {
+                @for (evento of rsnPagina(); track evento.feSismo; let idx = $index) {
                   <tr class="transition hover:bg-sky-50/30">
                     <td class="px-3 py-3.5 text-slate-400 font-medium">
                       {{ (paginaRsn() - 1) * pageSizeRsn + idx + 1 }}
@@ -551,7 +551,7 @@
           <div class="border-t border-slate-100 px-5 py-3">
             <app-paginacion
               [paginaActual]="paginaRsn()"
-              [totalPaginas]="rsnTotalPaginas"
+              [totalPaginas]="rsnTotalPaginas()"
               (paginaCambio)="cambiarPaginaRsn($event)">
             </app-paginacion>
           </div>

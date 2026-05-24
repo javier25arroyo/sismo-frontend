@@ -1,12 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, OnInit, ViewChild, effect, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, ElementRef, HostListener,
+  OnInit, ViewChild, computed, effect, signal
+} from '@angular/core';
 import { FocusTrap } from '../../utils/focus-trap';
 import { MagnitudBadgeComponent } from '../../components/magnitud-badge/magnitud-badge.component';
 import { PaginacionComponent } from '../../components/paginacion/paginacion.component';
 import { SismoService } from '../../services/sismo.service';
-import { CentroService } from '../../services/centro.service';
+import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import { EstacionRespuesta, SismoRespuesta } from '../../interfaces/api.interfaces';
-import { ArrowLeft, ArrowUp, ArrowUpRight, Calendar, Check, ClipboardList, LucideAngularModule, MapPin, SlidersHorizontal, TriangleAlert, X } from 'lucide-angular';
+import {
+  ArrowLeft, ArrowUp, ArrowUpRight, Calendar, Check,
+  ClipboardList, LucideAngularModule, MapPin, SlidersHorizontal, TriangleAlert, X
+} from 'lucide-angular';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
@@ -20,27 +26,28 @@ type RangoRapido = 'hoy' | '7d' | '30d' | '90d' | 'anio';
 @Component({
   standalone: true,
   selector: 'app-historial',
-  imports: [CommonModule, FormsModule, MagnitudBadgeComponent, PaginacionComponent, LucideAngularModule, RouterLink, SismoMapComponent, UbicacionNormalizadaPipe, UtcLocalPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule, FormsModule, MagnitudBadgeComponent, PaginacionComponent,
+    LucideAngularModule, RouterLink, SismoMapComponent, UbicacionNormalizadaPipe, UtcLocalPipe
+  ],
   templateUrl: './historial.page.html'
 })
 export class HistorialPage implements OnInit {
-  private readonly allEventos = signal<SismoRespuesta[]>([]);
-
   eventos = signal<SismoRespuesta[]>([]);
   cargando = signal(true);
   pagina = signal(1);
   totalPaginas = signal(1);
   totalElementos = signal(0);
   readonly pageSize = 10;
-  private readonly fetchPageSize = 100;
 
-  // Filtros aplicados
+  // Filtros aplicados (enviados al API)
   desde = signal('');
   hasta = signal('');
   filtroSentido = signal<FiltroSentido>('');
   localizacion = signal<FiltroLocalizacion>('');
 
-  // Filtros en edición (se aplican al tocar "Aplicar Filtros")
+  // Filtros en edición
   desdeDraft = signal('');
   hastaDraft = signal('');
   filtroSentidoDraft = signal<FiltroSentido>('');
@@ -54,9 +61,34 @@ export class HistorialPage implements OnInit {
   private readonly trap = new FocusTrap();
   private detalleTrigger: HTMLElement | null = null;
 
-  // Sidebar stats
-  magnitudPromedio = signal(0);
-  eventoCritico = signal<SismoRespuesta | null>(null);
+  // Filtro localizacion aplicado sobre la página actual (client-side, el API no lo soporta)
+  readonly eventosFiltradosLocalizacion = computed(() => {
+    const loc = this.localizacion();
+    if (!loc) return this.eventos();
+    return this.eventos().filter(e => this.coincideLocalizacion(e.ubicacion, loc));
+  });
+
+  // Stats basados en la página actual
+  readonly magnitudPromedio = computed(() => {
+    const evts = this.eventosFiltradosLocalizacion();
+    if (evts.length === 0) return 0;
+    const mags = evts.map(e => e.magnitud);
+    return mags.reduce((a, b) => a + b, 0) / mags.length;
+  });
+
+  readonly eventoCritico = computed(() => {
+    const evts = this.eventosFiltradosLocalizacion();
+    if (evts.length === 0) return null;
+    return evts.reduce((prev, cur) => cur.magnitud > prev.magnitud ? cur : prev);
+  });
+
+  readonly magnitudColor = computed(() => {
+    const m = this.eventoCritico()?.magnitud ?? 0;
+    if (m < 3.0) return 'text-green-700';
+    if (m < 4.5) return 'text-yellow-700';
+    if (m < 6.0) return 'text-orange-700';
+    return 'text-rose-700';
+  });
 
   readonly arrowLeftIcon    = ArrowLeft;
   readonly arrowUpIcon      = ArrowUp;
@@ -107,7 +139,15 @@ export class HistorialPage implements OnInit {
       || this.localizacionDraft() !== this.localizacion();
   }
 
-  constructor(private sismoService: SismoService, private centroService: CentroService, private router: Router) {
+  get eventosFiltrados(): SismoRespuesta[] {
+    return this.eventosFiltradosLocalizacion();
+  }
+
+  constructor(
+    private sismoService: SismoService,
+    private estacionesCache: EstacionesCacheService,
+    private router: Router
+  ) {
     effect(() => {
       if (this.sismoDetalle()) {
         setTimeout(() => {
@@ -126,16 +166,36 @@ export class HistorialPage implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.cargarEventos();
+    void this.cargarPagina(1);
     void this.cargarEstaciones();
   }
 
   private async cargarEstaciones(): Promise<void> {
+    const data = await this.estacionesCache.getEstaciones();
+    this.estaciones.set(data);
+  }
+
+  private async cargarPagina(pagina: number): Promise<void> {
+    this.cargando.set(true);
     try {
-      const page = await this.centroService.getTodasEstaciones({ size: 500 });
-      this.estaciones.set(page.content);
+      const sentido = this.filtroSentido() || undefined;
+      const res = await this.sismoService.listarSismos({
+        desde: this.desde() || undefined,
+        hasta: this.hasta() || undefined,
+        sentido,
+        page: pagina - 1,
+        size: this.pageSize
+      });
+      this.eventos.set(res.content);
+      this.pagina.set(pagina);
+      this.totalPaginas.set(res.totalPages || 1);
+      this.totalElementos.set(res.totalElements || res.content.length);
     } catch {
-      this.estaciones.set([]);
+      this.eventos.set([]);
+      this.totalPaginas.set(1);
+      this.totalElementos.set(0);
+    } finally {
+      this.cargando.set(false);
     }
   }
 
@@ -151,12 +211,9 @@ export class HistorialPage implements OnInit {
 
   getSentidoLabel(val: FiltroSentido): string {
     switch (val) {
-      case 'sentido':
-        return 'Sentidos';
-      case 'no_sentido':
-        return 'No sentidos';
-      default:
-        return 'Todos';
+      case 'sentido': return 'Sentidos';
+      case 'no_sentido': return 'No sentidos';
+      default: return 'Todos';
     }
   }
 
@@ -177,20 +234,10 @@ export class HistorialPage implements OnInit {
     let inicio = new Date(fin);
 
     switch (rango) {
-      case 'hoy':
-        break;
-      case '7d':
-        inicio.setDate(fin.getDate() - 6);
-        break;
-      case '30d':
-        inicio.setDate(fin.getDate() - 29);
-        break;
-      case '90d':
-        inicio.setDate(fin.getDate() - 89);
-        break;
-      case 'anio':
-        inicio = new Date(fin.getFullYear(), 0, 1);
-        break;
+      case '7d': inicio.setDate(fin.getDate() - 6); break;
+      case '30d': inicio.setDate(fin.getDate() - 29); break;
+      case '90d': inicio.setDate(fin.getDate() - 89); break;
+      case 'anio': inicio = new Date(fin.getFullYear(), 0, 1); break;
     }
 
     return {
@@ -206,90 +253,9 @@ export class HistorialPage implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  private async cargarEventos(): Promise<void> {
-    this.cargando.set(true);
-    try {
-      const eventos = await this.cargarTodosLosEventos();
-      this.allEventos.set(eventos);
-      this.aplicarFiltrosEnMemoria(1);
-    } catch {
-      this.allEventos.set([]);
-      this.eventos.set([]);
-      this.totalPaginas.set(1);
-      this.totalElementos.set(0);
-      this.magnitudPromedio.set(0);
-      this.eventoCritico.set(null);
-    } finally {
-      this.cargando.set(false);
-    }
-  }
-
-  private async cargarTodosLosEventos(): Promise<SismoRespuesta[]> {
-    const acumulados: SismoRespuesta[] = [];
-    let page = 0;
-
-    while (true) {
-      const res = await this.sismoService.listarSismos({
-        page,
-        size: this.fetchPageSize,
-      });
-      acumulados.push(...res.content);
-      page += 1;
-
-      if (page >= (res.totalPages || 1)) break;
-    }
-
-    return acumulados;
-  }
-
-  private aplicarFiltrosEnMemoria(paginaSolicitada = 1): void {
-    const filtrados = this.filtrarEventos(this.allEventos());
-    const total = filtrados.length;
-    const totalPaginas = Math.max(1, Math.ceil(total / this.pageSize));
-    const paginaValida = Math.min(Math.max(1, paginaSolicitada), totalPaginas);
-    const inicio = (paginaValida - 1) * this.pageSize;
-
-    this.eventos.set(filtrados.slice(inicio, inicio + this.pageSize));
-    this.pagina.set(paginaValida);
-    this.totalPaginas.set(totalPaginas);
-    this.totalElementos.set(total);
-
-    if (filtrados.length > 0) {
-      const mags = filtrados.map((e) => e.magnitud);
-      this.magnitudPromedio.set(mags.reduce((a, b) => a + b, 0) / mags.length);
-      this.eventoCritico.set(
-        filtrados.reduce((prev, cur) => (cur.magnitud > prev.magnitud ? cur : prev))
-      );
-      return;
-    }
-
-    this.magnitudPromedio.set(0);
-    this.eventoCritico.set(null);
-  }
-
-  private filtrarEventos(eventos: SismoRespuesta[]): SismoRespuesta[] {
-    const desde = this.desde() ? new Date(`${this.desde()}T00:00:00`) : null;
-    const hasta = this.hasta() ? new Date(`${this.hasta()}T23:59:59.999`) : null;
-    const sentido = this.filtroSentido();
-    const localizacion = this.localizacion();
-
-    return eventos.filter((evento) => {
-      const fechaEvento = parseUtcDate(evento.feSismo);
-      if (desde && fechaEvento < desde) return false;
-      if (hasta && fechaEvento > hasta) return false;
-      const fueSentido = this.esSentido(evento.sentido);
-      if (sentido === 'sentido' && !fueSentido) return false;
-      if (sentido === 'no_sentido' && fueSentido) return false;
-
-      if (localizacion && !this.coincideLocalizacion(evento.ubicacion, localizacion)) return false;
-      return true;
-    });
-  }
-
   private coincideLocalizacion(ubicacion: string, filtro: FiltroLocalizacion): boolean {
     const valor = this.normalizarTexto(ubicacion);
     if (!valor) return false;
-
     switch (filtro) {
       case 'valle_central':
         return this.contieneAlguno(valor, ['san jose', 'alajuela', 'cartago', 'heredia', 'valle central']);
@@ -299,46 +265,36 @@ export class HistorialPage implements OnInit {
         return this.contieneAlguno(valor, ['pacifica', 'pacifico', 'puntarenas', 'guanacaste', 'nicoya', 'chorotega']);
       case 'zona_sur':
         return this.contieneAlguno(valor, ['osa', 'golfito', 'coto brus', 'buenos aires', 'san vito', 'palmar', 'perez zeledon', 'brunca', 'zona sur']);
-      default:
-        return true;
+      default: return true;
     }
   }
 
   private contieneAlguno(valor: string, palabras: string[]): boolean {
-    return palabras.some((palabra) => valor.includes(palabra));
+    return palabras.some(p => valor.includes(p));
   }
 
   private normalizarTexto(valor: string): string {
-    return valor
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+    return valor.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   }
 
   private esSentido(valor: unknown): boolean {
     if (typeof valor === 'boolean') return valor;
     if (typeof valor === 'number') return valor === 1;
     if (typeof valor !== 'string') return false;
-    const normalizado = this.normalizarTexto(valor.trim());
-    return normalizado === 'si'
-      || normalizado === 's'
-      || normalizado === 'true'
-      || normalizado === '1'
-      || normalizado === 'sentido';
+    const n = this.normalizarTexto(valor.trim());
+    return n === 'si' || n === 's' || n === 'true' || n === '1' || n === 'sentido';
   }
 
   esEventoSentido(evento: SismoRespuesta): boolean {
     return this.esSentido(evento.sentido);
   }
 
-  get eventosFiltrados(): SismoRespuesta[] { return this.eventos(); }
-
   aplicarFiltros(): void {
     this.desde.set(this.desdeDraft());
     this.hasta.set(this.hastaDraft());
     this.filtroSentido.set(this.filtroSentidoDraft());
     this.localizacion.set(this.localizacionDraft());
-    this.aplicarFiltrosEnMemoria(1);
+    void this.cargarPagina(1);
   }
 
   cambiarSentido(valor: FiltroSentido): void {
@@ -350,16 +306,15 @@ export class HistorialPage implements OnInit {
     this.hastaDraft.set('');
     this.filtroSentidoDraft.set('');
     this.localizacionDraft.set('');
-
     this.desde.set('');
     this.hasta.set('');
     this.filtroSentido.set('');
     this.localizacion.set('');
-    this.aplicarFiltrosEnMemoria(1);
+    void this.cargarPagina(1);
   }
 
   cambiarPagina(p: number): void {
-    this.aplicarFiltrosEnMemoria(p);
+    void this.cargarPagina(p);
   }
 
   verDetalle(e: SismoRespuesta): void {
@@ -387,11 +342,7 @@ export class HistorialPage implements OnInit {
     return '#94a3b8';
   }
 
-  get magnitudColor(): string {
-    const m = this.eventoCritico()?.magnitud ?? 0;
-    if (m < 3.0) return 'text-green-700';
-    if (m < 4.5) return 'text-yellow-700';
-    if (m < 6.0) return 'text-orange-700';
-    return 'text-rose-700';
+  trackBySismo(_: number, e: SismoRespuesta): string {
+    return e.feSismo;
   }
 }

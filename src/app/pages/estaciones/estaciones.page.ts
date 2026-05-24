@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatCardComponent } from '../../components/stat-card/stat-card.component';
@@ -17,6 +17,7 @@ import { AlarmaService } from '../../services/alarma.service';
 import { CentroService } from '../../services/centro.service';
 import { AuthService } from '../../services/auth.service';
 import { ParametroIntensidadService } from '../../services/parametro-intensidad.service';
+import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import { LucideAngularModule, MapPin, Satellite, Server, TriangleAlert, Wrench, CheckCircle, XCircle, Pencil, Plus, SlidersHorizontal } from 'lucide-angular';
 
 interface EstacionVista extends EstacionRespuesta {
@@ -27,6 +28,7 @@ interface EstacionVista extends EstacionRespuesta {
 @Component({
   standalone: true,
   selector: 'app-estaciones',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     StatCardComponent,
@@ -76,7 +78,8 @@ export class EstacionesPage implements OnInit {
     private centroService: CentroService,
     private alarmaService: AlarmaService,
     private parametroService: ParametroIntensidadService,
-    public auth: AuthService
+    public auth: AuthService,
+    private estacionesCache: EstacionesCacheService
   ) {}
 
   ngOnInit(): void {
@@ -86,8 +89,8 @@ export class EstacionesPage implements OnInit {
 
   private async cargarEstaciones(): Promise<void> {
     try {
-      const page = await this.centroService.getTodasEstaciones({ size: 500 });
-      const vistas = page.content.map(e => this.toVista(e));
+      const data = await this.estacionesCache.getEstaciones();
+      const vistas = data.map(e => this.toVista(e));
       this.estaciones.set(vistas);
       if (vistas.length > 0) {
         this.estacionSeleccionada.set(vistas[0]);
@@ -328,5 +331,13 @@ export class EstacionesPage implements OnInit {
       { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-112', nomEstacion: 'Golfito Muelle Técnico',  coordenadaX: -83.1, coordenadaY:  8.64, estado: 'MANTENIMIENTO',     modInst: undefined, tipoSensor: 'N/A', ubicacionDetalle: 'ICE' },
       { codCentroPrd: 'ICE', codEstacion: 'ICE-ACC-115', nomEstacion: 'San José Edificio Sabana', coordenadaX: -84.1, coordenadaY:  9.93, estado: 'ACTIVA',            modInst: undefined, tipoSensor: 'N/A', ubicacionDetalle: 'ICE' },
     ];
+  }
+
+  trackByEstacion(_: number, e: EstacionVista): string {
+    return e.codEstacion;
+  }
+
+  trackByAlarma(_: number, a: AlarmaPorEstacionRespuesta): string {
+    return `${a.codParametro}-${a.codUmbral}`;
   }
 }

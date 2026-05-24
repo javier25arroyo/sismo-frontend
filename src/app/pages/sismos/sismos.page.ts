@@ -1,10 +1,10 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { SismoService } from '../../services/sismo.service';
-import { CentroService } from '../../services/centro.service';
+import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import {
   EstacionRespuesta,
   GeneracionReporteRespuesta,
@@ -32,6 +32,7 @@ import {
 @Component({
   standalone: true,
   selector: 'app-sismos',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     SismoMapComponent,
@@ -64,13 +65,33 @@ export class SismosPage implements OnInit, OnDestroy {
   readonly loaderIcon = Loader2;
   readonly hourglassIcon = Hourglass;
 
+  // Computed signals replacing getters evaluated on every CD cycle
+  readonly magnitudColor = computed(() => {
+    const m = this.ultimoSismo()?.magnitud ?? 0;
+    if (m < 3.0) return '#22c55e';
+    if (m < 4.5) return '#eab308';
+    if (m < 6.0) return '#f97316';
+    return '#ef4444';
+  });
+
+  readonly puedeCompartir = computed(() => !!this.ultimoSismo());
+
+  readonly puedeSolicitarPdf = computed(() =>
+    !!this.ultimoSismo() && this.auth.isAdmin() && !this.generandoPdf()
+  );
+
+  readonly etiquetaPdf = computed(() => {
+    if (this.generandoPdf()) return 'Generando...';
+    return this.auth.isAdmin() ? 'Solicitar PDF' : 'PDF';
+  });
+
   constructor(
     private sismoService: SismoService,
-    private centroService: CentroService,
     private historicoService: HistoricoService,
     private reporteService: ReporteService,
     readonly auth: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private estacionesCache: EstacionesCacheService
   ) {}
 
   ngOnInit(): void {
@@ -83,12 +104,8 @@ export class SismosPage implements OnInit, OnDestroy {
   }
 
   private async cargarEstaciones(): Promise<void> {
-    try {
-      const page = await this.centroService.getTodasEstaciones({ size: 500 });
-      this.estaciones.set(page.content);
-    } catch {
-      this.estaciones.set([]);
-    }
+    const data = await this.estacionesCache.getEstaciones();
+    this.estaciones.set(data);
   }
 
   ngOnDestroy(): void {
@@ -135,20 +152,15 @@ export class SismosPage implements OnInit, OnDestroy {
 
     try {
       if (nav?.share) {
-        await nav.share({
-          title: 'Sismo en Costa Rica',
-          text: resumen
-        });
+        await nav.share({ title: 'Sismo en Costa Rica', text: resumen });
         this.mensajeAccion.set('Resumen del sismo compartido.');
         return;
       }
-
       if (nav?.clipboard?.writeText) {
         await nav.clipboard.writeText(resumen);
         this.mensajeAccion.set('Resumen del sismo copiado al portapapeles.');
         return;
       }
-
       this.mensajeAccion.set('El navegador no permite compartir o copiar desde esta sesión.');
     } catch {
       this.mensajeAccion.set('No fue posible compartir los datos del sismo.');
@@ -168,12 +180,10 @@ export class SismosPage implements OnInit, OnDestroy {
       const generacion = await this.reporteService.solicitarGeneracion(sismo.feSismo, sismo.magnitud);
       this.estadoReporte.set(generacion);
       this.actualizarMensajeReporte(generacion);
-
       if (generacion.finalizado) {
         this.generandoPdf.set(false);
         return;
       }
-
       this.programarConsultaReporte(generacion.id);
     } catch (error) {
       this.generandoPdf.set(false);
@@ -183,26 +193,22 @@ export class SismosPage implements OnInit, OnDestroy {
 
   private programarConsultaReporte(id: string, intento = 0): void {
     if (this.destruido) return;
-
     this.pollingId = setTimeout(async () => {
       try {
         const estado = await this.reporteService.consultarEstadoGeneracion(id);
         this.estadoReporte.set(estado);
         this.actualizarMensajeReporte(estado);
-
         if (estado.finalizado) {
           this.generandoPdf.set(false);
           this.cancelarPolling();
           return;
         }
-
         if (intento >= 29) {
           this.generandoPdf.set(false);
           this.cancelarPolling();
           this.mensajeAccion.set('La generación del PDF sigue en proceso. Puede revisar su estado más tarde en el repositorio.');
           return;
         }
-
         this.programarConsultaReporte(id, intento + 1);
       } catch (error) {
         this.generandoPdf.set(false);
@@ -237,63 +243,29 @@ export class SismosPage implements OnInit, OnDestroy {
     return error instanceof Error && error.message ? error.message : respaldo;
   }
 
-  get puedeCompartir(): boolean {
-    return !!this.ultimoSismo();
-  }
-
-  get puedeSolicitarPdf(): boolean {
-    return !!this.ultimoSismo() && this.auth.isAdmin() && !this.generandoPdf();
-  }
-
-  get etiquetaPdf(): string {
-    if (this.generandoPdf()) return 'Generando...';
-    return this.auth.isAdmin() ? 'Solicitar PDF' : 'PDF';
-  }
-
-  get magnitudColor(): string {
-    const m = this.ultimoSismo()?.magnitud ?? 0;
-    if (m < 3.0) return '#22c55e';
-    if (m < 4.5) return '#eab308';
-    if (m < 6.0) return '#f97316';
-    return '#ef4444';
-  }
-
   getColorEstadoUbicacion(estado: string): string {
     switch (estado) {
       case 'verificada': return 'green';
       case 'revision': return 'amber';
-      case 'pendiente': return 'slate';
       default: return 'slate';
     }
   }
 
   getEstadoUbicacion(ubicacion: string | undefined): 'verificada' | 'revision' | 'pendiente' | 'desconocida' {
     if (!ubicacion) return 'desconocida';
-
-    if (/revisada?\s*(?:por\s*)?(?:la\s*)?rsn|ya\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
-      return 'verificada';
-    }
-    if (/en\s+revisión|en\s+revision|pendiente\s+de\s+revisión/i.test(ubicacion)) {
-      return 'revision';
-    }
-    if (/sin\s+revisar|no\s+revisada?|no\s+ha\s+sido\s+revisada?/i.test(ubicacion)) {
-      return 'pendiente';
-    }
+    if (/revisada?\s*(?:por\s*)?(?:la\s*)?rsn|ya\s+ha\s+sido\s+revisada?/i.test(ubicacion)) return 'verificada';
+    if (/en\s+revisión|en\s+revision|pendiente\s+de\s+revisión/i.test(ubicacion)) return 'revision';
+    if (/sin\s+revisar|no\s+revisada?|no\s+ha\s+sido\s+revisada?/i.test(ubicacion)) return 'pendiente';
     return 'desconocida';
   }
 
   formatearUbicacion(ubicacion: string | undefined): string {
     if (!ubicacion) return 'Sin información de ubicación';
-
     const estado = this.getEstadoUbicacion(ubicacion);
-
     switch (estado) {
-      case 'verificada':
-        return 'Ya ha sido revisado por la RSN';
-      case 'revision':
-        return 'Ubicación en proceso de verificación';
-      case 'pendiente':
-        return 'Ubicación pendiente de verificación';
+      case 'verificada': return 'Ya ha sido revisado por la RSN';
+      case 'revision': return 'Ubicación en proceso de verificación';
+      case 'pendiente': return 'Ubicación pendiente de verificación';
       default: {
         let txt = ubicacion.replace(/\s*\)\s*$/, '').trim();
         txt = txt.replace(/\brevisada\b/g, 'revisado').replace(/\bRevisada\b/g, 'Revisado');
