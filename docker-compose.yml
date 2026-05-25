@@ -1,5 +1,5 @@
 services:
-  web:
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -7,8 +7,41 @@ services:
         - NODE_ENV=production
     image: sismo-frontend:local
     container_name: sismo-frontend
+    expose:
+      - "4000"
+    environment:
+      - PORT=4000
+      - SSR_API_URL=http://app:8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - frontend
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: sismo-nginx
     ports:
       - "4200:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
     restart: unless-stopped
     read_only: true
     tmpfs:
@@ -24,10 +57,16 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 256M
-        reservations:
           cpus: "0.25"
           memory: 128M
+        reservations:
+          cpus: "0.10"
+          memory: 64M
     security_opt:
       - no-new-privileges:true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge

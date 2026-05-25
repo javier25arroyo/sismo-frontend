@@ -44,25 +44,22 @@ COPY src ./src
 RUN pnpm build --configuration=production
 
 #############################################
-# Etapa 3: Runtime de producción
+# Etapa 3: Runtime SSR (Node.js)
 #############################################
-FROM nginx:1.27-alpine AS runtime
+FROM node:20.19.0-alpine AS runtime
 
-# Instalar wget para healthcheck y limpiar config por defecto en una sola capa
-RUN apk add --no-cache wget && \
-    rm -rf /etc/nginx/conf.d/default.conf
+RUN apk add --no-cache wget
 
-# Copiar configuración de nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-# Copiar assets construidos con ownership correcto en un solo paso
-COPY --from=build --chown=nginx:nginx /app/dist/sismo-frontend/browser /usr/share/nginx/html
+# Copiar output del build (servidor SSR + assets)
+COPY --from=build /app/dist/sismo-frontend ./dist/sismo-frontend
 
-RUN chmod -R 755 /usr/share/nginx/html
+EXPOSE 4000
 
-EXPOSE 80
+ENV PORT=4000
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -q -O /dev/null http://127.0.0.1:80/ || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start_period=15s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:4000/ || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "dist/sismo-frontend/server/server.mjs"]
