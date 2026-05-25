@@ -17,6 +17,25 @@ sky-600:  #0284c7  — Base, botones primarios
 sky-700:  #0369a1  — Hover, estado activo
 ```
 
+**Visualización:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  COLORES PRIMARIOS                  │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  sky-500  │████████████████│  #0ea5e9               │
+│  (claro)  │████████████████│  Textos sobre oscuro   │
+│           │                │                        │
+│  sky-600  │████████████████│  #0284c7               │
+│  (base)   │████████████████│  Botones primarios     │
+│           │                │                        │
+│  sky-700  │████████████████│  #0369a1               │
+│  (hover)  │████████████████│  Estados activos       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
 **Uso:**
 - `sky-600`: Botones primarios, enlaces principales, encabezados
 - `sky-700`: Estados hover, botones presionados
@@ -33,6 +52,22 @@ sky-700:  #0369a1  — Hover, estado activo
 ```
 rose-600:  #e11d48  — Base, botones destructivos
 rose-700:  #be123c  — Hover, estado activo
+```
+
+**Visualización:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│               COLORES DESTRUCTIVOS                  │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  rose-600 │████████████████│  #e11d48               │
+│  (base)   │████████████████│  Botones eliminar      │
+│           │                │                        │
+│  rose-700 │████████████████│  #be123c               │
+│  (hover)  │████████████████│  Estados hover         │
+│                                                     │
+└─────────────────────────────────────────────────────┘
 ```
 
 **Uso:**
@@ -52,6 +87,22 @@ green-500: #22c55e  — Indicador de éxito
 green-600: #16a34a  — Alternativa más oscura
 ```
 
+**Visualización:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│                COLORES DE ÉXITO                     │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  green-500│████████████████│  #22c55e               │
+│  (claro)  │████████████████│  Checkmarks, OK        │
+│           │                │                        │
+│  green-600│████████████████│  #16a34a               │
+│  (oscuro) │████████████████│  Fondos de éxito       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
 **Uso:**
 - `green-500`: Checkmarks, validaciones, estados activos
 - `green-600`: Fondos de éxito
@@ -67,6 +118,24 @@ slate-900:  #0f172a  — Textos primarios (casi negro)
 slate-950:  #020617  — Fondo muy oscuro
 ```
 
+**Visualización:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│                 COLORES NEUTROS                     │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  slate-50  │░░░░░░░░░░░░░░░│  #f8fafc (blanco)      │
+│  slate-100 │░░░░░░░░░░░░░░░│  #f1f5f9               │
+│  slate-200 │▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│  #e2e8f0               │
+│  slate-400 │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│  #94a3b8               │
+│  slate-600 │███████████████│  #475569               │
+│  slate-900 │███████████████│  #0f172a               │
+│  slate-950 │███████████████│  #020617 (negro)       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
 **Uso:**
 - `slate-50`: Fondos principales de páginas
 - `slate-900`: Textos primarios sobre fondos claros
@@ -76,6 +145,8 @@ slate-950:  #020617  — Fondo muy oscuro
 ### 1.2 Escala de Magnitud Sísmica
 
 Colores específicos para indicar la magnitud de sismos según criterios técnicos.
+
+**Tabla de criterios:**
 
 ```
 Nivel 1 (M ≥ 3.5, d ≤ 20 km):
@@ -97,6 +168,34 @@ Nivel 4 (M ≥ 6.0, d ≤ 600 km):
 Sin criterios:
   → Color: #94a3b8 (slate-400)
   → Estado: No clasificado
+```
+
+**Visualización - Escala de Magnitud:**
+
+```
+┌────────────────────────────────────────────────────────────┐
+│          ESCALA DE MAGNITUD SÍSMICA - COLORES              │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ● Nivel 1  BAJA           #22c55e  M≥3.5  d≤20km          │
+│  ▲ Nivel 2  MODERADA       #eab308  M≥4.0  d≤70km          │
+│  ▲ Nivel 3  ALTA           #f97316  M≥5.0  d≤400km         │
+│  ▲ Nivel 4  MUY ALTA       #ef4444  M≥6.0  d≤600km         │
+│  ○ Sin criterios NO CLASIF #94a3b8  —      —               │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
+
+**En el mapa:**
+
+```
+  Epicentro del sismo
+        ▲
+        │
+   ● Verde      Baja (no amerita alerta)
+   ▲ Amarillo   Moderada (monitoreo)
+   ▲ Naranja    Alta (alerta)
+   ▲ Rojo       Muy alta (riesgo crítico)
 ```
 
 **Implementación:** Usar `categorizarSismo()` en `utils/sismo-criterios.ts`
@@ -290,6 +389,50 @@ Todos los espacios utilizan la escala estándar de Tailwind (múltiplos de 4px):
 | `rounded-3xl` | 1.5rem (24px) | Héroes, overlays grandes |
 | `rounded-full` | 9999px | Avatares, badges circulares |
 
+**Visualización - Redondeado Progresivo:**
+
+```
+┌────────────────────────────────────────────────────┐
+│          BORDER-RADIUS - VALORES PROGRESIVOS       │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  rounded-lg (8px)                                  │
+│  ┌─────────────────────────┐                       │
+│  │                         │                       │
+│  │   Bordes sutiles        │                       │
+│  │                         │                       │
+│  └─────────────────────────┘                       │
+│                                                    │
+│  rounded-xl (12px) [ESTÁNDAR]                      │
+│  ┏━━━━━━━━━━━━━━━━━━━━━━━┓                         │
+│  ┃                       ┃                         │
+│  ┃  Botones, tarjetas    ┃                         │
+│  ┃                       ┃                         │
+│  ┗━━━━━━━━━━━━━━━━━━━━━━━┛                         │
+│                                                    │
+│  rounded-2xl (16px)                                │
+│  ╭─────────────────────────╮                       │
+│  │                         │                       │
+│  │  Modales, componentes   │                       │
+│  │  grandes                │                       │
+│  │                         │                       │
+│  ╰─────────────────────────╯                       │
+│                                                    │
+│  rounded-3xl (24px)                                │
+│  ╭───────────────────────────╮                     │
+│  │                           │                     │
+│  │  Héroes, overlays grandes │                     │
+│  │                           │                     │
+│  ╰───────────────────────────╯                     │
+│                                                    │
+│  rounded-full (circular)                           │
+│        ╭───────╮                                   │
+│        │  ○    │  Avatares, badges circulares      │
+│        ╰───────╯                                   │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
 **Ejemplos:**
 
 ```html
@@ -310,15 +453,49 @@ Todos los espacios utilizan la escala estándar de Tailwind (múltiplos de 4px):
 
 Usar `border` y `border-slate-200` para bordes claros:
 
+**Visualización:**
+
+```
+┌──────────────────────────────────────────┐
+│        TIPOS DE BORDES                   │
+├──────────────────────────────────────────┤
+│                                          │
+│  Borde completo:                         │
+│  ┌──────────────────────────────────┐    │
+│  │ border border-slate-200 rounded-xl    │
+│  │ 1px sólido #e2e8f0                    │
+│  └──────────────────────────────────┘    │
+│                                          │
+│  Borde inferior solamente:               │
+│  Contenido                               │
+│  ─────────────────────────────────       │
+│  border-b border-slate-200 (divisor)     │
+│                                          │
+│  Sin borde (flat):                       │
+│  ┌──────────────────────────────────┐    │
+│  │ bg-white shadow-md (elevado)     │    │
+│  │ Sin border, solo sombra          │    │
+│  └──────────────────────────────────┘    │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
+**Código:**
+
 ```html
-<!-- Borde sutil -->
+<!-- Borde sutil completo -->
 <div class="border border-slate-200 rounded-xl p-4">
   <!-- Contenido -->
 </div>
 
-<!-- Borde específico -->
+<!-- Borde específico (separador) -->
 <div class="border-b border-slate-200">
   <!-- Línea de separación -->
+</div>
+
+<!-- Sin borde, elevado con sombra -->
+<div class="bg-white shadow-md rounded-xl p-4">
+  <!-- Contenido -->
 </div>
 ```
 
@@ -337,17 +514,89 @@ Usar `border` y `border-slate-200` para bordes claros:
 | `shadow-xl` | Muy alta | Modales, popovers |
 | `shadow-2xl` | Máxima | Overlays de página completa |
 
+**Visualización - Escala de Profundidad:**
+
+```
+┌────────────────────────────────────────────────────┐
+│        SOMBRAS - ELEVACIÓN Y PROFUNDIDAD           │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  Sin shadow (plano):                               │
+│  ┌─────────────┐                                   │
+│  │  Elemento   │  Pegado al fondo                  │
+│  └─────────────┘                                   │
+│                                                    │
+│  shadow-sm (baja):                                 │
+│    ┌─────────────┐                                 │
+│    │  Elemento   │ ∙ ligeramente elevado           │
+│    └─────────────┘∙                                │
+│                                                    │
+│  shadow-md (media): [ESTÁNDAR TARJETAS]            │
+│        ┌─────────────┐                             │
+│        │  Elemento   │ ∙∙ elevación visible        │
+│        └─────────────┘∙∙                           │
+│                                                    │
+│  shadow-lg (alta): [BOTONES FLOTANTES]             │
+│            ┌─────────────┐                         │
+│            │  Elemento   │ ∙∙∙ muy elevado         │
+│            └─────────────┘∙∙∙                      │
+│                                                    │
+│  shadow-xl (muy alta): [MODALES]                   │
+│                ┌─────────────┐                     │
+│                │  Elemento   │ ∙∙∙∙ flotante       │
+│                └─────────────┘∙∙∙∙                 │
+│                                                    │
+│  shadow-2xl (máxima): [OVERLAYS]                   │
+│                    ┌─────────────┐                 │
+│                    │  Elemento   │ ∙∙∙∙∙           │
+│                    └─────────────┘∙∙∙∙∙            │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
 **Ejemplos:**
 
 ```html
-<!-- Tarjeta con sombra media -->
-<div class="rounded-xl bg-white shadow-md p-6">...</div>
+<!-- Tarjeta con sombra media (estándar) -->
+<div class="rounded-xl bg-white shadow-md p-6">
+  <h3 class="text-lg font-semibold">Tarjeta estándar</h3>
+</div>
 
 <!-- Modal con sombra máxima -->
-<div class="fixed inset-0 bg-black/30 shadow-2xl">...</div>
+<div class="fixed inset-0 bg-black/30 shadow-2xl rounded-2xl">
+  <h2>Modal elevado</h2>
+</div>
 
-<!-- Botón flotante elevado -->
-<button class="shadow-lg hover:shadow-xl transition-shadow">...</button>
+<!-- Botón flotante con sombra alta -->
+<button class="shadow-lg hover:shadow-xl transition-shadow bg-sky-600 text-white rounded-full p-4">
+  ↑
+</button>
+```
+
+**Patrón progresivo en componentes:**
+
+```html
+<!-- Botón: sin shadow (plano) -->
+<button class="bg-sky-600 px-4 py-2 rounded-xl">
+  Acción
+</button>
+
+<!-- Card: shadow-md (elevación media) -->
+<div class="bg-white shadow-md rounded-xl p-6">
+  Contenido
+</div>
+
+<!-- Tooltip/Popover: shadow-lg (elevación alta) -->
+<div class="bg-white shadow-lg rounded-xl p-4 fixed">
+  Información
+</div>
+
+<!-- Modal: shadow-2xl + overlay (máxima elevación) -->
+<div class="fixed inset-0 bg-black/50 shadow-2xl flex items-center">
+  <div class="bg-white rounded-2xl p-8 shadow-2xl">
+    Modal
+  </div>
+</div>
 ```
 
 ### 5.2 Variables CSS de Sombra
@@ -367,6 +616,39 @@ Disponibles en `src/styles.css`:
 ## 6. Componentes Base
 
 ### 6.1 Botones
+
+**Visualización - Estados de Botones:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    VARIANTES DE BOTONES                      │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  PRIMARIOS (sky-600)                                         │
+│  ┌─────────────────────┐     ┌─────────────────────┐         │
+│  │  Acción primaria    │  →  │  Acción primaria    │ hover   │
+│  │ (sky-600)           │     │ (sky-700)           │         │
+│  └─────────────────────┘     └─────────────────────┘         │
+│  #0284c7                      #0369a1                        │
+│                                                              │
+│  SECUNDARIOS (slate-100)                                     │
+│  ┌─────────────────────┐     ┌─────────────────────┐         │
+│  │  Acción secundaria  │  →  │  Acción secundaria  │ hover   │
+│  │ (slate-100)         │     │ (slate-200)         │         │
+│  └─────────────────────┘     └─────────────────────┘         │
+│  #f1f5f9                      #e2e8f0                        │
+│                                                              │
+│  DESTRUCTIVOS (rose-600)                                     │
+│  ┌─────────────────────┐     ┌─────────────────────┐         │
+│  │      Eliminar       │  →  │      Eliminar       │ hover   │
+│  │ (rose-600)          │     │ (rose-700)          │         │
+│  └─────────────────────┘     └─────────────────────┘         │
+│  #e11d48                      #be123c                        │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Código:**
 
 **Primario:**
 ```html
@@ -391,6 +673,28 @@ Disponibles en `src/styles.css`:
 
 ### 6.2 Tarjetas
 
+**Visualización:**
+
+```
+┌──────────────────────────────────────────────┐
+│                                              │
+│    Historial de Sismos                       │
+│                                              │
+│    Se registraron 12 eventos sísmicos        │
+│    en el período analizado.                  │
+│                                              │
+│    rounded-xl | border-slate-200             │
+│    bg-white | shadow-md                      │
+│                                              │
+└──────────────────────────────────────────────┘
+     border: 1px solid #e2e8f0 (slate-200)
+     padding: 24px (p-6)
+     shadow: 0 10px 30px rgba(2, 47, 64, 0.10)
+     hover: shadow-lg transition
+```
+
+**Código:**
+
 ```html
 <div class="rounded-xl bg-white border border-slate-200 p-6 shadow-md hover:shadow-lg transition-shadow">
   <h3 class="text-lg font-semibold text-slate-900">Título</h3>
@@ -398,22 +702,55 @@ Disponibles en `src/styles.css`:
 </div>
 ```
 
-### 6.3 Badges
+### 6.3 Badges (Estados)
+
+**Visualización:**
+
+```
+┌────────────────────────────────────────────────────┐
+│            BADGES - ESTADOS Y ALERTAS              │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  Éxito:        ┌──────────┐                        │
+│                │ ✓ Activo │  green-100 (bg)       │
+│                └──────────┘  green-800 (text)      │
+│                                                    │
+│  Advertencia:  ┌──────────────┐                    │
+│                │ ⚠ Pendiente  │  yellow-100 (bg)  │
+│                └──────────────┘  yellow-800 (txt)  │
+│                                                    │
+│  Crítico:      ┌────────────┐                      │
+│                │ ⚠ Crítico  │  rose-100 (bg)      │
+│                └────────────┘  rose-800 (text)     │
+│                                                    │
+│  Información:  ┌──────────────────┐                │
+│                │ ℹ En mantenimiento│ sky-100 (bg)  │
+│                └──────────────────┘  sky-800 (txt) │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+**Código:**
 
 ```html
 <!-- Éxito -->
 <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
-  Activo
+  ✓ Activo
 </span>
 
 <!-- Advertencia -->
 <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
-  Pendiente
+  ⚠ Pendiente
 </span>
 
 <!-- Peligro -->
 <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">
-  Crítico
+  ⚠ Crítico
+</span>
+
+<!-- Información -->
+<span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
+  ℹ En mantenimiento
 </span>
 ```
 
@@ -491,7 +828,6 @@ src/
 │   │   ├── sismo-map/                    # PascalCase, descriptor
 │   │   │   ├── sismo-map.component.ts
 │   │   │   ├── sismo-map.component.html
-│   │   │   └── sismo-map.component.css
 │   │   └── button/
 │   │       └── button.component.ts
 │   │
@@ -499,7 +835,6 @@ src/
 │   │   ├── historial/
 │   │   │   ├── historial.page.ts
 │   │   │   ├── historial.page.html
-│   │   │   └── historial.page.css
 │   │   └── sismos/
 │   │       └── sismos.page.ts
 │   │
