@@ -9,6 +9,7 @@ import { SelectivePreloadingStrategy } from './services/selective-preloading.str
 import { SeoTitleStrategy } from './services/seo-title.strategy';
 
 import { routes } from './app.routes';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 registerLocaleData(localeEs, 'es');
 
@@ -29,6 +30,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor]),
       withFetch()
-    )
+    ), provideClientHydration(withEventReplay())
   ]
 };
