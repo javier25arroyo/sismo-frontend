@@ -9,9 +9,11 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ViewEncapsulation,
+  PLATFORM_ID,
+  inject,
   effect
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
 import { EstacionRespuesta, SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
@@ -74,6 +76,7 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
     return 'Mapa sísmico sin datos';
   });
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private map!: L.Map;
   private markersLayer!: L.LayerGroup;
   private epicentroLayer!: L.LayerGroup;
@@ -123,10 +126,11 @@ export class SismoMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.fixLeafletIcons();
+    if (this.isBrowser) this.fixLeafletIcons();
   }
 
   ngAfterViewInit(): void {
+    if (!this.isBrowser) return;
     this.initMap();
     this.addSismos(this.sismos());
     this.addEpicentroMarker(this.epicentro());

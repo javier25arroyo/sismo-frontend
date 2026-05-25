@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { ApiError, ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -7,7 +8,7 @@ describe('ApiService', () => {
   } as AuthService;
 
   it('maneja respuestas JSON nulas sin romper la extracción del error', async () => {
-    const service = new ApiService(auth);
+    const service = TestBed.runInInjectionContext(() => new ApiService(auth));
     const response = new Response('null', {
       status: 400,
       statusText: 'Bad Request',

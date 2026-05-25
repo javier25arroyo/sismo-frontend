@@ -33,7 +33,15 @@
             ],
             "styles": [
               "src/styles.css"
-            ]
+            ],
+            "server": "src/main.server.ts",
+            "outputMode": "server",
+            "security": {
+              "allowedHosts": ["localhost"]
+            },
+            "ssr": {
+              "entry": "src/server.ts"
+            }
           },
           "configurations": {
             "production": {
@@ -54,9 +62,6 @@
               "sourceMap": false,
               "namedChunks": false,
               "aot": true,
-              "security": {
-                "autoCsp": true
-              },
               "budgets": [
                 {
                   "type": "initial",
