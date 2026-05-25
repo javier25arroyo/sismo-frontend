@@ -59,7 +59,7 @@ EXPOSE 4000
 
 ENV PORT=4000
 
-HEALTHCHECK --interval=30s --timeout=5s --start_period=15s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD wget -q -O /dev/null http://127.0.0.1:4000/ || exit 1
 
 CMD ["node", "dist/sismo-frontend/server/server.mjs"]
