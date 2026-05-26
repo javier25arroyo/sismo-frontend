@@ -7,8 +7,9 @@ Frontend Angular 21 para monitoreo y consulta sismológica del ICE. La app usa c
 | Tecnología | Versión |
 |---|---|
 | Angular | 21.2.x |
+| Node.js | 24.16.0 LTS |
 | TypeScript | 5.9.x |
-| PNPM | 10.32.x |
+| PNPM | 10.32.1 |
 | Tailwind CSS | 4.x |
 | RxJS | 7.8.x |
 | Leaflet | 1.9.x |
@@ -74,10 +75,11 @@ Distribución por carpetas:
 - Colocar pantallas completas en `pages` y reutilizables en `components`.
 - Centralizar llamadas HTTP en `ApiService` y la lógica de token en `auth.interceptor.ts`.
 - Evitar duplicar headers, manejo de errores o reglas de auth en páginas individuales.
-- Usar `pnpm` y conservar `pnpm-lock.yaml`. No mezclar `npm`, `yarn` y `pnpm`.
+- Usar Node.js 24.16.0 LTS y `pnpm` 10.32.1. No mezclar `npm`, `yarn` y `pnpm`.
+- Conservar `pnpm-lock.yaml`; no eliminarlo para resolver problemas de instalación.
 - Dejar `src/styles.css` como entrada global de Tailwind y de los tokens visuales.
 - `public/` se usa para activos estáticos servidos tal cual.
-- Validar cambios con `pnpm build` y `pnpm test --watch=false` antes de publicar.
+- Validar cambios con `pnpm check` antes de publicar.
 - Usar `AdminGuard` (no `AuthGuard`) para proteger rutas administrativas.
 - Si alternas entre Windows y WSL, reinstala `node_modules` en el mismo entorno donde vas a ejecutar Angular.
 
@@ -115,14 +117,42 @@ El código importa siempre `src/environments/environment`. Angular reemplaza el 
 
 ### Requisitos
 
-- Node.js 20 o superior.
-- PNPM 10.
+Este proyecto debe ejecutarse con Node.js 24.16.0 LTS y pnpm 10.32.1. La descarga oficial de Node.js está en:
+
+- https://nodejs.org/en/download/
+
+Versiones esperadas:
+
+- Node.js `v24.16.0`
+- pnpm `10.32.1`
 
 Verifica versiones con:
 
 ```bash
-node --version
+node --version   # debe mostrar v24.16.0
 pnpm --version
+```
+
+Si `node --version` muestra una versión distinta, instala Node.js 24.16.0 LTS y vuelve a abrir la terminal antes de instalar dependencias.
+
+Comandos recomendados:
+
+```powershell
+# Windows con winget
+winget install OpenJS.NodeJS.LTS --version 24.16.0
+```
+
+```bash
+# macOS o Linux con nvm
+nvm install 24.16.0
+nvm use 24.16.0
+nvm alias default 24.16.0
+```
+
+```bash
+# Activar pnpm desde Corepack
+corepack enable
+corepack prepare pnpm@10.32.1 --activate
 ```
 
 ### Instalación
@@ -130,13 +160,30 @@ pnpm --version
 ```bash
 git clone https://github.com/javier25arroyo/sismo-frontend.git
 cd sismo-frontend
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
-Para una instalación reproducible, usa:
+Si ya tenías `node_modules` instalado con otra versión de Node, elimina dependencias y caché de Angular antes de reinstalar.
+
+PowerShell:
+
+```powershell
+if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
+if (Test-Path .angular\cache) { Remove-Item -Recurse -Force .angular\cache }
+pnpm install --frozen-lockfile
+```
+
+Bash:
 
 ```bash
+rm -rf node_modules .angular/cache
 pnpm install --frozen-lockfile
+```
+
+Validación completa:
+
+```bash
+pnpm check
 ```
 
 ### Ejecución
@@ -183,9 +230,9 @@ pnpm test --watch=false
 
 El repositorio incluye un `Dockerfile` multi-etapa:
 
-- etapa de dependencias sobre `node:20.19.0-alpine`
+- etapa de dependencias sobre `node:24.16.0-alpine`
 - etapa de build con `pnpm build --configuration=production`
-- etapa runtime sobre `nginx:1.27-alpine`
+- etapa runtime SSR sobre `node:24.16.0-alpine`
 
 Comandos habituales:
 

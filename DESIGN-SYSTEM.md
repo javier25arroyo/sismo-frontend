@@ -1,6 +1,39 @@
-# Sistema de Diseño SISMO Frontend
+<div align="center">
+  <h1>Sistema de Diseño SISMO Frontend</h1>
+  <p><strong>Guía visual de tokens, componentes y convenciones para mantener consistencia en el frontend SISMO.</strong></p>
+  <p>
+    <kbd>Angular 21</kbd>
+    <kbd>Tailwind CSS 4</kbd>
+    <kbd>SSR</kbd>
+    <kbd>Accesibilidad</kbd>
+    <kbd>ICE</kbd>
+  </p>
+</div>
 
-Documentación completa del sistema de diseño, convenciones y patrones de implementación para mantener consistencia en todos los desarrollos del frontend SISMO.
+<table>
+  <tr>
+    <th>Propósito</th>
+    <th>Para quién</th>
+    <th>Cómo usarla</th>
+  </tr>
+  <tr>
+    <td>Unificar decisiones visuales y patrones de implementación.</td>
+    <td>Frontend, revisión técnica, QA y documentación de producto.</td>
+    <td>Consultar tokens antes de crear vistas, componentes o estilos nuevos.</td>
+  </tr>
+</table>
+
+<details open>
+  <summary><strong>Mapa rápido de la guía</strong></summary>
+
+- **Paleta:** colores semánticos, magnitud sísmica y variables CSS.
+- **Tipografía:** familias, escalas, pesos y legibilidad.
+- **Layout:** espaciado, secciones, bordes y sombras.
+- **Componentes:** botones, tarjetas y badges.
+- **Código:** nombres, estructura Angular y convenciones.
+- **Despliegue:** Docker, puertos, variables y checklist.
+
+</details>
 
 ---
 
@@ -19,22 +52,32 @@ sky-700:  #0369a1  — Hover, estado activo
 
 **Visualización:**
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  COLORES PRIMARIOS                  │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  sky-500  │████████████████│  #0ea5e9               │
-│  (claro)  │████████████████│  Textos sobre oscuro   │
-│           │                │                        │
-│  sky-600  │████████████████│  #0284c7               │
-│  (base)   │████████████████│  Botones primarios     │
-│           │                │                        │
-│  sky-700  │████████████████│  #0369a1               │
-│  (hover)  │████████████████│  Estados activos       │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
+<table>
+  <tr>
+    <th>Token</th>
+    <th>Muestra</th>
+    <th>Hex</th>
+    <th>Uso principal</th>
+  </tr>
+  <tr>
+    <td><code>sky-500</code></td>
+    <td bgcolor="#0ea5e9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#0ea5e9</code></td>
+    <td>Textos claros sobre fondos oscuros.</td>
+  </tr>
+  <tr>
+    <td><code>sky-600</code></td>
+    <td bgcolor="#0284c7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#0284c7</code></td>
+    <td>Botones primarios, enlaces y acciones principales.</td>
+  </tr>
+  <tr>
+    <td><code>sky-700</code></td>
+    <td bgcolor="#0369a1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#0369a1</code></td>
+    <td>Hover, estado activo y énfasis interactivo.</td>
+  </tr>
+</table>
 
 **Uso:**
 - `sky-600`: Botones primarios, enlaces principales, encabezados
@@ -56,19 +99,26 @@ rose-700:  #be123c  — Hover, estado activo
 
 **Visualización:**
 
-```
-┌─────────────────────────────────────────────────────┐
-│               COLORES DESTRUCTIVOS                  │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  rose-600 │████████████████│  #e11d48               │
-│  (base)   │████████████████│  Botones eliminar      │
-│           │                │                        │
-│  rose-700 │████████████████│  #be123c               │
-│  (hover)  │████████████████│  Estados hover         │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
+<table>
+  <tr>
+    <th>Token</th>
+    <th>Muestra</th>
+    <th>Hex</th>
+    <th>Uso principal</th>
+  </tr>
+  <tr>
+    <td><code>rose-600</code></td>
+    <td bgcolor="#e11d48">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#e11d48</code></td>
+    <td>Acciones destructivas y confirmaciones de eliminación.</td>
+  </tr>
+  <tr>
+    <td><code>rose-700</code></td>
+    <td bgcolor="#be123c">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#be123c</code></td>
+    <td>Hover y estado presionado de acciones destructivas.</td>
+  </tr>
+</table>
 
 **Uso:**
 - `rose-600`: Botones de eliminar, acciones irreversibles
@@ -89,19 +139,26 @@ green-600: #16a34a  — Alternativa más oscura
 
 **Visualización:**
 
-```
-┌─────────────────────────────────────────────────────┐
-│                COLORES DE ÉXITO                     │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  green-500│████████████████│  #22c55e               │
-│  (claro)  │████████████████│  Checkmarks, OK        │
-│           │                │                        │
-│  green-600│████████████████│  #16a34a               │
-│  (oscuro) │████████████████│  Fondos de éxito       │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
+<table>
+  <tr>
+    <th>Token</th>
+    <th>Muestra</th>
+    <th>Hex</th>
+    <th>Uso principal</th>
+  </tr>
+  <tr>
+    <td><code>green-500</code></td>
+    <td bgcolor="#22c55e">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#22c55e</code></td>
+    <td>Checkmarks, validaciones y estados activos positivos.</td>
+  </tr>
+  <tr>
+    <td><code>green-600</code></td>
+    <td bgcolor="#16a34a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#16a34a</code></td>
+    <td>Fondos e indicadores de éxito con mayor contraste.</td>
+  </tr>
+</table>
 
 **Uso:**
 - `green-500`: Checkmarks, validaciones, estados activos
@@ -120,83 +177,62 @@ slate-950:  #020617  — Fondo muy oscuro
 
 **Visualización:**
 
-```
-┌─────────────────────────────────────────────────────┐
-│                 COLORES NEUTROS                     │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  slate-50  │░░░░░░░░░░░░░░░│  #f8fafc (blanco)      │
-│  slate-100 │░░░░░░░░░░░░░░░│  #f1f5f9               │
-│  slate-200 │▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│  #e2e8f0               │
-│  slate-400 │▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│  #94a3b8               │
-│  slate-600 │███████████████│  #475569               │
-│  slate-900 │███████████████│  #0f172a               │
-│  slate-950 │███████████████│  #020617 (negro)       │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
+<table>
+  <tr>
+    <th>Token</th>
+    <th>Muestra</th>
+    <th>Hex</th>
+    <th>Uso principal</th>
+  </tr>
+  <tr>
+    <td><code>slate-50</code></td>
+    <td bgcolor="#f8fafc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#f8fafc</code></td>
+    <td>Fondos principales de página.</td>
+  </tr>
+  <tr>
+    <td><code>slate-100</code></td>
+    <td bgcolor="#f1f5f9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#f1f5f9</code></td>
+    <td>Superficies claras y bandas suaves.</td>
+  </tr>
+  <tr>
+    <td><code>slate-200</code></td>
+    <td bgcolor="#e2e8f0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#e2e8f0</code></td>
+    <td>Bordes y separadores sutiles.</td>
+  </tr>
+  <tr>
+    <td><code>slate-400</code></td>
+    <td bgcolor="#94a3b8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#94a3b8</code></td>
+    <td>Texto auxiliar e indicadores neutros.</td>
+  </tr>
+  <tr>
+    <td><code>slate-600</code></td>
+    <td bgcolor="#475569">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#475569</code></td>
+    <td>Textos secundarios y descripciones.</td>
+  </tr>
+  <tr>
+    <td><code>slate-900</code></td>
+    <td bgcolor="#0f172a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#0f172a</code></td>
+    <td>Textos primarios sobre fondos claros.</td>
+  </tr>
+  <tr>
+    <td><code>slate-950</code></td>
+    <td bgcolor="#020617">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><code>#020617</code></td>
+    <td>Fondos muy oscuros y zonas de alto contraste.</td>
+  </tr>
+</table>
 
 **Uso:**
 - `slate-50`: Fondos principales de páginas
 - `slate-900`: Textos primarios sobre fondos claros
 - `slate-600`: Textos secundarios, descripciones
 - `slate-200`: Bordes sutiles
-
-### 1.2 Escala de Magnitud Sísmica
-
-Colores específicos para indicar la magnitud de sismos según criterios técnicos.
-
-**Tabla de criterios:**
-
-```
-Nivel 1 (M ≥ 3.5, d ≤ 20 km):
-  → Color: #22c55e (green-500)
-  → Severidad: Baja
-
-Nivel 2 (M ≥ 4.0, d ≤ 70 km):
-  → Color: #eab308 (yellow-500)
-  → Severidad: Moderada
-
-Nivel 3 (M ≥ 5.0, d ≤ 400 km):
-  → Color: #f97316 (orange-500)
-  → Severidad: Alta
-
-Nivel 4 (M ≥ 6.0, d ≤ 600 km):
-  → Color: #ef4444 (red-500)
-  → Severidad: Muy alta
-
-Sin criterios:
-  → Color: #94a3b8 (slate-400)
-  → Estado: No clasificado
-```
-
-**Visualización - Escala de Magnitud:**
-
-```
-┌────────────────────────────────────────────────────────────┐
-│          ESCALA DE MAGNITUD SÍSMICA - COLORES              │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  ● Nivel 1  BAJA           #22c55e  M≥3.5  d≤20km          │
-│  ▲ Nivel 2  MODERADA       #eab308  M≥4.0  d≤70km          │
-│  ▲ Nivel 3  ALTA           #f97316  M≥5.0  d≤400km         │
-│  ▲ Nivel 4  MUY ALTA       #ef4444  M≥6.0  d≤600km         │
-│  ○ Sin criterios NO CLASIF #94a3b8  —      —               │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-```
-
-**En el mapa:**
-
-```
-  Epicentro del sismo
-        ▲
-        │
-   ● Verde      Baja (no amerita alerta)
-   ▲ Amarillo   Moderada (monitoreo)
-   ▲ Naranja    Alta (alerta)
-   ▲ Rojo       Muy alta (riesgo crítico)
-```
 
 **Implementación:** Usar `categorizarSismo()` en `utils/sismo-criterios.ts`
 

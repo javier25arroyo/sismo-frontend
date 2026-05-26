@@ -3,11 +3,11 @@
 #############################################
 # Etapa 1: Dependencias (caché por capas)
 #############################################
-FROM node:20.19.0-alpine AS deps
+FROM node:24.16.0-alpine AS deps
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
@@ -21,13 +21,13 @@ RUN --mount=type=cache,target=/pnpm/store \
 #############################################
 # Etapa 2: Build
 #############################################
-FROM node:20.19.0-alpine AS build
+FROM node:24.16.0-alpine AS build
 
 ARG NODE_ENV=production
 ENV NODE_ENV=$NODE_ENV
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
@@ -46,7 +46,7 @@ RUN pnpm build --configuration=production
 #############################################
 # Etapa 3: Runtime SSR (Node.js)
 #############################################
-FROM node:20.19.0-alpine AS runtime
+FROM node:24.16.0-alpine AS runtime
 
 RUN apk add --no-cache wget
 
