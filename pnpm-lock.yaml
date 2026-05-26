@@ -59,10 +59,10 @@ importers:
     devDependencies:
       '@angular/build':
         specifier: ^21.2.6
-        version: 21.2.6(96164a426f072a2b2e649353aa04abf7)
+        version: 21.2.6(81e9be79006467c6bbb7b64c9b17c26a)
       '@angular/cli':
         specifier: ^21.2.6
-        version: 21.2.6(@types/node@20.19.41)(chokidar@5.0.0)
+        version: 21.2.6(@types/node@24.12.4)(chokidar@5.0.0)
       '@angular/compiler-cli':
         specifier: ^21.2.7
         version: 21.2.7(@angular/compiler@21.2.7)(typescript@5.9.3)
@@ -79,11 +79,11 @@ importers:
         specifier: ^1.9.21
         version: 1.9.21
       '@types/node':
-        specifier: ^20.17.19
-        version: 20.19.41
+        specifier: ^24.12.4
+        version: 24.12.4
       angular-eslint:
         specifier: 21.4.0
-        version: 21.4.0(@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript-eslint@8.59.2(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)
+        version: 21.4.0(@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript-eslint@8.59.2(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)
       eslint:
         specifier: ^10.3.0
         version: 10.4.0(jiti@2.6.1)
@@ -104,10 +104,10 @@ importers:
         version: 8.59.2(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       vitest:
         specifier: ^4.0.8
-        version: 4.0.18(@types/node@20.19.41)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)
+        version: 4.0.18(@types/node@24.12.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)
       vitest-axe:
         specifier: ^0.1.0
-        version: 0.1.0(vitest@4.0.18(@types/node@20.19.41)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3))
+        version: 0.1.0(vitest@4.0.18(@types/node@24.12.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3))
 
 packages:
 
@@ -1624,6 +1624,9 @@ packages:
 
   '@types/node@20.19.41':
     resolution: {integrity: sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ==}
+
+  '@types/node@24.12.4':
+    resolution: {integrity: sha512-GUUEShf+PBCGW2KaXwcIt3Yk+e3pkKwWKb9GSyM9WQVE+ep2jzmHdGsHzu4wgcZy5fN9FBdVzjpBQsYlpfpgLA==}
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
@@ -3203,6 +3206,9 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
   undici@7.24.4:
     resolution: {integrity: sha512-BM/JzwwaRXxrLdElV2Uo6cTLEjhSb3WXboncJamZ15NgUURmvlXvxa6xkwIOILIjPNo9i8ku136ZvWV0Uly8+w==}
     engines: {node: '>=20.18.1'}
@@ -3563,11 +3569,11 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
-  '@angular-eslint/builder@21.4.0(@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)':
+  '@angular-eslint/builder@21.4.0(@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@angular-devkit/architect': 0.2102.6(chokidar@5.0.0)
       '@angular-devkit/core': 21.2.6(chokidar@5.0.0)
-      '@angular/cli': 21.2.6(@types/node@20.19.41)(chokidar@5.0.0)
+      '@angular/cli': 21.2.6(@types/node@24.12.4)(chokidar@5.0.0)
       eslint: 10.4.0(jiti@2.6.1)
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -3596,13 +3602,13 @@ snapshots:
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
 
-  '@angular-eslint/schematics@21.4.0(@angular-eslint/template-parser@21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0))(@typescript-eslint/types@8.59.4)(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)':
+  '@angular-eslint/schematics@21.4.0(@angular-eslint/template-parser@21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0))(@typescript-eslint/types@8.59.4)(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@angular-devkit/core': 21.2.6(chokidar@5.0.0)
       '@angular-devkit/schematics': 21.2.6(chokidar@5.0.0)
       '@angular-eslint/eslint-plugin': 21.4.0(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       '@angular-eslint/eslint-plugin-template': 21.4.0(@angular-eslint/template-parser@21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/types@8.59.4)(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
-      '@angular/cli': 21.2.6(@types/node@20.19.41)(chokidar@5.0.0)
+      '@angular/cli': 21.2.6(@types/node@24.12.4)(chokidar@5.0.0)
       ignore: 7.0.5
       semver: 7.7.4
       strip-json-comments: 3.1.1
@@ -3633,7 +3639,7 @@ snapshots:
       '@angular/core': 21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)
       tslib: 2.8.1
 
-  '@angular/build@21.2.6(96164a426f072a2b2e649353aa04abf7)':
+  '@angular/build@21.2.6(81e9be79006467c6bbb7b64c9b17c26a)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@angular-devkit/architect': 0.2102.6(chokidar@5.0.0)
@@ -3642,8 +3648,8 @@ snapshots:
       '@babel/core': 7.29.0
       '@babel/helper-annotate-as-pure': 7.27.3
       '@babel/helper-split-export-declaration': 7.24.7
-      '@inquirer/confirm': 5.1.21(@types/node@20.19.41)
-      '@vitejs/plugin-basic-ssl': 2.1.4(vite@7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))
+      '@inquirer/confirm': 5.1.21(@types/node@24.12.4)
+      '@vitejs/plugin-basic-ssl': 2.1.4(vite@7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))
       beasties: 0.4.1
       browserslist: 4.28.1
       esbuild: 0.27.3
@@ -3664,7 +3670,7 @@ snapshots:
       tslib: 2.8.1
       typescript: 5.9.3
       undici: 7.24.4
-      vite: 7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
+      vite: 7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
       watchpack: 2.5.1
     optionalDependencies:
       '@angular/core': 21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)
@@ -3674,7 +3680,7 @@ snapshots:
       lmdb: 3.5.1
       postcss: 8.5.10
       tailwindcss: 4.2.2
-      vitest: 4.0.18(@types/node@20.19.41)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)
+      vitest: 4.0.18(@types/node@24.12.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)
     transitivePeerDependencies:
       - '@types/node'
       - chokidar
@@ -3688,13 +3694,13 @@ snapshots:
       - tsx
       - yaml
 
-  '@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0)':
+  '@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0)':
     dependencies:
       '@angular-devkit/architect': 0.2102.6(chokidar@5.0.0)
       '@angular-devkit/core': 21.2.6(chokidar@5.0.0)
       '@angular-devkit/schematics': 21.2.6(chokidar@5.0.0)
-      '@inquirer/prompts': 7.10.1(@types/node@20.19.41)
-      '@listr2/prompt-adapter-inquirer': 3.0.5(@inquirer/prompts@7.10.1(@types/node@20.19.41))(@types/node@20.19.41)(listr2@9.0.5)
+      '@inquirer/prompts': 7.10.1(@types/node@24.12.4)
+      '@listr2/prompt-adapter-inquirer': 3.0.5(@inquirer/prompts@7.10.1(@types/node@24.12.4))(@types/node@24.12.4)(listr2@9.0.5)
       '@modelcontextprotocol/sdk': 1.26.0(zod@4.3.6)
       '@schematics/angular': 21.2.6(chokidar@5.0.0)
       '@yarnpkg/lockfile': 1.1.0
@@ -4094,128 +4100,128 @@ snapshots:
 
   '@inquirer/ansi@1.0.2': {}
 
-  '@inquirer/checkbox@4.3.2(@types/node@20.19.41)':
+  '@inquirer/checkbox@4.3.2(@types/node@24.12.4)':
     dependencies:
       '@inquirer/ansi': 1.0.2
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/confirm@5.1.21(@types/node@20.19.41)':
+  '@inquirer/confirm@5.1.21(@types/node@24.12.4)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/core@10.3.2(@types/node@20.19.41)':
+  '@inquirer/core@10.3.2(@types/node@24.12.4)':
     dependencies:
       '@inquirer/ansi': 1.0.2
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
       cli-width: 4.1.0
       mute-stream: 2.0.0
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/editor@4.2.23(@types/node@20.19.41)':
+  '@inquirer/editor@4.2.23(@types/node@24.12.4)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/external-editor': 1.0.3(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/external-editor': 1.0.3(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/expand@4.0.23(@types/node@20.19.41)':
+  '@inquirer/expand@4.0.23(@types/node@24.12.4)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/external-editor@1.0.3(@types/node@20.19.41)':
+  '@inquirer/external-editor@1.0.3(@types/node@24.12.4)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.2
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
   '@inquirer/figures@1.0.15': {}
 
-  '@inquirer/input@4.3.1(@types/node@20.19.41)':
+  '@inquirer/input@4.3.1(@types/node@24.12.4)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/number@3.0.23(@types/node@20.19.41)':
+  '@inquirer/number@3.0.23(@types/node@24.12.4)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/password@4.0.23(@types/node@20.19.41)':
-    dependencies:
-      '@inquirer/ansi': 1.0.2
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
-    optionalDependencies:
-      '@types/node': 20.19.41
-
-  '@inquirer/prompts@7.10.1(@types/node@20.19.41)':
-    dependencies:
-      '@inquirer/checkbox': 4.3.2(@types/node@20.19.41)
-      '@inquirer/confirm': 5.1.21(@types/node@20.19.41)
-      '@inquirer/editor': 4.2.23(@types/node@20.19.41)
-      '@inquirer/expand': 4.0.23(@types/node@20.19.41)
-      '@inquirer/input': 4.3.1(@types/node@20.19.41)
-      '@inquirer/number': 3.0.23(@types/node@20.19.41)
-      '@inquirer/password': 4.0.23(@types/node@20.19.41)
-      '@inquirer/rawlist': 4.1.11(@types/node@20.19.41)
-      '@inquirer/search': 3.2.2(@types/node@20.19.41)
-      '@inquirer/select': 4.4.2(@types/node@20.19.41)
-    optionalDependencies:
-      '@types/node': 20.19.41
-
-  '@inquirer/rawlist@4.1.11(@types/node@20.19.41)':
-    dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
-      yoctocolors-cjs: 2.1.3
-    optionalDependencies:
-      '@types/node': 20.19.41
-
-  '@inquirer/search@3.2.2(@types/node@20.19.41)':
-    dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
-      yoctocolors-cjs: 2.1.3
-    optionalDependencies:
-      '@types/node': 20.19.41
-
-  '@inquirer/select@4.4.2(@types/node@20.19.41)':
+  '@inquirer/password@4.0.23(@types/node@24.12.4)':
     dependencies:
       '@inquirer/ansi': 1.0.2
-      '@inquirer/core': 10.3.2(@types/node@20.19.41)
-      '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
+    optionalDependencies:
+      '@types/node': 24.12.4
+
+  '@inquirer/prompts@7.10.1(@types/node@24.12.4)':
+    dependencies:
+      '@inquirer/checkbox': 4.3.2(@types/node@24.12.4)
+      '@inquirer/confirm': 5.1.21(@types/node@24.12.4)
+      '@inquirer/editor': 4.2.23(@types/node@24.12.4)
+      '@inquirer/expand': 4.0.23(@types/node@24.12.4)
+      '@inquirer/input': 4.3.1(@types/node@24.12.4)
+      '@inquirer/number': 3.0.23(@types/node@24.12.4)
+      '@inquirer/password': 4.0.23(@types/node@24.12.4)
+      '@inquirer/rawlist': 4.1.11(@types/node@24.12.4)
+      '@inquirer/search': 3.2.2(@types/node@24.12.4)
+      '@inquirer/select': 4.4.2(@types/node@24.12.4)
+    optionalDependencies:
+      '@types/node': 24.12.4
+
+  '@inquirer/rawlist@4.1.11(@types/node@24.12.4)':
+    dependencies:
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
-  '@inquirer/type@3.0.10(@types/node@20.19.41)':
+  '@inquirer/search@3.2.2(@types/node@24.12.4)':
+    dependencies:
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/figures': 1.0.15
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
+      yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
+
+  '@inquirer/select@4.4.2(@types/node@24.12.4)':
+    dependencies:
+      '@inquirer/ansi': 1.0.2
+      '@inquirer/core': 10.3.2(@types/node@24.12.4)
+      '@inquirer/figures': 1.0.15
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 24.12.4
+
+  '@inquirer/type@3.0.10(@types/node@24.12.4)':
+    optionalDependencies:
+      '@types/node': 24.12.4
 
   '@isaacs/cliui@9.0.0': {}
 
@@ -4246,10 +4252,10 @@ snapshots:
 
   '@kurkle/color@0.3.4': {}
 
-  '@listr2/prompt-adapter-inquirer@3.0.5(@inquirer/prompts@7.10.1(@types/node@20.19.41))(@types/node@20.19.41)(listr2@9.0.5)':
+  '@listr2/prompt-adapter-inquirer@3.0.5(@inquirer/prompts@7.10.1(@types/node@24.12.4))(@types/node@24.12.4)(listr2@9.0.5)':
     dependencies:
-      '@inquirer/prompts': 7.10.1(@types/node@20.19.41)
-      '@inquirer/type': 3.0.10(@types/node@20.19.41)
+      '@inquirer/prompts': 7.10.1(@types/node@24.12.4)
+      '@inquirer/type': 3.0.10(@types/node@24.12.4)
       listr2: 9.0.5
     transitivePeerDependencies:
       - '@types/node'
@@ -4804,6 +4810,10 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/node@24.12.4':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/qs@6.15.1': {}
 
   '@types/range-parser@1.2.7': {}
@@ -4959,9 +4969,9 @@ snapshots:
       '@typescript-eslint/types': 8.59.4
       eslint-visitor-keys: 5.0.1
 
-  '@vitejs/plugin-basic-ssl@2.1.4(vite@7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))':
+  '@vitejs/plugin-basic-ssl@2.1.4(vite@7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))':
     dependencies:
-      vite: 7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
+      vite: 7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
 
   '@vitest/expect@4.0.18':
     dependencies:
@@ -4972,13 +4982,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))':
+  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))':
     dependencies:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
+      vite: 7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
 
   '@vitest/pretty-format@4.0.18':
     dependencies:
@@ -5054,16 +5064,16 @@ snapshots:
       '@algolia/requester-fetch': 5.48.1
       '@algolia/requester-node-http': 5.48.1
 
-  angular-eslint@21.4.0(@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript-eslint@8.59.2(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3):
+  angular-eslint@21.4.0(@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript-eslint@8.59.2(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3):
     dependencies:
       '@angular-devkit/core': 21.2.6(chokidar@5.0.0)
       '@angular-devkit/schematics': 21.2.6(chokidar@5.0.0)
-      '@angular-eslint/builder': 21.4.0(@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
+      '@angular-eslint/builder': 21.4.0(@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       '@angular-eslint/eslint-plugin': 21.4.0(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       '@angular-eslint/eslint-plugin-template': 21.4.0(@angular-eslint/template-parser@21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/types@8.59.4)(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
-      '@angular-eslint/schematics': 21.4.0(@angular-eslint/template-parser@21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(@angular/cli@21.2.6(@types/node@20.19.41)(chokidar@5.0.0))(@typescript-eslint/types@8.59.4)(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
+      '@angular-eslint/schematics': 21.4.0(@angular-eslint/template-parser@21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(@angular/cli@21.2.6(@types/node@24.12.4)(chokidar@5.0.0))(@typescript-eslint/types@8.59.4)(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3))(chokidar@5.0.0)(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       '@angular-eslint/template-parser': 21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
-      '@angular/cli': 21.2.6(@types/node@20.19.41)(chokidar@5.0.0)
+      '@angular/cli': 21.2.6(@types/node@24.12.4)(chokidar@5.0.0)
       '@typescript-eslint/types': 8.59.4
       '@typescript-eslint/utils': 8.59.4(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       eslint: 10.4.0(jiti@2.6.1)
@@ -6577,6 +6587,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+  undici-types@7.16.0: {}
+
   undici@7.24.4: {}
 
   unique-filename@5.0.0:
@@ -6608,7 +6620,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3):
+  vite@7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3):
     dependencies:
       esbuild: 0.27.3
       fdir: 6.5.0(picomatch@4.0.4)
@@ -6617,13 +6629,13 @@ snapshots:
       rollup: 4.59.0
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
       fsevents: 2.3.3
       jiti: 2.6.1
       lightningcss: 1.32.0
       sass: 1.97.3
 
-  vitest-axe@0.1.0(vitest@4.0.18(@types/node@20.19.41)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)):
+  vitest-axe@0.1.0(vitest@4.0.18(@types/node@24.12.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)):
     dependencies:
       aria-query: 5.3.2
       axe-core: 4.11.4
@@ -6631,12 +6643,12 @@ snapshots:
       dom-accessibility-api: 0.5.16
       lodash-es: 4.18.1
       redent: 3.0.0
-      vitest: 4.0.18(@types/node@20.19.41)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)
+      vitest: 4.0.18(@types/node@24.12.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3)
 
-  vitest@4.0.18(@types/node@20.19.41)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3):
+  vitest@4.0.18(@types/node@24.12.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(sass@1.97.3):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))
+      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -6653,10 +6665,10 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.1(@types/node@20.19.41)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
+      vite: 7.3.1(@types/node@24.12.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.97.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
       jsdom: 27.4.0
     transitivePeerDependencies:
       - jiti

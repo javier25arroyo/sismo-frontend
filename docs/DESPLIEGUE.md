@@ -8,16 +8,43 @@ Cubre requisitos, configuración, desarrollo local y despliegue con Docker.
 
 | Componente | Versión | Notas |
 |---|---|---|
-| Node.js | 20.19.0 | Versión LTS usada en Dockerfile |
+| Node.js | 24.16.0 LTS | Versión requerida para desarrollo local, CI y contenedores |
 | pnpm | 10.32.1 | Gestor de paquetes (`corepack enable`) |
 | Angular CLI | 21.2.6 | Instalado via devDependencies — no instalar globalmente |
 | Docker Engine | 24+ | Solo para despliegue containerizado |
 
-Instalar pnpm sin instalación global:
+Descargar Node.js 24.16.0 LTS desde la página oficial:
+
+- https://nodejs.org/en/download/
+
+Después de instalar Node.js, cerrar y abrir la terminal. La versión debe quedar exactamente en 24.16.0:
 
 ```bash
-corepack enable       # requiere Node.js 18+
-corepack use pnpm@10.32.1
+node --version
+# esperado: v24.16.0
+```
+
+Opciones de instalación por entorno:
+
+```powershell
+# Windows con winget
+winget install OpenJS.NodeJS.LTS --version 24.16.0
+```
+
+```bash
+# macOS o Linux con nvm
+nvm install 24.16.0
+nvm use 24.16.0
+nvm alias default 24.16.0
+```
+
+Activar pnpm con Corepack:
+
+```bash
+corepack enable
+corepack prepare pnpm@10.32.1 --activate
+pnpm --version
+# esperado: 10.32.1
 ```
 
 ---
@@ -57,12 +84,31 @@ export const environment = {
 ## Desarrollo local
 
 ```bash
-# 1. Instalar dependencias
-pnpm install
+# 1. Verificar versiones
+node --version   # v24.16.0
+pnpm --version   # 10.32.1
 
-# 2. Iniciar servidor de desarrollo (hot reload)
+# 2. Instalar dependencias de forma reproducible
+pnpm install --frozen-lockfile
+
+# 3. Iniciar servidor de desarrollo (hot reload)
 pnpm start            # equivale a: ng serve
                       # disponible en http://localhost:4200
+```
+
+Si el proyecto ya tenía `node_modules` creado con Node 20, 22 u otra versión anterior, hacer una instalación limpia:
+
+```powershell
+# Windows PowerShell
+if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
+if (Test-Path .angular\cache) { Remove-Item -Recurse -Force .angular\cache }
+pnpm install --frozen-lockfile
+```
+
+```bash
+# macOS, Linux o WSL
+rm -rf node_modules .angular/cache
+pnpm install --frozen-lockfile
 ```
 
 Scripts disponibles:
@@ -73,6 +119,7 @@ Scripts disponibles:
 | `pnpm build` | Build de producción en `dist/` |
 | `pnpm test` | Tests unitarios con Vitest (via `@angular/build:unit-test`) |
 | `pnpm watch` | Build en modo watch (desarrollo) |
+| `pnpm check` | Ejecuta lint, tests sin watch y build |
 
 ---
 
@@ -265,10 +312,10 @@ El backend debe tener `APP_CORS_ALLOWED_ORIGINS=http://localhost:4200` (o el dom
 Verificar versión:
 
 ```bash
-node -v   # debe ser 20.x
+node -v   # debe ser v24.16.0
 ```
 
-Usar `nvm` o `fnm` para cambiar de versión si es necesario.
+Usar el instalador oficial de Node.js 24.16.0 LTS o un gestor de versiones como `nvm`/`fnm` para cambiar de versión. Después de cambiar Node, eliminar `node_modules` y reinstalar con `pnpm install --frozen-lockfile`.
 
 ### La app muestra datos vacíos / errores de red
 

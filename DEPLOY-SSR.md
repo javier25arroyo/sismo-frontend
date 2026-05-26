@@ -20,7 +20,7 @@ Reemplazar la etapa 3 (`runtime`) completa:
 #############################################
 # Etapa 3: Runtime SSR (Node.js)
 #############################################
-FROM node:20.19.0-alpine AS runtime
+FROM node:24.16.0-alpine AS runtime
 
 RUN apk add --no-cache wget
 
