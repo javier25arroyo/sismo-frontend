@@ -7,9 +7,12 @@ import {
   ElementRef,
   ChangeDetectionStrategy,
   ViewEncapsulation,
-  effect
+  PLATFORM_ID,
+  effect,
+  inject
 } from '@angular/core';
-import * as L from 'leaflet';
+import { isPlatformBrowser } from '@angular/common';
+import type * as Leaflet from 'leaflet';
 
 @Component({
   standalone: true,
@@ -26,8 +29,10 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('mapEl', { static: true }) mapEl!: ElementRef;
 
-  private map!: L.Map;
-  private marker!: L.CircleMarker;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private leaflet!: typeof Leaflet;
+  private map: Leaflet.Map | null = null;
+  private marker: Leaflet.CircleMarker | null = null;
   private isInitialized = false;
 
   constructor() {
@@ -36,13 +41,16 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
       const lng = this.lng();
       const label = this.label();
 
-      if (this.isInitialized && this.map) {
+      if (this.isInitialized && this.map && this.marker) {
         this.updatePosition(lat, lng, label);
       }
     });
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
+    if (!this.isBrowser) return;
+
+    this.leaflet = await import('leaflet');
     this.initMap();
     this.isInitialized = true;
   }
@@ -54,6 +62,7 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private initMap(): void {
+    const L = this.leaflet;
     const lat = this.lat();
     const lng = this.lng();
     const label = this.label();
@@ -89,7 +98,9 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private updatePosition(lat: number, lng: number, label: string): void {
-    const latlng: L.LatLngExpression = [lat, lng];
+    if (!this.map || !this.marker) return;
+
+    const latlng: Leaflet.LatLngExpression = [lat, lng];
     this.map.setView(latlng, 12);
     this.marker.setLatLng(latlng);
     this.marker.unbindTooltip();
