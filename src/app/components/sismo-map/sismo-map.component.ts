@@ -350,7 +350,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private addLegend(): void {
-    const L = this.leaflet;
+    //const L = this.leaflet;
     const legend = new L.Control({ position: 'bottomright' });
 
     legend.onAdd = () => {
