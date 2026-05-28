@@ -13,7 +13,8 @@ import {
   effect
 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import type * as Leaflet from 'leaflet';
+//import type * as Leaflet from 'leaflet';
+import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
 import { EstacionRespuesta, SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
 import { categorizarSismo, type ConsecutivoSismo } from '../../utils/sismo-criterios';
@@ -128,8 +129,8 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit(): Promise<void> {
     if (!this.isBrowser) return;
 
-    this.leaflet = await import('leaflet');
-    this.fixLeafletIcons();
+    //this.leaflet = await import('leaflet');
+    //this.fixLeafletIcons();
     this.initMap();
     this.addSismos(this.sismos());
     this.addEpicentroMarker(this.epicentro());
@@ -144,7 +145,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private fixLeafletIcons(): void {
-    const L = this.leaflet;
+    /*const L = this.leaflet;
     // Fix para iconos de Leaflet en Angular usando activos locales
     const iconDefault = L.icon({
       iconRetinaUrl: 'leaflet/marker-icon-2x.png',
@@ -155,7 +156,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
       popupAnchor: [1, -34],
       shadowSize: [41, 41]
     });
-    L.Marker.prototype.options.icon = iconDefault;
+    L.Marker.prototype.options.icon = iconDefault;*/
   }
 
   private initMap(): void {
