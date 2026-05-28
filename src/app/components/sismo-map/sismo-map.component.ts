@@ -160,7 +160,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private initMap(): void {
-    const L = this.leaflet;
+    //const L = this.leaflet;
     this.map = L.map(this.mapContainer.nativeElement, {
       center: this.center(),
       zoom: this.zoom(),
@@ -191,7 +191,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
   private addSismos(sismos: Sismo[]): void {
     if (!this.markersLayer) return;
-    const L = this.leaflet;
+    //const L = this.leaflet;
 
     // Limpiar marcadores existentes
     this.markersLayer.clearLayers();
@@ -256,7 +256,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
   private addEpicentroMarker(epicentro: SismoUltimoRespuesta | null): void {
     if (!this.epicentroLayer) return;
-    const L = this.leaflet;
+    //const L = this.leaflet;
     this.epicentroLayer.clearLayers();
     if (!epicentro) return;
 
@@ -319,7 +319,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
   private addEstaciones(estaciones: EstacionRespuesta[]): void {
     if (!this.estacionesLayer) return;
-    const L = this.leaflet;
+    //const L = this.leaflet;
     this.estacionesLayer.clearLayers();
 
     estaciones.forEach(e => {
