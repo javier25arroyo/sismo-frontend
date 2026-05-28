@@ -77,11 +77,15 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   });
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private leaflet!: typeof Leaflet;
-  private map!: Leaflet.Map;
-  private markersLayer!: Leaflet.LayerGroup;
-  private epicentroLayer!: Leaflet.LayerGroup;
-  private estacionesLayer!: Leaflet.LayerGroup;
+  //private leaflet!: typeof Leaflet;
+  //private map!: Leaflet.Map;
+  //private markersLayer!: Leaflet.LayerGroup;
+  //private epicentroLayer!: Leaflet.LayerGroup;
+  //private estacionesLayer!: Leaflet.LayerGroup;
+  private map!: L.Map;
+  private markersLayer!: L.LayerGroup;
+  private epicentroLayer!: L.LayerGroup;
+  private estacionesLayer!: L.LayerGroup;
   private isInitialized = false;
 
   /** Estilos segun criterio oficial del sismo */
