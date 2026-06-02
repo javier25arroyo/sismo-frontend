@@ -118,3 +118,4 @@ skills-lock.json
 /.junie
 /.gemini
 *.md
+/.worktrees/
