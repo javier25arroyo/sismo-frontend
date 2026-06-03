@@ -9,11 +9,14 @@ import { EstacionesCacheService } from '../../services/estaciones-cache.service'
 import {
   EstacionRespuesta,
   GeneracionReporteRespuesta,
-  SismoRespuesta
+  SismoRespuesta,
+  ValorAlertaEstacionRespuesta
 } from '../../interfaces/api.interfaces';
+import { Sismo } from '../../interfaces/sismo.interface';
 import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
+import { ValorAlertaService } from '../../services/valor-alerta.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   LucideAngularModule,
@@ -45,6 +48,8 @@ import {
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
   estaciones = signal<EstacionRespuesta[]>([]);
+  registrosEstaciones = signal<Sismo[]>([]);
+  valoresAlerta = signal<ValorAlertaEstacionRespuesta[]>([]);
   cargando = signal(true);
   errorCarga = signal('');
   mensajeAccion = signal('');
@@ -94,6 +99,13 @@ export class SismosPage implements OnInit, OnDestroy {
     return '640px';
   });
 
+  readonly registrosEstacionesTabla = computed(() =>
+    this.registrosEstaciones().map(registro => ({
+      ...registro,
+      alertaSismica: this.obtenerAlertaSismica(registro)
+    }))
+  );
+
   @HostListener('window:resize', ['$event'])
   onResize(e: UIEvent): void {
     this.windowWidth.set((e.target as Window).innerWidth);
@@ -107,11 +119,13 @@ export class SismosPage implements OnInit, OnDestroy {
     private reporteService: ReporteService,
     readonly auth: AuthService,
     private route: ActivatedRoute,
-    private estacionesCache: EstacionesCacheService
+    private estacionesCache: EstacionesCacheService,
+    private valorAlertaService: ValorAlertaService
   ) {}
 
   ngOnInit(): void {
     void this.cargarEstaciones();
+    void this.cargarRegistrosEstaciones();
     const sismoFromState = this.isBrowser
       ? (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null
       : null;
@@ -124,6 +138,20 @@ export class SismosPage implements OnInit, OnDestroy {
   private async cargarEstaciones(): Promise<void> {
     const data = await this.estacionesCache.getEstaciones();
     this.estaciones.set(data);
+  }
+
+  private async cargarRegistrosEstaciones(): Promise<void> {
+    try {
+      const [registros, alertas] = await Promise.all([
+        this.sismoService.getUltimosSismos(100),
+        this.valorAlertaService.getAlertas({ page: 0, size: 500 })
+      ]);
+      this.registrosEstaciones.set(registros);
+      this.valoresAlerta.set(alertas.content);
+    } catch {
+      this.registrosEstaciones.set([]);
+      this.valoresAlerta.set([]);
+    }
   }
 
   ngOnDestroy(): void {
@@ -290,6 +318,30 @@ export class SismosPage implements OnInit, OnDestroy {
         return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
       }
     }
+  }
+
+  obtenerAlertaSismica(registro: Pick<Sismo, 'codCentroPrd' | 'codEstacion' | 'vaAceleracion'>): string {
+    const aceleracion = registro.vaAceleracion;
+    if (typeof aceleracion !== 'number' || !Number.isFinite(aceleracion)) return 'Sin alerta';
+
+    const alerta = this.valoresAlerta().find(valor =>
+      valor.codEstacion === registro.codEstacion &&
+      (!registro.codCentroPrd || valor.codCentroPrd === registro.codCentroPrd)
+    );
+    if (!alerta) return 'Sin alerta';
+
+    const niveles = [
+      { etiqueta: 'Nivel 3', valor: alerta.nivel3 },
+      { etiqueta: 'Nivel 2', valor: alerta.nivel2 },
+      { etiqueta: 'Nivel 1', valor: alerta.nivel1 },
+      { etiqueta: 'Nivel 0', valor: alerta.nivel0 }
+    ];
+
+    return niveles.find(nivel =>
+      typeof nivel.valor === 'number' &&
+      Number.isFinite(nivel.valor) &&
+      aceleracion >= nivel.valor
+    )?.etiqueta ?? 'Sin alerta';
   }
 
 }
