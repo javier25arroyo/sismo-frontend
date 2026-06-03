@@ -28,6 +28,8 @@ import { CentroService } from '../../services/centro.service';
 import { ParametroIntensidadService } from '../../services/parametro-intensidad.service';
 import { UmbralService } from '../../services/umbral.service';
 
+const MENSAJES_UMBRAL = ['Normal', 'Alerta baja', 'Alerta media', 'Alerta alta'] as const;
+
 interface FormUmbralEstacion {
   codCentroPrd: string;
   codEstacion: string;
@@ -35,6 +37,7 @@ interface FormUmbralEstacion {
   codUmbral: string;
   limiteInferior: string;
   usarCalculoAutomatico: boolean;
+  mensaje: string;
 }
 
 function formVacio(): FormUmbralEstacion {
@@ -45,6 +48,7 @@ function formVacio(): FormUmbralEstacion {
     codUmbral: '',
     limiteInferior: '',
     usarCalculoAutomatico: true,
+    mensaje: '',
   };
 }
 
@@ -61,6 +65,7 @@ export class UmbralesEstacionesPage implements OnInit {
   private readonly parametroService = inject(ParametroIntensidadService);
   private readonly umbralService = inject(UmbralService);
 
+  readonly mensajesUmbral = MENSAJES_UMBRAL;
   readonly sliderIcon = SlidersHorizontal;
   readonly filterIcon = Filter;
   readonly refreshIcon = RefreshCw;
@@ -243,10 +248,12 @@ export class UmbralesEstacionesPage implements OnInit {
       codUmbral: umbral?.codUmbral ?? '',
       limiteInferior: '',
       usarCalculoAutomatico: true,
+      mensaje: '',
     });
   }
 
   editar(alarma: AlarmaPorEstacionRespuesta): void {
+    const global = this.umbralGlobal(alarma.codParametro, alarma.codUmbral);
     this.modoFormulario.set('edit');
     this.alarmaEditando.set(alarma);
     this.calculo.set(null);
@@ -257,6 +264,7 @@ export class UmbralesEstacionesPage implements OnInit {
       codUmbral: alarma.codUmbral,
       limiteInferior: this.formatearNumeroInput(alarma.limiteInferior),
       usarCalculoAutomatico: false,
+      mensaje: global?.mensaje ?? '',
     });
   }
 
@@ -317,6 +325,10 @@ export class UmbralesEstacionesPage implements OnInit {
 
   setUsarCalculoAutomatico(ev: Event): void {
     this.form.update(form => ({ ...form, usarCalculoAutomatico: (ev.target as HTMLInputElement).checked }));
+  }
+
+  setMensaje(ev: Event): void {
+    this.form.update(form => ({ ...form, mensaje: (ev.target as HTMLSelectElement).value }));
   }
 
   async previsualizarCalculo(): Promise<void> {
@@ -386,6 +398,21 @@ export class UmbralesEstacionesPage implements OnInit {
           seleccion.codUmbral,
           { limiteInferior }
         );
+
+        const global = this.umbralGlobal(seleccion.codParametro, seleccion.codUmbral);
+        if (global && form.mensaje) {
+          await this.umbralService.actualizarUmbral(
+            seleccion.codParametro,
+            seleccion.codUmbral,
+            { limiteInferior: global.limiteInferior, mensaje: form.mensaje }
+          );
+          const actualizados = await this.umbralService.getUmbralesPorParametro(seleccion.codParametro);
+          this.umbralesPorParametro.update(mapa => ({
+            ...mapa,
+            [seleccion.codParametro]: this.ordenarUmbrales(actualizados)
+          }));
+        }
+
         this.mostrarMensaje('ok', 'Umbral por estación actualizado');
       } else {
         const solicitud: CrearAlarmaPorEstacionSolicitud = {
