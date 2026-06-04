@@ -20,7 +20,8 @@ import { UbicacionNormalizadaPipe } from '../../pipes/ubicacion-normalizada.pipe
 import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 
 type FiltroSentido = '' | 'sentido' | 'no_sentido';
-type FiltroLocalizacion = '' | 'valle_central' | 'zona_atlantica' | 'zona_pacifica' | 'zona_sur';
+type FiltroLocalizacion =
+  '' | 'central' | 'chorotega' | 'pacifico_central' | 'brunca' | 'huetar_caribe' | 'huetar_norte';
 type RangoRapido = 'hoy' | '7d' | '30d' | '90d' | 'anio';
 
 @Component({
@@ -111,10 +112,12 @@ export class HistorialPage implements OnInit {
 
   readonly zonasFiltro: readonly { value: FiltroLocalizacion; label: string }[] = [
     { value: '', label: 'Todo el territorio' },
-    { value: 'valle_central', label: 'Central' },
-    { value: 'zona_atlantica', label: 'Huetar Atlántica' },
-    { value: 'zona_pacifica', label: 'Chorotega' },
-    { value: 'zona_sur', label: 'Zona Sur' }
+    { value: 'central', label: 'Central' },
+    { value: 'chorotega', label: 'Chorotega' },
+    { value: 'pacifico_central', label: 'Pacífico Central' },
+    { value: 'brunca', label: 'Brunca' },
+    { value: 'huetar_caribe', label: 'Huetar Caribe' },
+    { value: 'huetar_norte', label: 'Huetar Norte' }
   ];
 
   readonly sentidoOpciones: readonly { value: FiltroSentido; label: string }[] = [
@@ -199,10 +202,12 @@ export class HistorialPage implements OnInit {
 
   getLocalizacionLabel(val: string): string {
     switch (val) {
-      case 'valle_central': return 'Central';
-      case 'zona_atlantica': return 'Huetar Atlántica';
-      case 'zona_pacifica': return 'Chorotega';
-      case 'zona_sur': return 'Zona Sur';
+      case 'central': return 'Central';
+      case 'chorotega': return 'Chorotega';
+      case 'pacifico_central': return 'Pacífico Central';
+      case 'brunca': return 'Brunca';
+      case 'huetar_caribe': return 'Huetar Caribe';
+      case 'huetar_norte': return 'Huetar Norte';
       default: return 'Todo el territorio';
     }
   }
@@ -255,14 +260,43 @@ export class HistorialPage implements OnInit {
     const valor = this.normalizarTexto(ubicacion);
     if (!valor) return false;
     switch (filtro) {
-      case 'valle_central':
-        return this.contieneAlguno(valor, ['san jose', 'alajuela', 'cartago', 'heredia', 'valle central']);
-      case 'zona_atlantica':
-        return this.contieneAlguno(valor, ['limon', 'caribe', 'atlantica', 'atlantico', 'talamanca', 'siquirres']);
-      case 'zona_pacifica':
-        return this.contieneAlguno(valor, ['pacifica', 'pacifico', 'puntarenas', 'guanacaste', 'nicoya', 'chorotega']);
-      case 'zona_sur':
-        return this.contieneAlguno(valor, ['osa', 'golfito', 'coto brus', 'buenos aires', 'san vito', 'palmar', 'perez zeledon', 'brunca', 'zona sur']);
+      case 'central':
+        return this.contieneAlguno(valor, [
+          'valle central', 'san jose', 'escazu', 'desamparados', 'puriscal', 'tarrazu', 'aserri', 'mora',
+          'goicoechea', 'santa ana', 'alajuelita', 'vazquez de coronado', 'tibas', 'moravia',
+          'montes de oca', 'turrubares', 'dota', 'curridabat', 'leon cortes', 'acosta', 'alajuela',
+          'san ramon', 'grecia', 'san mateo', 'atenas', 'naranjo', 'palmares', 'poas', 'orotina',
+          'zarcero', 'sarchi', 'cartago', 'paraiso', 'la union', 'jimenez', 'turrialba', 'alvarado',
+          'oreamuno', 'el guarco', 'heredia', 'barva', 'santo domingo', 'santa barbara', 'san rafael',
+          'san isidro', 'belen', 'flores', 'san pablo'
+        ]);
+      case 'chorotega':
+        return this.contieneAlguno(valor, [
+          'chorotega', 'guanacaste', 'liberia', 'nicoya', 'santa cruz', 'bagaces', 'carrillo',
+          'filadelfia', 'canas', 'abangares', 'tilaran', 'nandayure', 'la cruz', 'hojancha'
+        ]);
+      case 'pacifico_central':
+        return this.contieneAlguno(valor, [
+          'pacifico central', 'puntarenas centro', 'esparza', 'montes de oro', 'miramar', 'garabito',
+          'jaco', 'parrita', 'quepos', 'manuel antonio', 'tarcoles', 'herradura', 'barranca', 'caldera'
+        ]);
+      case 'brunca':
+        return this.contieneAlguno(valor, [
+          'brunca', 'zona sur', 'perez zeledon', 'san isidro de el general', 'buenos aires', 'osa',
+          'puerto cortes', 'palmar', 'sierpe', 'golfito', 'corredores', 'ciudad neily', 'coto brus',
+          'san vito'
+        ]);
+      case 'huetar_caribe':
+        return this.contieneAlguno(valor, [
+          'huetar caribe', 'limon', 'caribe', 'pococi', 'guapiles', 'siquirres', 'talamanca', 'matina',
+          'guacimo', 'cariari', 'cahuita', 'puerto viejo', 'bribri'
+        ]);
+      case 'huetar_norte':
+        return this.contieneAlguno(valor, [
+          'huetar norte', 'san carlos', 'ciudad quesada', 'la fortuna', 'fortuna', 'upala',
+          'los chiles', 'guatuso', 'rio cuarto', 'sarapiqui', 'puerto viejo de sarapiqui', 'horquetas',
+          'pital', 'aguas zarcas', 'florencia'
+        ]);
       default: return true;
     }
   }

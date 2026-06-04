@@ -37,4 +37,48 @@ describe('HistorialPage', () => {
     expect(component.esEventoSentido({ ...baseEvento, sentido: 'Si' })).toBe(true);
     expect(component.esEventoSentido(baseEvento)).toBe(false);
   });
+
+  it('muestra las regiones oficiales de Costa Rica en el filtro de zona', () => {
+    const fixture = TestBed.createComponent(HistorialPage);
+    const component = fixture.componentInstance;
+
+    expect(component.zonasFiltro.map(zona => zona.label)).toEqual([
+      'Todo el territorio',
+      'Central',
+      'Chorotega',
+      'Pacífico Central',
+      'Brunca',
+      'Huetar Caribe',
+      'Huetar Norte'
+    ]);
+  });
+
+  it('filtra eventos por la region real seleccionada', () => {
+    const fixture = TestBed.createComponent(HistorialPage);
+    const component = fixture.componentInstance;
+    const evento = (ubicacion: string): SismoRespuesta => ({ ...baseEvento, ubicacion });
+
+    component.eventos.set([
+      evento('Cerca de Ciudad Quesada, San Carlos'),
+      evento('Al oeste de Quepos'),
+      evento('Al sur de Golfito'),
+      evento('Cerca de Liberia'),
+      evento('Cerca de Limón')
+    ]);
+
+    component.localizacion.set('huetar_norte');
+    expect(component.eventosFiltrados().map(sismo => sismo.ubicacion)).toEqual([
+      'Cerca de Ciudad Quesada, San Carlos'
+    ]);
+
+    component.localizacion.set('pacifico_central');
+    expect(component.eventosFiltrados().map(sismo => sismo.ubicacion)).toEqual([
+      'Al oeste de Quepos'
+    ]);
+
+    component.localizacion.set('brunca');
+    expect(component.eventosFiltrados().map(sismo => sismo.ubicacion)).toEqual([
+      'Al sur de Golfito'
+    ]);
+  });
 });
