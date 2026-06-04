@@ -8,22 +8,15 @@ import {
   ElementRef,
   effect
 } from '@angular/core';
-import {
-  Chart,
-  ScatterController,
-  PointElement,
-  LinearScale,
-  Tooltip,
-  Title,
-  Legend
-} from 'chart.js';
-
-Chart.register(ScatterController, PointElement, LinearScale, Tooltip, Title, Legend);
 
 export interface ScatterDato {
   x: number;
   y: number;
 }
+
+type ChartModule = typeof import('chart.js');
+type ScatterChart = import('chart.js').Chart<'scatter', ScatterDato[]>;
+type ScatterTooltipItem = import('chart.js').TooltipItem<'scatter'>;
 
 @Component({
   standalone: true,
@@ -56,8 +49,12 @@ export class ScatterChartComponent implements AfterViewInit, OnDestroy {
 
   protected readonly uniqueId = Math.random().toString(36).substring(2, 9);
 
-  private chart: Chart | null = null;
+  private static chartModulePromise: Promise<ChartModule> | null = null;
+
+  private chart: ScatterChart | null = null;
   private isInitialized = false;
+  private destroyed = false;
+  private renderToken = 0;
 
   constructor() {
     effect(() => {
@@ -68,23 +65,57 @@ export class ScatterChartComponent implements AfterViewInit, OnDestroy {
       const color = this.colorPunto();
 
       if (this.isInitialized) {
-        this.buildChart(datos, tituloX, tituloY, color);
+        void this.syncChart(datos, tituloX, tituloY, color);
       }
     });
   }
 
   ngAfterViewInit(): void {
     this.isInitialized = true;
-    this.buildChart(this.datos(), this.tituloX(), this.tituloY(), this.colorPunto());
+    void this.syncChart(this.datos(), this.tituloX(), this.tituloY(), this.colorPunto());
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.chart?.destroy();
   }
 
-  private buildChart(datos: ScatterDato[], tituloX: string, tituloY: string, color: string): void {
+  private static loadChartModule(): Promise<ChartModule> {
+    if (!this.chartModulePromise) {
+      this.chartModulePromise = import('chart.js').then(module => {
+        module.Chart.register(
+          module.ScatterController,
+          module.PointElement,
+          module.LinearScale,
+          module.Tooltip,
+          module.Title,
+          module.Legend
+        );
+        return module;
+      });
+    }
+    return this.chartModulePromise;
+  }
+
+  private async syncChart(datos: ScatterDato[], tituloX: string, tituloY: string, color: string): Promise<void> {
     if (!this.canvasRef) return;
-    this.chart?.destroy();
+    const token = ++this.renderToken;
+    const { Chart } = await ScatterChartComponent.loadChartModule();
+    if (this.destroyed || token !== this.renderToken) return;
+
+    if (this.chart) {
+      this.chart.data.datasets[0].data = datos;
+      this.chart.data.datasets[0].backgroundColor = color + 'cc';
+      this.chart.data.datasets[0].borderColor = color;
+      if (this.chart.options.scales?.['x']?.title) {
+        this.chart.options.scales['x'].title.text = tituloX;
+      }
+      if (this.chart.options.scales?.['y']?.title) {
+        this.chart.options.scales['y'].title.text = tituloY;
+      }
+      this.chart.update('none');
+      return;
+    }
 
     this.chart = new Chart(this.canvasRef.nativeElement, {
       type: 'scatter',
@@ -104,7 +135,7 @@ export class ScatterChartComponent implements AfterViewInit, OnDestroy {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => `(${(ctx.parsed.x ?? 0).toFixed(2)}, ${(ctx.parsed.y ?? 0).toFixed(2)})`
+              label: (ctx: ScatterTooltipItem) => `(${(ctx.parsed.x ?? 0).toFixed(2)}, ${(ctx.parsed.y ?? 0).toFixed(2)})`
             }
           }
         },

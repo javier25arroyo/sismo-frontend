@@ -1,0 +1,15 @@
+# Sismologia ICE
+
+Plataforma web del Instituto Costarricense de Electricidad para monitoreo acelerografico, consulta de sismos, red de estaciones y reportes tecnicos.
+
+## Secciones publicas
+
+- [Inicio](/)
+- [Sismos recientes](/sismos)
+- [Historial sismico](/historial)
+- [Red de estaciones](/estaciones)
+- [Consultas sismicas](/consultas)
+
+## Indicaciones
+
+El contenido publico puede ser usado para describir la plataforma y sus funcionalidades tecnicas. Las rutas administrativas o de autenticacion no deben indexarse ni presentarse como contenido publico.

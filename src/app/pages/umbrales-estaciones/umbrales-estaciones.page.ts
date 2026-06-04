@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   Calculator,
@@ -56,7 +56,8 @@ function formVacio(): FormUmbralEstacion {
   standalone: true,
   selector: 'app-umbrales-estaciones',
   imports: [CommonModule, RouterLink, LucideAngularModule, ConfirmDialogComponent],
-  templateUrl: './umbrales-estaciones.page.html'
+  templateUrl: './umbrales-estaciones.page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UmbralesEstacionesPage implements OnInit {
   private readonly route = inject(ActivatedRoute);

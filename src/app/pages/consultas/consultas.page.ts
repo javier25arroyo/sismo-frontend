@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { ScatterChartComponent, ScatterDato } from '../../components/scatter-chart/scatter-chart.component';
@@ -42,7 +42,7 @@ interface EventoAgregado {
   ],
   templateUrl: './consultas.page.html'
 })
-export class ConsultasPage implements OnInit {
+export class ConsultasPage {
   readonly downloadIcon = Download;
   readonly searchIcon   = Search;
 
@@ -50,6 +50,8 @@ export class ConsultasPage implements OnInit {
   tab = signal<'acelerografos' | 'rsn'>('acelerografos');
 
   estaciones = signal<EstacionRespuesta[]>([]);
+  estacionesCargadas = signal(false);
+  cargandoEstaciones = signal(false);
 
   centros = signal<CentroProduccionRespuesta[]>([]);
   centrosCargados = signal(false);
@@ -87,16 +89,17 @@ export class ConsultasPage implements OnInit {
     private centroService: CentroService
   ) {}
 
-  ngOnInit(): void {
-    void this.cargarEstaciones();
-  }
-
-  private async cargarEstaciones(): Promise<void> {
+  async cargarEstacionesSiNecesario(): Promise<void> {
+    if (this.estacionesCargadas() || this.cargandoEstaciones()) return;
+    this.cargandoEstaciones.set(true);
     try {
       const page = await this.centroService.getTodasEstaciones({ size: 500 });
       this.estaciones.set(page.content);
+      this.estacionesCargadas.set(true);
     } catch {
       this.estaciones.set([]);
+    } finally {
+      this.cargandoEstaciones.set(false);
     }
   }
 
@@ -150,10 +153,11 @@ export class ConsultasPage implements OnInit {
 
   async buscar(): Promise<void> {
     await this.cargarCentrosSiNecesario();
+    const estacionesPromise = this.cargarEstacionesSiNecesario();
     if (this.tab() === 'acelerografos') {
-      await this.buscarHistorial();
+      await Promise.all([this.buscarHistorial(), estacionesPromise]);
     } else {
-      await this.buscarRsn();
+      await Promise.all([this.buscarRsn(), estacionesPromise]);
     }
   }
 
@@ -238,6 +242,10 @@ export class ConsultasPage implements OnInit {
   }
 
   // ── Mapa ─────────────────────────────────────────────────────
+
+  readonly estacionesMapa = computed((): EstacionRespuesta[] =>
+    this.estacionesCargadas() ? this.estaciones() : []
+  );
 
   readonly sismosMapaAcel = computed((): SismoResumenRespuesta[] => {
     const eventosPorSismo = new Map<string, HistorialSismoRespuesta>();

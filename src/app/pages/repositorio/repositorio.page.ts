@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import {
   FileDown, FileText, Search, Filter, ChevronLeft, ChevronRight,
   FilePlus2, RefreshCw, Clock, CheckCircle2, XCircle, Loader2,
@@ -25,7 +25,8 @@ type EstadoGen =
   standalone: true,
   selector: 'app-repositorio',
   imports: [CommonModule, LucideAngularModule, ConfirmDialogComponent],
-  templateUrl: './repositorio.page.html'
+  templateUrl: './repositorio.page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RepositorioPage implements OnInit, OnDestroy {
   private reporteService  = inject(ReporteService);
@@ -60,7 +61,9 @@ export class RepositorioPage implements OnInit, OnDestroy {
   mensajeGen         = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
   descargandoGen     = signal<string | null>(null);
   cancelarDialogId   = signal<string | null>(null);   // id a cancelar
+  generacionesCargadas = signal(false);
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private pollingEnCurso = false;
 
   // ─── Iconos ───────────────────────────────────────────────────────────────
   readonly documentIcon  = FileText;
@@ -110,16 +113,15 @@ export class RepositorioPage implements OnInit, OnDestroy {
   // ─── Lifecycle ────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.cargarReportes();
-    this.cargarGeneraciones();
   }
 
   ngOnDestroy(): void {
-    if (this.pollTimer) clearInterval(this.pollTimer);
+    this.detenerPolling();
   }
 
   setTab(t: Tab): void {
     this.tabActivo.set(t);
-    if (t === 'generar') this.cargarGeneraciones();
+    if (t === 'generar' && !this.generacionesCargadas()) this.cargarGeneraciones();
   }
 
   // ─── Descargar: carga y filtros ───────────────────────────────────────────
@@ -178,6 +180,7 @@ export class RepositorioPage implements OnInit, OnDestroy {
     try {
       const lista = await this.reporteService.getMisGeneraciones();
       this.generaciones.set(lista);
+      this.generacionesCargadas.set(true);
       this.iniciarPolling();
     } catch { this.generaciones.set([]); }
     finally { this.cargandoGen.set(false); }
@@ -188,23 +191,49 @@ export class RepositorioPage implements OnInit, OnDestroy {
     const pendientes = this.generaciones().filter(g => !g.finalizado);
     if (pendientes.length === 0) return;
 
-    this.pollTimer = setInterval(async () => {
-      const actuales = this.generaciones();
-      const sinFinalizar = actuales.filter(g => !g.finalizado);
-      if (sinFinalizar.length === 0) {
-        clearInterval(this.pollTimer!);
-        this.pollTimer = null;
-        return;
-      }
-      for (const g of sinFinalizar) {
-        try {
-          const actualizado = await this.reporteService.consultarEstadoGeneracion(g.id);
-          this.generaciones.update(list =>
-            list.map(item => item.id === g.id ? actualizado : item)
-          );
-        } catch { /* ignora errores de red en polling */ }
-      }
+    this.pollTimer = setInterval(() => {
+      void this.refrescarGeneracionesPendientes();
     }, 5000);
+  }
+
+  private async refrescarGeneracionesPendientes(): Promise<void> {
+    if (this.pollingEnCurso) return;
+    const sinFinalizar = this.generaciones().filter(g => !g.finalizado);
+    if (sinFinalizar.length === 0) {
+      this.detenerPolling();
+      return;
+    }
+
+    this.pollingEnCurso = true;
+    try {
+      const actualizados = await Promise.all(
+        sinFinalizar.map(async g => {
+          try {
+            return await this.reporteService.consultarEstadoGeneracion(g.id);
+          } catch {
+            return null;
+          }
+        })
+      );
+      const porId = new Map(
+        actualizados
+          .filter((g): g is GeneracionReporteRespuesta => g !== null)
+          .map(g => [g.id, g])
+      );
+      if (porId.size > 0) {
+        this.generaciones.update(list => list.map(item => porId.get(item.id) ?? item));
+      }
+    } finally {
+      this.pollingEnCurso = false;
+      if (this.generaciones().every(g => g.finalizado)) this.detenerPolling();
+    }
+  }
+
+  private detenerPolling(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
   }
 
   // ─── Generar: solicitar generación ───────────────────────────────────────

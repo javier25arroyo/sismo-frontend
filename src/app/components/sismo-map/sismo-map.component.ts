@@ -91,6 +91,15 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
     return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
   }
 
+  private escapeHtml(valor: string | number | null | undefined): string {
+    return String(valor ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   private readonly criterioStyles: Record<ConsecutivoSismo, MagnitudStyle> = {
     1: { color: '#22c55e', radius: 6, fillOpacity: 0.7 },
     2: { color: '#eab308', radius: 8, fillOpacity: 0.7 },
@@ -210,16 +219,18 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
         dateStyle: 'medium',
         timeStyle: 'short'
       });
+      const ubicacion = this.escapeHtml(this.normalizarUbicacion(sismo.ubicacion));
+      const fuente = sismo.fuente ? this.escapeHtml(sismo.fuente) : '';
 
       marker.bindPopup(`
         <div class="sismo-popup">
           <h3 class="font-bold text-lg">M ${sismo.magnitud.toFixed(1)}</h3>
           <p class="text-sm text-gray-600">${fechaFormateada}</p>
-          <p class="mt-1">${this.normalizarUbicacion(sismo.ubicacion)}</p>
+          <p class="mt-1">${ubicacion}</p>
           <p class="text-sm">Profundidad: ${sismo.profundidad} km</p>
           ${this.renderDistanciaHipocentral(sismo.distanciaHipocentral)}
           ${this.renderCriterio(sismo.magnitud, sismo.distanciaHipocentral)}
-          ${sismo.fuente ? `<p class="text-xs text-gray-500 mt-1">Fuente: ${sismo.fuente}</p>` : ''}
+          ${fuente ? `<p class="text-xs text-gray-500 mt-1">Fuente: ${fuente}</p>` : ''}
         </div>
       `);
 
@@ -265,6 +276,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
+    const ubicacion = this.escapeHtml(this.normalizarUbicacion(s.ubicacion));
 
     const icon = L.divIcon({
       className: '',
@@ -303,7 +315,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
           M ${s.magnitud.toFixed(1)}
         </h3>
         <p style="margin:0 0 2px;font-size:12px;color:#475569;">${fechaFormateada}</p>
-        <p style="margin:0 0 2px;font-size:12px;">${this.normalizarUbicacion(s.ubicacion)}</p>
+        <p style="margin:0 0 2px;font-size:12px;">${ubicacion}</p>
         <p style="margin:0;font-size:12px;color:#64748b;">Profundidad: ${s.profundidad} km</p>
         ${this.renderDistanciaHipocentral(s.distanciaHipocentral)}
         ${this.renderCriterio(s.magnitud, s.distanciaHipocentral)}
@@ -322,6 +334,8 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
     this.estacionesLayer.clearLayers();
 
     estaciones.forEach(e => {
+      const codEstacion = this.escapeHtml(e.codEstacion);
+      const nomEstacion = this.escapeHtml(e.nomEstacion);
       const icon = L.divIcon({
         className: '',
         html: `<svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,3 22,21 2,21" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
@@ -336,7 +350,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
         interactive: true,
         keyboard: true
       });
-      marker.bindTooltip(`<strong>${e.codEstacion}</strong><br>${e.nomEstacion}`, {
+      marker.bindTooltip(`<strong>${codEstacion}</strong><br>${nomEstacion}`, {
         direction: 'top',
         offset: [0, -8]
       });
