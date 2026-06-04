@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsuarioService } from '../../services/usuario.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
@@ -12,7 +12,8 @@ import {
   standalone: true,
   selector: 'app-profile',
   imports: [CommonModule, ConfirmDialogComponent],
-  templateUrl: './profile.page.html'
+  templateUrl: './profile.page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePage {
   private usuarioService = inject(UsuarioService);

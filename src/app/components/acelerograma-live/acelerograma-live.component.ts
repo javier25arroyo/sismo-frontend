@@ -14,9 +14,10 @@ import { CommonModule } from '@angular/common';
           alt="Acelerograma sísmico en tiempo real"
           fetchpriority="high"
           loading="eager"
+          decoding="sync"
           width="800"
           height="280"
-          class="h-full w-full object-contain mix-blend-multiply"
+          class="h-full w-full object-contain"
         >
       </picture>
       <!-- Trama técnica tenue para lectura de señal. -->

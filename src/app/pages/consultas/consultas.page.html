@@ -152,7 +152,7 @@
           <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" role="region" aria-labelledby="title-map-acel">
             <app-sismo-map
               [sismos]="sismosMapaAcel()"
-              [estaciones]="estaciones()"
+              [estaciones]="estacionesMapa()"
               [height]="'380px'"
               [zoom]="7"
               [showLegend]="false">
@@ -396,7 +396,7 @@
           <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" role="region" aria-labelledby="title-map-rsn">
             <app-sismo-map
               [sismos]="sismosMapaRsn()"
-              [estaciones]="estaciones()"
+              [estaciones]="estacionesMapa()"
               [height]="'380px'"
               [zoom]="7"
               [showLegend]="false">

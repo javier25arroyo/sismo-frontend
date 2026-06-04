@@ -151,67 +151,52 @@
         </div>
       } @else {
         <div class="overflow-x-auto">
-          <table class="w-full border-collapse text-[11px] lg:text-xs xl:text-[13px]">
-            <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+          <table class="w-full border-collapse text-xs lg:text-sm">
+            <thead class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
               <tr class="border-b border-slate-200">
-                <th scope="col" class="px-2.5 py-4 text-left">Estación</th>
-                <th scope="col" class="px-2.5 py-4 text-left">Parámetro</th>
-                <th scope="col" class="px-2.5 py-4 text-left">Nivel</th>
-                <th scope="col" class="px-2.5 py-4 text-right">Límite estación</th>
-                <th scope="col" class="px-2.5 py-4 text-right">Límite global</th>
-                <th scope="col" class="px-2.5 py-4 text-left">Mensaje</th>
-                <th scope="col" class="px-2.5 py-4 text-right">Acciones</th>
+                <th scope="col" class="px-4 py-3.5 text-left">Estación</th>
+                <th scope="col" class="px-4 py-3.5 text-left">Parámetro</th>
+                <th scope="col" class="px-4 py-3.5 text-right">Límite Inferior</th>
+                <th scope="col" class="px-4 py-3.5 text-left">Mensaje</th>
+                <th scope="col" class="px-4 py-3.5 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               @for (alarma of alarmasPagina(); track alarma.codCentroPrd + alarma.codEstacion + alarma.codParametro + alarma.codUmbral) {
                 @let global = umbralGlobal(alarma.codParametro, alarma.codUmbral);
-                @let limiteGlobal = global?.limiteInferior;
                 <tr class="transition hover:bg-sky-50/40"
                   [class.bg-sky-50]="alarmaEditando()?.codCentroPrd === alarma.codCentroPrd && alarmaEditando()?.codEstacion === alarma.codEstacion && alarmaEditando()?.codParametro === alarma.codParametro && alarmaEditando()?.codUmbral === alarma.codUmbral">
-                  <td class="px-2.5 py-4">
+                  <td class="px-4 py-3.5">
                     <p class="font-bold text-sky-700">{{ alarma.codCentroPrd }}-{{ alarma.codEstacion }}</p>
-                    <p class="mt-0.5 max-w-[120px] truncate text-[10px] font-medium text-slate-600">{{ estacionLabel(alarma.codCentroPrd, alarma.codEstacion) }}</p>
+                    <p class="mt-0.5 max-w-[180px] truncate text-[11px] font-medium text-slate-500">{{ estacionLabel(alarma.codCentroPrd, alarma.codEstacion) }}</p>
                   </td>
-                  <td class="px-2.5 py-4">
+                  <td class="px-4 py-3.5">
                     <p class="font-semibold text-slate-800">{{ parametroLabel(alarma.codParametro) }}</p>
-                    <p class="text-[10px] text-slate-400">Código {{ alarma.codParametro }}</p>
+                    <p class="text-[11px] text-slate-400">Código {{ alarma.codParametro }}</p>
                   </td>
-                  <td class="px-2.5 py-4">
-                    <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-                      [class]="claseColorUmbral(global?.color)">
-                      {{ alarma.codUmbral }}
-                    </span>
-                  </td>
-                  <td class="whitespace-nowrap px-2.5 py-4 text-right font-bold text-slate-900">
+                  <td class="whitespace-nowrap px-4 py-3.5 text-right font-bold tabular-nums text-slate-900">
                     {{ alarma.limiteInferior !== null ? (alarma.limiteInferior | number:'1.0-6') : 'Sin definir' }}
                     @if (alarma.limiteInferior !== null) {
-                      <span class="ml-0.5 text-[9px] font-normal text-slate-400">{{ parametroSimbolo(alarma.codParametro) }}</span>
+                      <span class="ml-1 text-[11px] font-normal text-slate-400">{{ parametroSimbolo(alarma.codParametro) }}</span>
                     }
                   </td>
-                  <td class="whitespace-nowrap px-2.5 py-4 text-right font-semibold text-slate-600">
-                    {{ limiteGlobal !== null && limiteGlobal !== undefined ? (limiteGlobal | number:'1.0-6') : 'Sin definir' }}
-                    @if (limiteGlobal !== null && limiteGlobal !== undefined) {
-                      <span class="ml-0.5 text-[9px] font-normal text-slate-400">{{ parametroSimbolo(alarma.codParametro) }}</span>
-                    }
+                  <td class="px-4 py-3.5">
+                    <p class="truncate font-semibold" [class]="claseColorUmbral(global?.color)">{{ global?.mensaje || 'Sin mensaje global' }}</p>
+                    <p class="mt-0.5 text-[11px] text-slate-400">{{ global?.color || 'Sin color' }}</p>
                   </td>
-                  <td class="px-2.5 py-4">
-                    <p class="max-w-[150px] truncate text-slate-600">{{ global?.mensaje || 'Sin mensaje global' }}</p>
-                    <p class="text-[10px] text-slate-400">{{ global?.color || 'Sin color' }}</p>
-                  </td>
-                  <td class="px-2.5 py-4">
-                    <div class="flex justify-end gap-1">
+                  <td class="px-4 py-3.5">
+                    <div class="flex justify-end gap-1.5">
                       <button type="button"
                         (click)="editar(alarma)"
                         title="Editar"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-sky-50 hover:text-sky-700">
-                        <i-lucide [img]="editIcon" size="14"></i-lucide>
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-sky-50 hover:text-sky-700">
+                        <i-lucide [img]="editIcon" size="15"></i-lucide>
                       </button>
                       <button type="button"
                         (click)="pedirEliminar(alarma)"
                         title="Eliminar"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">
-                        <i-lucide [img]="trashIcon" size="14"></i-lucide>
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-700">
+                        <i-lucide [img]="trashIcon" size="15"></i-lucide>
                       </button>
                     </div>
                   </td>
@@ -354,6 +339,21 @@
             <p>Factor total <span class="font-bold text-slate-900">{{ detalle.factorTotal | number:'1.0-3' }}</span></p>
             <p class="col-span-2">Piso mínimo <span class="font-bold text-slate-900">{{ detalle.pisoMinimoAplicado ? 'Aplicado' : 'No aplicado' }}</span></p>
           </div>
+        }
+
+        @if (modoFormulario() === 'edit') {
+          <label class="flex flex-col gap-1">
+            <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Mensaje</span>
+            <select
+              [value]="form().mensaje"
+              (change)="setMensaje($event)"
+              class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
+              <option value="">Sin mensaje</option>
+              @for (opcion of mensajesUmbral; track opcion) {
+                <option [value]="opcion">{{ opcion }}</option>
+              }
+            </select>
+          </label>
         }
 
         <button type="submit"

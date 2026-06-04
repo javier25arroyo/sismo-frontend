@@ -90,16 +90,16 @@
          ═══════════════════════════════════════════════════════════ -->
     <div *ngIf="cargando()" class="grid gap-5 lg:grid-cols-[1fr_320px]">
       <div class="h-[300px] rounded-3xl bg-slate-200 skeleton-shimmer sm:h-[420px] lg:h-[560px]"></div>
-      <div class="space-y-4">
-        <div class="h-32 rounded-3xl bg-slate-200 skeleton-shimmer"></div>
-        <div class="h-48 rounded-3xl bg-slate-200 skeleton-shimmer"></div>
-      </div>
+      <div class="h-[300px] rounded-3xl bg-slate-800 skeleton-shimmer sm:h-[360px] lg:h-[560px]"></div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════
-         MAP (big + centered) + SIDEBAR (estado ubicación)
+         MAP + PANEL LATERAL DE MAGNITUD
          ═══════════════════════════════════════════════════════════ -->
-    <section *ngIf="!cargando()" class="grid gap-5 lg:grid-cols-[1fr_320px]">
+    <section
+      *ngIf="!cargando()"
+      class="grid gap-5"
+      [ngClass]="ultimoSismo() ? 'lg:grid-cols-[minmax(0,1fr)_320px]' : 'lg:grid-cols-1'">
 
       <!-- MAP -->
       <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg ring-1 ring-slate-900/5">
@@ -124,162 +124,139 @@
         </app-sismo-map>
       </div>
 
-      <!-- SIDEBAR — Estado de ubicación -->
-      <aside class="flex flex-col gap-4">
+      <!-- MAGNITUD MOMENTÁNEA + DATOS — panel lateral -->
+      <section *ngIf="ultimoSismo()" class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-xl sm:p-8 lg:h-full lg:p-6">
 
-        <!-- Estado de ubicación card (primary) -->
-        <div
-          *ngIf="ultimoSismo()"
-          [ngClass]="'relative overflow-hidden rounded-3xl border p-6 shadow-sm transition-[background-color,border-color,box-shadow] duration-200 ' +
-          (getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'border-green-200 bg-gradient-to-br from-green-50 to-white' :
-           getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-white' :
-           'border-slate-200 bg-white')">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.15),transparent_60%)]"></div>
 
-          <div class="absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-40 blur-2xl"
-            [class.bg-green-300]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green'"
-            [class.bg-amber-300]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber'"
-            [class.bg-slate-200]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'slate'"></div>
+        <div class="relative flex h-full flex-col">
 
-          <div class="relative">
-            <div class="flex items-center gap-2">
-              <div class="flex h-9 w-9 items-center justify-center rounded-xl ring-1"
-                [class.bg-green-100]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green'"
-                [class.ring-green-200]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green'"
-                [class.bg-amber-100]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber'"
-                [class.ring-amber-200]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber'"
-                [class.bg-slate-100]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'slate'"
-                [class.ring-slate-200]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'slate'">
-                <i-lucide
-                  [img]="getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'verificada' ? shieldIcon :
-                         getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'revision' ? loaderIcon : hourglassIcon"
-                  size="16"
-                  [class]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'text-green-700' :
-                           getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'text-amber-700' :
-                           'text-slate-600'"
-                  [class.animate-spin]="getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'revision'"></i-lucide>
+          <!-- Magnitud momentánea -->
+          <div>
+            <div class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-sky-400">
+              <span class="relative inline-flex h-1.5 w-1.5">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
+                <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+              </span>
+              Magnitud momento
+            </div>
+
+            <div class="mt-5 flex items-baseline gap-3">
+              <span class="text-7xl font-black leading-none tracking-tight tabular-nums sm:text-8xl lg:text-7xl"
+                [style.color]="magnitudColor()">
+                {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
+              </span>
+              <div class="flex flex-col">
+                <span class="text-2xl font-black text-slate-400">Mw</span>
               </div>
-              <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em]"
-                [ngClass]="getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'green' ? 'text-green-700' :
-                           getColorEstadoUbicacion(getEstadoUbicacion(ultimoSismo()!.ubicacion)) === 'amber' ? 'text-amber-700' :
-                           'text-slate-600'">
-                Estado de ubicación
-              </p>
             </div>
 
-            <p class="mt-4 text-lg font-black tracking-tight text-slate-900">
-              {{ getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'verificada' ? 'Verificada' :
-                 getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'revision' ? 'En revisión' :
-                 getEstadoUbicacion(ultimoSismo()!.ubicacion) === 'pendiente' ? 'Pendiente' : 'Por confirmar' }}
+            <p class="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+              <i-lucide [img]="shieldIcon" size="12" class="text-green-400"></i-lucide>
+              Verificado por estaciones de control
             </p>
-            <p class="mt-1 text-sm leading-relaxed text-slate-600">{{ formatearUbicacion(ultimoSismo()!.ubicacion) }}</p>
+          </div>
 
-            <div class="mt-5 flex items-center gap-2 border-t border-slate-200/60 pt-4 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600">
-              <i-lucide [img]="shieldIcon" size="11" class="text-green-600"></i-lucide>
-              Red Sismológica Nacional
+          <!-- Datos grid -->
+          <div class="mt-6 grid grid-cols-2 gap-5 border-t border-white/10 pt-6">
+
+            <div>
+              <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
+                <i-lucide [img]="mapPinIcon" size="11"></i-lucide>
+                Latitud
+              </div>
+              <p class="mt-2 font-mono text-xl font-black tabular-nums text-white">
+                {{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}°
+              </p>
+              <p class="mt-0.5 text-xs text-slate-400">Norte</p>
             </div>
+
+            <div>
+              <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
+                <i-lucide [img]="mapPinIcon" size="11"></i-lucide>
+                Longitud
+              </div>
+              <p class="mt-2 font-mono text-xl font-black tabular-nums text-white">
+                {{ ultimoSismo()!.coordenadaX | number:'1.3-3' }}°
+              </p>
+              <p class="mt-0.5 text-xs text-slate-400">Oeste</p>
+            </div>
+
+            <div>
+              <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
+                <i-lucide [img]="navIcon" size="11"></i-lucide>
+                Profundidad
+              </div>
+              <p class="mt-2 text-xl font-black tabular-nums text-white">
+                {{ ultimoSismo()!.profundidad }} <span class="text-sm font-semibold text-slate-400">km</span>
+              </p>
+              <p class="mt-0.5 text-xs text-slate-400">Hipocentro</p>
+            </div>
+
+            <div>
+              <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
+                <i-lucide [img]="clockIcon" size="11"></i-lucide>
+                Hora local
+              </div>
+              <p class="mt-2 font-mono text-sm font-black tabular-nums text-white">
+                {{ ultimoSismo()!.feSismo | utcLocal:'HH:mm:ss' }}
+              </p>
+              <p class="mt-0.5 font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy' }}</p>
+            </div>
+
           </div>
         </div>
-
-        <!-- Quick info strip -->
-        <div *ngIf="ultimoSismo()" class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-600">Hora local</p>
-          <p class="mt-1 font-mono text-sm font-bold text-slate-900">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy · HH:mm:ss' }}</p>
-
-          <div class="mt-4 border-t border-slate-100 pt-4">
-            <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-600">Coordenadas</p>
-            <div class="mt-1 space-y-0.5">
-              <p class="font-mono text-sm font-semibold text-slate-900">{{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}° N</p>
-              <p class="font-mono text-sm font-semibold text-slate-900">{{ ultimoSismo()!.coordenadaX | number:'1.3-3' }}° W</p>
-            </div>
-          </div>
-        </div>
-
-      </aside>
+      </section>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════════
-         MAGNITUD MOMENTÁNEA + DATOS (full-width, bottom)
-         ═══════════════════════════════════════════════════════════ -->
-    <section *ngIf="!cargando() && ultimoSismo()" class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-xl sm:p-8">
+    <section *ngIf="!cargando()" class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm" aria-labelledby="table-estaciones-alerta-title">
+      <div class="border-b border-slate-100 px-5 py-4">
+        <h2 id="table-estaciones-alerta-title" class="text-sm font-bold uppercase tracking-[0.2em] text-slate-700">
+          Resumen acelerográfico por estación
+        </h2>
+        <p class="mt-1 text-xs text-slate-600">{{ registrosEstacionesTabla().length }} estaciones con datos del evento reciente</p>
+      </div>
 
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.15),transparent_60%)]"></div>
-
-      <div class="relative grid gap-8 lg:grid-cols-[auto_1fr] lg:items-center">
-
-        <!-- Magnitud momentánea -->
-        <div class="border-b border-white/10 pb-6 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
-          <div class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-sky-400">
-            <span class="relative inline-flex h-1.5 w-1.5">
-              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
-              <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-sky-400"></span>
-            </span>
-            Magnitud momento
-          </div>
-
-          <div class="mt-5 flex items-baseline gap-3">
-            <span class="text-7xl font-black leading-none tracking-tight tabular-nums sm:text-8xl lg:text-9xl"
-              [style.color]="magnitudColor()">
-              {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
-            </span>
-            <div class="flex flex-col">
-              <span class="text-2xl font-black text-slate-400 sm:text-3xl">Mw</span>
-            </div>
-          </div>
-
-          <p class="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400">
-            <i-lucide [img]="shieldIcon" size="12" class="text-green-400"></i-lucide>
-            Verificado por estaciones de control
-          </p>
-        </div>
-
-        <!-- Datos grid -->
-        <div class="grid grid-cols-2 gap-5 sm:grid-cols-4">
-
-          <div>
-            <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
-              <i-lucide [img]="mapPinIcon" size="11"></i-lucide>
-              Latitud
-            </div>
-            <p class="mt-2 font-mono text-xl font-black tabular-nums text-white sm:text-2xl">
-              {{ ultimoSismo()!.coordenadaY | number:'1.3-3' }}°
-            </p>
-            <p class="mt-0.5 text-xs text-slate-400">Norte</p>
-          </div>
-
-          <div>
-            <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
-              <i-lucide [img]="mapPinIcon" size="11"></i-lucide>
-              Longitud
-            </div>
-            <p class="mt-2 font-mono text-xl font-black tabular-nums text-white sm:text-2xl">
-              {{ ultimoSismo()!.coordenadaX | number:'1.3-3' }}°
-            </p>
-            <p class="mt-0.5 text-xs text-slate-400">Oeste</p>
-          </div>
-
-          <div>
-            <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
-              <i-lucide [img]="navIcon" size="11"></i-lucide>
-              Profundidad
-            </div>
-            <p class="mt-2 text-xl font-black tabular-nums text-white sm:text-2xl">
-              {{ ultimoSismo()!.profundidad }} <span class="text-sm font-semibold text-slate-400">km</span>
-            </p>
-            <p class="mt-0.5 text-xs text-slate-400">Hipocentro</p>
-          </div>
-
-          <div>
-            <div class="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-400">
-              <i-lucide [img]="clockIcon" size="11"></i-lucide>
-              Hora local
-            </div>
-            <p class="mt-2 font-mono text-sm font-black tabular-nums text-white sm:text-base">
-              {{ ultimoSismo()!.feSismo | utcLocal:'HH:mm:ss' }}
-            </p>
-            <p class="mt-0.5 font-mono text-xs text-slate-400">{{ ultimoSismo()!.feSismo | utcLocal:'dd MMM yyyy' }}</p>
-          </div>
-
-        </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[900px] border-collapse text-xs sm:text-sm">
+          <caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>
+          <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+            <tr class="border-b border-slate-200">
+              <th scope="col" class="px-4 py-3 text-left">Nombre</th>
+              <th scope="col" class="px-4 py-3 text-left">Código Estación</th>
+              <th scope="col" class="px-4 py-3 text-right">Aceleración (cm/ss)</th>
+              <th scope="col" class="px-4 py-3 text-right">Desplazamiento (cm)</th>
+              <th scope="col" class="px-4 py-3 text-right">Distancia Hipocentral (km)</th>
+              <th scope="col" class="px-4 py-3 text-left">Alerta Sísmica</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (registro of registrosEstacionesTabla(); track (registro.codCentroPrd ?? '') + (registro.codEstacion ?? '') + registro.feSismo) {
+              <tr class="transition hover:bg-sky-50/40">
+                <td class="px-4 py-3 font-semibold text-slate-800">{{ registro.nomEstacion || 'Sin nombre' }}</td>
+                <td class="px-4 py-3 font-mono text-xs font-bold text-sky-700">{{ registro.codEstacion || 'N/D' }}</td>
+                <td class="px-4 py-3 text-right font-mono tabular-nums text-slate-700">
+                  {{ registro.vaAceleracion !== undefined ? (registro.vaAceleracion | number:'1.3-3') : 'N/D' }}
+                </td>
+                <td class="px-4 py-3 text-right font-mono tabular-nums text-slate-700">
+                  {{ registro.vaDesplazamiento !== undefined ? (registro.vaDesplazamiento | number:'1.3-3') : 'N/D' }}
+                </td>
+                <td class="px-4 py-3 text-right font-mono tabular-nums text-slate-700">
+                  {{ registro.distanciaHipocentral !== null && registro.distanciaHipocentral !== undefined ? (registro.distanciaHipocentral | number:'1.2-2') : 'N/D' }}
+                </td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-700">
+                    {{ registro.alertaSismica }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="px-4 py-8 text-center text-sm font-semibold text-slate-600">Sin registros acelerográficos para mostrar.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     </section>
 

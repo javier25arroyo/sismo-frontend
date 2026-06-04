@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ArrowLeft, ArrowRight, LucideAngularModule } from 'lucide-angular';
 import { ApiService, ApiError } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -10,16 +10,21 @@ import { SolicitudLogin, RespuestaLogin } from '../../interfaces/api.interfaces'
   standalone: true,
   selector: 'app-login',
   imports: [CommonModule, LucideAngularModule, RouterLink],
-  templateUrl: './login.page.html'
+  templateUrl: './login.page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginPage {
-  error = '';
-  loading = false;
-  showPassword = false;
+  error = signal('');
+  loading = signal(false);
+  showPassword = signal(false);
   readonly arrowRightIcon = ArrowRight;
   readonly arrowLeftIcon  = ArrowLeft;
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
+
+  togglePassword(): void {
+    this.showPassword.update(value => !value);
+  }
 
   async onSubmit(ev: Event) {
     ev.preventDefault();
@@ -28,8 +33,8 @@ export class LoginPage {
     const username = String(data.get('username') || '');
     const password = String(data.get('password') || '');
 
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     try {
       const solicitud: SolicitudLogin = { username, password };
       const res = await this.api.post<RespuestaLogin>(
@@ -48,9 +53,9 @@ export class LoginPage {
         await this.router.navigate(['/cambiar-contrasena']);
         return;
       }
-      this.error = (err as Error).message || 'Credenciales incorrectas. Intente de nuevo.';
+      this.error.set((err as Error).message || 'Credenciales incorrectas. Intente de nuevo.');
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 }
