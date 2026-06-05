@@ -13,7 +13,8 @@ import {
   effect
 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import type * as Leaflet from 'leaflet';
+//import type * as Leaflet from 'leaflet';
+import * as L from 'leaflet';
 import { Sismo, MagnitudStyle } from '../../interfaces/sismo.interface';
 import { EstacionRespuesta, SismoUltimoRespuesta } from '../../interfaces/api.interfaces';
 import { categorizarSismo, type ConsecutivoSismo } from '../../utils/sismo-criterios';
@@ -76,11 +77,15 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   });
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private leaflet!: typeof Leaflet;
-  private map!: Leaflet.Map;
-  private markersLayer!: Leaflet.LayerGroup;
-  private epicentroLayer!: Leaflet.LayerGroup;
-  private estacionesLayer!: Leaflet.LayerGroup;
+  //private leaflet!: typeof Leaflet;
+  //private map!: Leaflet.Map;
+  //private markersLayer!: Leaflet.LayerGroup;
+  //private epicentroLayer!: Leaflet.LayerGroup;
+  //private estacionesLayer!: Leaflet.LayerGroup;
+  private map!: L.Map;
+  private markersLayer!: L.LayerGroup;
+  private epicentroLayer!: L.LayerGroup;
+  private estacionesLayer!: L.LayerGroup;
   private isInitialized = false;
 
   /** Estilos segun criterio oficial del sismo */
@@ -137,8 +142,8 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit(): Promise<void> {
     if (!this.isBrowser) return;
 
-    this.leaflet = await import('leaflet');
-    this.fixLeafletIcons();
+    //this.leaflet = await import('leaflet');
+    //this.fixLeafletIcons();
     this.initMap();
     this.addSismos(this.sismos());
     this.addEpicentroMarker(this.epicentro());
@@ -153,7 +158,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private fixLeafletIcons(): void {
-    const L = this.leaflet;
+    /*const L = this.leaflet;
     // Fix para iconos de Leaflet en Angular usando activos locales
     const iconDefault = L.icon({
       iconRetinaUrl: 'leaflet/marker-icon-2x.png',
@@ -164,11 +169,11 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
       popupAnchor: [1, -34],
       shadowSize: [41, 41]
     });
-    L.Marker.prototype.options.icon = iconDefault;
+    L.Marker.prototype.options.icon = iconDefault;*/
   }
 
   private initMap(): void {
-    const L = this.leaflet;
+    //const L = this.leaflet;
     this.map = L.map(this.mapContainer.nativeElement, {
       center: this.center(),
       zoom: this.zoom(),
@@ -199,7 +204,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
   private addSismos(sismos: Sismo[]): void {
     if (!this.markersLayer) return;
-    const L = this.leaflet;
+    //const L = this.leaflet;
 
     // Limpiar marcadores existentes
     this.markersLayer.clearLayers();
@@ -266,7 +271,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
   private addEpicentroMarker(epicentro: SismoUltimoRespuesta | null): void {
     if (!this.epicentroLayer) return;
-    const L = this.leaflet;
+    //const L = this.leaflet;
     this.epicentroLayer.clearLayers();
     if (!epicentro) return;
 
@@ -330,7 +335,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
   private addEstaciones(estaciones: EstacionRespuesta[]): void {
     if (!this.estacionesLayer) return;
-    const L = this.leaflet;
+    //const L = this.leaflet;
     this.estacionesLayer.clearLayers();
 
     estaciones.forEach(e => {
@@ -359,7 +364,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private addLegend(): void {
-    const L = this.leaflet;
+    //const L = this.leaflet;
     const legend = new L.Control({ position: 'bottomright' });
 
     legend.onAdd = () => {
