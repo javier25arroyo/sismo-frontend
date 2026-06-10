@@ -119,3 +119,5 @@ skills-lock.json
 /.gemini
 *.md
 /.worktrees/
+/.unlighthouse
+/skillspector
