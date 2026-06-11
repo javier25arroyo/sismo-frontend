@@ -267,6 +267,16 @@ export interface AcelerogramaRespuesta {
   aceleracion: number;
 }
 
+export interface ResumenAcelerogramaEstacionRespuesta {
+  coEstacion: string;
+  sitio: string;
+  instrumento: string;
+  canal: string;
+  aceleracionMaxima: number;
+  aceleracionPromedio: number;
+  totalRegistros: number;
+}
+
 // ─── Alarmas ─────────────────────────────────────────────────────────────────
 
 export interface AlarmaPorEstacionRespuesta {
