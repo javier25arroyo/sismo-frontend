@@ -5,10 +5,12 @@ import { UtcLocalPipe } from '../../pipes/utc-local.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { SismoMapComponent } from '../../components/sismo-map/sismo-map.component';
 import { SismoService } from '../../services/sismo.service';
+import { AcelerogramasService } from '../../services/acelerogramas.service';
 import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import {
   EstacionRespuesta,
   GeneracionReporteRespuesta,
+  ResumenAcelerogramaEstacionRespuesta,
   SismoRespuesta,
   ValorAlertaEstacionRespuesta
 } from '../../interfaces/api.interfaces';
@@ -50,6 +52,7 @@ export class SismosPage implements OnInit, OnDestroy {
   estaciones = signal<EstacionRespuesta[]>([]);
   registrosEstaciones = signal<Sismo[]>([]);
   valoresAlerta = signal<ValorAlertaEstacionRespuesta[]>([]);
+  resumenAcelerogramas = signal<Map<string, ResumenAcelerogramaEstacionRespuesta> | null>(null);
   cargando = signal(true);
   errorCarga = signal('');
   mensajeAccion = signal('');
@@ -106,6 +109,12 @@ export class SismosPage implements OnInit, OnDestroy {
     }))
   );
 
+  readonly resumenAcelerogramasArray = computed(() => {
+    const resumen = this.resumenAcelerogramas();
+    if (!resumen) return [];
+    return Array.from(resumen.values());
+  });
+
   @HostListener('window:resize', ['$event'])
   onResize(e: UIEvent): void {
     this.windowWidth.set((e.target as Window).innerWidth);
@@ -115,6 +124,7 @@ export class SismosPage implements OnInit, OnDestroy {
 
   constructor(
     private sismoService: SismoService,
+    private acelerogramasService: AcelerogramasService,
     private historicoService: HistoricoService,
     private reporteService: ReporteService,
     readonly auth: AuthService,
@@ -162,6 +172,7 @@ export class SismosPage implements OnInit, OnDestroy {
   private async cargar(id?: string, sismoFromState: SismoRespuesta | null = null): Promise<void> {
     this.cargando.set(true);
     this.errorCarga.set('');
+    this.resumenAcelerogramas.set(null);
     try {
       let sismo: SismoRespuesta | null = null;
 
@@ -175,8 +186,18 @@ export class SismosPage implements OnInit, OnDestroy {
       }
 
       this.ultimoSismo.set(sismo);
+
+      if (sismo) {
+        try {
+          const resumen = await this.acelerogramasService.obtenerResumenPorEstacion(sismo.feSismo);
+          this.resumenAcelerogramas.set(resumen);
+        } catch {
+          this.resumenAcelerogramas.set(null);
+        }
+      }
     } catch (error) {
       this.ultimoSismo.set(null);
+      this.resumenAcelerogramas.set(null);
       this.errorCarga.set(this.obtenerMensajeError(error, 'No fue posible cargar la información sísmica.'));
     } finally {
       this.cargando.set(false);
