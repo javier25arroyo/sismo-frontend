@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { ResumenAcelerogramaEstacionRespuesta } from '../interfaces/api.interfaces';
+import {
+  AcelerogramaRespuesta,
+  PaginatedResponse,
+  ResumenAcelerogramaEstacionRespuesta
+} from '../interfaces/api.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class AcelerogramasService {
@@ -33,13 +37,15 @@ export class AcelerogramasService {
     coEstacion?: string,
     page?: number,
     size?: number
-  ): Promise<any> {
+  ): Promise<PaginatedResponse<AcelerogramaRespuesta>> {
     const params = new URLSearchParams();
     if (feTerremoto) params.set('feTerremoto', feTerremoto);
     if (coEstacion) params.set('coEstacion', coEstacion);
     if (page !== undefined) params.set('page', String(page));
     if (size !== undefined) params.set('size', String(size));
     const query = params.toString();
-    return this.api.get<any>(`/api/acelerogramas${query ? '?' + query : ''}`);
+    return this.api.get<PaginatedResponse<AcelerogramaRespuesta>>(
+      `/api/acelerogramas${query ? '?' + query : ''}`
+    );
   }
 }

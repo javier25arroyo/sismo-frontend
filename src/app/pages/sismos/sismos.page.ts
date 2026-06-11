@@ -112,7 +112,7 @@ export class SismosPage implements OnInit, OnDestroy {
   readonly resumenAcelerogramasArray = computed(() => {
     const resumen = this.resumenAcelerogramas();
     if (!resumen) return [];
-    return Array.from(resumen.entries()).map(([_, valor]) => valor);
+    return Array.from(resumen.values());
   });
 
   @HostListener('window:resize', ['$event'])
