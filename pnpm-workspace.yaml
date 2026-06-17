@@ -1,0 +1,13 @@
+packages:
+  - .
+
+overrides:
+  hono: 4.12.25
+  tar: 7.5.16
+  vite: 8.0.16
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - lmdb
+  - msgpackr-extract

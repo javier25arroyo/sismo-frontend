@@ -277,6 +277,15 @@ export interface ResumenAcelerogramaEstacionRespuesta {
   totalRegistros: number;
 }
 
+export interface ResumenAlertaSismicaRespuesta {
+  nombre: string;
+  codigoEstacion: string;
+  aceleracionCmSs: number | null;
+  desplazamientoCm: number | null;
+  distanciaHipocentralKm: number | null;
+  alertaSismica: string;
+}
+
 // ─── Alarmas ─────────────────────────────────────────────────────────────────
 
 export interface AlarmaPorEstacionRespuesta {

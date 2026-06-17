@@ -1,16 +1,19 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { SismosPage } from './sismos.page';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AcelerogramasService } from '../../services/acelerogramas.service';
 import { EstacionesCacheService } from '../../services/estaciones-cache.service';
-import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { SismoService } from '../../services/sismo.service';
-import { ValorAlertaService } from '../../services/valor-alerta.service';
+
+registerLocaleData(localeEs, 'es');
 
 describe('SismosPage template', () => {
   const template = readFileSync(
@@ -34,11 +37,19 @@ describe('SismosPage template', () => {
     expect(template).toContain('<caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>');
     expect(template).toContain('Aceleración (cm/ss)');
     expect(template).toContain('Alerta Sísmica');
-    expect(template).toContain('registrosEstacionesTabla()');
+    expect(template).toContain('resumenAcelerogramasArray()');
+    expect(template).toContain('registro.nombre');
+    expect(template).toContain('registro.codigoEstacion');
+    expect(template).toContain('registro.aceleracionCmSs');
+    expect(template).toContain('registro.desplazamientoCm');
+    expect(template).toContain('registro.distanciaHipocentralKm');
+    expect(template).toContain('registro.alertaSismica');
+    expect(template).not.toContain('registro.coEstacion');
+    expect(template).not.toContain('registro.aceleracionMaxima');
   });
 });
 
-describe('SismosPage alertas por estación', () => {
+describe('SismosPage resumen acelerográfico por estación', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SismosPage],
@@ -55,9 +66,10 @@ describe('SismosPage alertas por estación', () => {
           }
         },
         {
-          provide: ValorAlertaService,
+          provide: AcelerogramasService,
           useValue: {
-            getAlertas: vi.fn()
+            obtenerResumenPorEstacion: vi.fn(),
+            listarAcelerogramas: vi.fn()
           }
         },
         {
@@ -65,10 +77,6 @@ describe('SismosPage alertas por estación', () => {
           useValue: {
             getEstaciones: vi.fn()
           }
-        },
-        {
-          provide: HistoricoService,
-          useValue: {}
         },
         {
           provide: ReporteService,
@@ -84,74 +92,92 @@ describe('SismosPage alertas por estación', () => {
     }).compileComponents();
   });
 
-  it('calcula el nivel más alto de alerta sísmica alcanzado por aceleración', () => {
+  it('expone la lista del endpoint para la tabla de resumen acelerográfico', () => {
     const fixture = TestBed.createComponent(SismosPage);
     const component = fixture.componentInstance;
-
-    component.registrosEstaciones.set([
+    const resumen = [
       {
-        feSismo: '2026-06-02T00:00:00',
-        magnitud: 4.1,
-        ubicacion: 'Evento de prueba',
-        coordenadaX: -84.1,
-        coordenadaY: 9.9,
-        profundidad: 12,
-        codCentroPrd: 'ICE',
-        codEstacion: 'A1',
-        nomEstacion: 'Arenal',
-        feDato: '2026-06-02T00:00:10',
-        vaAceleracion: 18,
-        vaDesplazamiento: 2.5,
-        distanciaHipocentral: 44
+        nombre: 'Arenal',
+        codigoEstacion: 'A1',
+        aceleracionCmSs: 18,
+        desplazamientoCm: 2.5,
+        distanciaHipocentralKm: 44,
+        alertaSismica: 'NIVEL 2'
       }
-    ]);
-    component.valoresAlerta.set([
-      {
-        codCentroPrd: 'ICE',
-        codEstacion: 'A1',
-        codParametro: 1,
-        nivel0: 1,
-        nivel1: 5,
-        nivel2: 15,
-        nivel3: 25
-      }
-    ]);
+    ];
 
-    expect(component.registrosEstacionesTabla()).toEqual([
-      expect.objectContaining({
-        nomEstacion: 'Arenal',
-        codEstacion: 'A1',
-        vaAceleracion: 18,
-        vaDesplazamiento: 2.5,
-        distanciaHipocentral: 44,
-        alertaSismica: 'Nivel 2'
-      })
-    ]);
+    component.resumenAcelerogramas.set(resumen);
+
+    expect(component.resumenAcelerogramasArray()).toEqual(resumen);
   });
 
-  it('muestra sin alerta cuando faltan umbrales o aceleración', () => {
-    const fixture = TestBed.createComponent(SismosPage);
-    const component = fixture.componentInstance;
-
-    component.valoresAlerta.set([
+  it('usa una fecha de acelerogramas disponible cuando el ultimo sismo no tiene resumen', async () => {
+    const sismoService = TestBed.inject(SismoService);
+    const acelerogramasService = TestBed.inject(AcelerogramasService);
+    const estacionesCache = TestBed.inject(EstacionesCacheService);
+    const resumen = [
       {
-        codCentroPrd: 'ICE',
-        codEstacion: 'B2',
-        codParametro: 1,
-        nivel0: 1,
-        nivel1: 5
+        nombre: 'Caseta presa, MD',
+        codigoEstacion: 'CA',
+        aceleracionCmSs: 0.010106,
+        desplazamientoCm: null,
+        distanciaHipocentralKm: null,
+        alertaSismica: 'SIN_CONFIGURACION'
       }
-    ]);
+    ];
 
-    expect(component.obtenerAlertaSismica({
-      codCentroPrd: 'ICE',
-      codEstacion: 'A1',
-      vaAceleracion: 18
-    })).toBe('Sin alerta');
-    expect(component.obtenerAlertaSismica({
-      codCentroPrd: 'ICE',
-      codEstacion: 'B2',
-      vaAceleracion: undefined
-    })).toBe('Sin alerta');
+    vi.mocked(estacionesCache.getEstaciones).mockResolvedValue([]);
+    vi.mocked(sismoService.listarSismos).mockResolvedValue({
+      content: [{
+        feSismo: '2026-06-10T13:19:48',
+        magnitud: 5.2,
+        ubicacion: 'Evento reciente',
+        coordenadaX: -85.875,
+        coordenadaY: 10.455,
+        profundidad: 40,
+        sentido: 'SENTIDO'
+      }],
+      page: 0,
+      size: 1,
+      totalElements: 1,
+      totalPages: 1,
+      first: true,
+      last: true,
+      numberOfElements: 1,
+      empty: false
+    });
+    vi.mocked(acelerogramasService.obtenerResumenPorEstacion)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(resumen);
+    vi.mocked(acelerogramasService.listarAcelerogramas).mockResolvedValue({
+      content: [{
+        feTerremoto: '2026-04-30T05:03:12',
+        coEstacion: 'CA',
+        canal: 'ACC',
+        sitio: 'SIM',
+        instrumento: 'INS1',
+        timeSeg: 0,
+        aceleracion: 0.010106
+      }],
+      page: 0,
+      size: 1,
+      totalElements: 1,
+      totalPages: 1,
+      first: true,
+      last: true,
+      numberOfElements: 1,
+      empty: false
+    });
+
+    const fixture = TestBed.createComponent(SismosPage);
+    fixture.detectChanges();
+
+    await vi.waitFor(() => {
+      expect(fixture.componentInstance.resumenAcelerogramasArray()).toEqual(resumen);
+    });
+
+    expect(acelerogramasService.obtenerResumenPorEstacion).toHaveBeenNthCalledWith(1, '2026-06-10T13:19:48');
+    expect(acelerogramasService.listarAcelerogramas).toHaveBeenCalledWith(undefined, undefined, 0, 1);
+    expect(acelerogramasService.obtenerResumenPorEstacion).toHaveBeenNthCalledWith(2, '2026-04-30T05:03:12');
   });
 });

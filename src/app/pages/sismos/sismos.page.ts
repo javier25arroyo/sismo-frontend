@@ -10,15 +10,11 @@ import { EstacionesCacheService } from '../../services/estaciones-cache.service'
 import {
   EstacionRespuesta,
   GeneracionReporteRespuesta,
-  ResumenAcelerogramaEstacionRespuesta,
-  SismoRespuesta,
-  ValorAlertaEstacionRespuesta
+  ResumenAlertaSismicaRespuesta,
+  SismoRespuesta
 } from '../../interfaces/api.interfaces';
-import { Sismo } from '../../interfaces/sismo.interface';
-import { HistoricoService } from '../../services/historico.service';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
-import { ValorAlertaService } from '../../services/valor-alerta.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   LucideAngularModule,
@@ -50,9 +46,7 @@ import {
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
   estaciones = signal<EstacionRespuesta[]>([]);
-  registrosEstaciones = signal<Sismo[]>([]);
-  valoresAlerta = signal<ValorAlertaEstacionRespuesta[]>([]);
-  resumenAcelerogramas = signal<Map<string, ResumenAcelerogramaEstacionRespuesta> | null>(null);
+  resumenAcelerogramas = signal<ResumenAlertaSismicaRespuesta[]>([]);
   cargando = signal(true);
   errorCarga = signal('');
   mensajeAccion = signal('');
@@ -102,18 +96,7 @@ export class SismosPage implements OnInit, OnDestroy {
     return '640px';
   });
 
-  readonly registrosEstacionesTabla = computed(() =>
-    this.registrosEstaciones().map(registro => ({
-      ...registro,
-      alertaSismica: this.obtenerAlertaSismica(registro)
-    }))
-  );
-
-  readonly resumenAcelerogramasArray = computed(() => {
-    const resumen = this.resumenAcelerogramas();
-    if (!resumen) return [];
-    return Array.from(resumen.values());
-  });
+  readonly resumenAcelerogramasArray = computed(() => this.resumenAcelerogramas());
 
   @HostListener('window:resize', ['$event'])
   onResize(e: UIEvent): void {
@@ -125,17 +108,14 @@ export class SismosPage implements OnInit, OnDestroy {
   constructor(
     private sismoService: SismoService,
     private acelerogramasService: AcelerogramasService,
-    private historicoService: HistoricoService,
     private reporteService: ReporteService,
     readonly auth: AuthService,
     private route: ActivatedRoute,
-    private estacionesCache: EstacionesCacheService,
-    private valorAlertaService: ValorAlertaService
+    private estacionesCache: EstacionesCacheService
   ) {}
 
   ngOnInit(): void {
     void this.cargarEstaciones();
-    void this.cargarRegistrosEstaciones();
     const sismoFromState = this.isBrowser
       ? (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null
       : null;
@@ -150,20 +130,6 @@ export class SismosPage implements OnInit, OnDestroy {
     this.estaciones.set(data);
   }
 
-  private async cargarRegistrosEstaciones(): Promise<void> {
-    try {
-      const [registros, alertas] = await Promise.all([
-        this.sismoService.getUltimosSismos(100),
-        this.valorAlertaService.getAlertas({ page: 0, size: 500 })
-      ]);
-      this.registrosEstaciones.set(registros);
-      this.valoresAlerta.set(alertas.content);
-    } catch {
-      this.registrosEstaciones.set([]);
-      this.valoresAlerta.set([]);
-    }
-  }
-
   ngOnDestroy(): void {
     this.destruido = true;
     this.cancelarPolling();
@@ -172,7 +138,7 @@ export class SismosPage implements OnInit, OnDestroy {
   private async cargar(id?: string, sismoFromState: SismoRespuesta | null = null): Promise<void> {
     this.cargando.set(true);
     this.errorCarga.set('');
-    this.resumenAcelerogramas.set(null);
+    this.resumenAcelerogramas.set([]);
     try {
       let sismo: SismoRespuesta | null = null;
 
@@ -189,19 +155,37 @@ export class SismosPage implements OnInit, OnDestroy {
 
       if (sismo) {
         try {
-          const resumen = await this.acelerogramasService.obtenerResumenPorEstacion(sismo.feSismo);
-          this.resumenAcelerogramas.set(resumen);
+          await this.cargarResumenAcelerografico(sismo.feSismo);
         } catch {
-          this.resumenAcelerogramas.set(null);
+          this.resumenAcelerogramas.set([]);
         }
       }
     } catch (error) {
       this.ultimoSismo.set(null);
-      this.resumenAcelerogramas.set(null);
+      this.resumenAcelerogramas.set([]);
       this.errorCarga.set(this.obtenerMensajeError(error, 'No fue posible cargar la información sísmica.'));
     } finally {
       this.cargando.set(false);
     }
+  }
+
+  private async cargarResumenAcelerografico(feSismo: string): Promise<void> {
+    const resumen = await this.acelerogramasService.obtenerResumenPorEstacion(feSismo);
+    if (resumen.length > 0) {
+      this.resumenAcelerogramas.set(resumen);
+      return;
+    }
+
+    const acelerogramas = await this.acelerogramasService.listarAcelerogramas(undefined, undefined, 0, 1);
+    const fechaDisponible = acelerogramas.content[0]?.feTerremoto;
+    if (!fechaDisponible || fechaDisponible === feSismo) {
+      this.resumenAcelerogramas.set([]);
+      return;
+    }
+
+    this.resumenAcelerogramas.set(
+      await this.acelerogramasService.obtenerResumenPorEstacion(fechaDisponible)
+    );
   }
 
   async compartirDatos(): Promise<void> {
@@ -339,30 +323,6 @@ export class SismosPage implements OnInit, OnDestroy {
         return txt.length > 0 ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
       }
     }
-  }
-
-  obtenerAlertaSismica(registro: Pick<Sismo, 'codCentroPrd' | 'codEstacion' | 'vaAceleracion'>): string {
-    const aceleracion = registro.vaAceleracion;
-    if (typeof aceleracion !== 'number' || !Number.isFinite(aceleracion)) return 'Sin alerta';
-
-    const alerta = this.valoresAlerta().find(valor =>
-      valor.codEstacion === registro.codEstacion &&
-      (!registro.codCentroPrd || valor.codCentroPrd === registro.codCentroPrd)
-    );
-    if (!alerta) return 'Sin alerta';
-
-    const niveles = [
-      { etiqueta: 'Nivel 3', valor: alerta.nivel3 },
-      { etiqueta: 'Nivel 2', valor: alerta.nivel2 },
-      { etiqueta: 'Nivel 1', valor: alerta.nivel1 },
-      { etiqueta: 'Nivel 0', valor: alerta.nivel0 }
-    ];
-
-    return niveles.find(nivel =>
-      typeof nivel.valor === 'number' &&
-      Number.isFinite(nivel.valor) &&
-      aceleracion >= nivel.valor
-    )?.etiqueta ?? 'Sin alerta';
   }
 
 }

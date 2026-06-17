@@ -52,6 +52,14 @@ describe('performance regressions', () => {
     expect(component).toContain('const nomEstacion = this.escapeHtml');
   });
 
+  it('carga Leaflet en el mapa de sismos solo en el navegador', () => {
+    const component = source('src/app/components/sismo-map/sismo-map.component.ts');
+
+    expect(component).not.toMatch(/import\s+\*\s+as\s+L\s+from\s+['"]leaflet['"]/);
+    expect(component).toContain("import type * as Leaflet from 'leaflet'");
+    expect(component).toContain("await import('leaflet')");
+  });
+
   it('sirve el SSR con compresion HTTP para recursos textuales', () => {
     const server = source('src/server.ts');
 

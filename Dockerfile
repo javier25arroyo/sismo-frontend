@@ -12,7 +12,7 @@ RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 WORKDIR /app
 
 # Solo archivos de paquetes para caché óptima por capas
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Instalar todas las dependencias (incluye dev — requeridas por herramientas de build de Angular)
 RUN --mount=type=cache,target=/pnpm/store \
@@ -34,8 +34,9 @@ WORKDIR /app
 # Reutilizar node_modules de la etapa deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=deps /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-COPY package.json ./
+COPY package.json pnpm-workspace.yaml ./
 COPY angular.json tsconfig*.json postcss.config.json ./
 COPY public ./public
 COPY src ./src
