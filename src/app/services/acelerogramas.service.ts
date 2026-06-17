@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import {
   AcelerogramaRespuesta,
   PaginatedResponse,
-  ResumenAcelerogramaEstacionRespuesta
+  ResumenAlertaSismicaRespuesta
 } from '../interfaces/api.interfaces';
 
 @Injectable({ providedIn: 'root' })
@@ -12,15 +12,14 @@ export class AcelerogramasService {
 
   /**
    * GET /api/acelerogramas/resumen-por-estacion
-   * Obtiene resumen de acelerogramas agrupados por estación para una fecha de terremoto.
+   * Obtiene resumen de acelerogramas por estación para una fecha de terremoto.
    * @param feTerremoto Fecha y hora del terremoto en formato ISO-8601 (ej: 2024-03-18T12:00:00)
-   * @returns Mapa con código de estación como clave y resumen como valor
+   * @returns Lista de estaciones con aceleración, desplazamiento, distancia y alerta calculada.
    */
-  async obtenerResumenPorEstacion(feTerremoto: string): Promise<Map<string, ResumenAcelerogramaEstacionRespuesta>> {
-    const response = await this.api.get<Record<string, ResumenAcelerogramaEstacionRespuesta>>(
+  async obtenerResumenPorEstacion(feTerremoto: string): Promise<ResumenAlertaSismicaRespuesta[]> {
+    return this.api.get<ResumenAlertaSismicaRespuesta[]>(
       `/api/acelerogramas/resumen-por-estacion?feTerremoto=${encodeURIComponent(feTerremoto)}`
     );
-    return new Map(Object.entries(response));
   }
 
   /**
