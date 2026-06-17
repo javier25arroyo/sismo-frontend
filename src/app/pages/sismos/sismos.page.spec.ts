@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
@@ -10,6 +12,8 @@ import { AcelerogramasService } from '../../services/acelerogramas.service';
 import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import { ReporteService } from '../../services/reporte.service';
 import { SismoService } from '../../services/sismo.service';
+
+registerLocaleData(localeEs, 'es');
 
 describe('SismosPage template', () => {
   const template = readFileSync(
@@ -166,12 +170,14 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     });
 
     const fixture = TestBed.createComponent(SismosPage);
-    fixture.componentInstance.ngOnInit();
-    await fixture.whenStable();
+    fixture.detectChanges();
+
+    await vi.waitFor(() => {
+      expect(fixture.componentInstance.resumenAcelerogramasArray()).toEqual(resumen);
+    });
 
     expect(acelerogramasService.obtenerResumenPorEstacion).toHaveBeenNthCalledWith(1, '2026-06-10T13:19:48');
     expect(acelerogramasService.listarAcelerogramas).toHaveBeenCalledWith(undefined, undefined, 0, 1);
     expect(acelerogramasService.obtenerResumenPorEstacion).toHaveBeenNthCalledWith(2, '2026-04-30T05:03:12');
-    expect(fixture.componentInstance.resumenAcelerogramasArray()).toEqual(resumen);
   });
 });

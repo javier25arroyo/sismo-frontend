@@ -155,8 +155,7 @@ export class SismosPage implements OnInit, OnDestroy {
 
       if (sismo) {
         try {
-          const resumen = await this.acelerogramasService.obtenerResumenPorEstacion(sismo.feSismo);
-          this.resumenAcelerogramas.set(resumen);
+          await this.cargarResumenAcelerografico(sismo.feSismo);
         } catch {
           this.resumenAcelerogramas.set([]);
         }
@@ -168,6 +167,25 @@ export class SismosPage implements OnInit, OnDestroy {
     } finally {
       this.cargando.set(false);
     }
+  }
+
+  private async cargarResumenAcelerografico(feSismo: string): Promise<void> {
+    const resumen = await this.acelerogramasService.obtenerResumenPorEstacion(feSismo);
+    if (resumen.length > 0) {
+      this.resumenAcelerogramas.set(resumen);
+      return;
+    }
+
+    const acelerogramas = await this.acelerogramasService.listarAcelerogramas(undefined, undefined, 0, 1);
+    const fechaDisponible = acelerogramas.content[0]?.feTerremoto;
+    if (!fechaDisponible || fechaDisponible === feSismo) {
+      this.resumenAcelerogramas.set([]);
+      return;
+    }
+
+    this.resumenAcelerogramas.set(
+      await this.acelerogramasService.obtenerResumenPorEstacion(fechaDisponible)
+    );
   }
 
   async compartirDatos(): Promise<void> {
