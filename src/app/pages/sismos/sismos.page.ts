@@ -188,6 +188,11 @@ export class SismosPage implements OnInit, OnDestroy {
     );
   }
 
+  alertaSismicaLabel(alerta: string | null | undefined): string {
+    const valor = alerta?.trim();
+    return valor ? valor : 'Sin definir';
+  }
+
   async compartirDatos(): Promise<void> {
     const sismo = this.ultimoSismo();
     if (!sismo) return;

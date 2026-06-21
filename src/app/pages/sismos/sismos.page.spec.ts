@@ -43,7 +43,7 @@ describe('SismosPage template', () => {
     expect(template).toContain('registro.aceleracionCmSs');
     expect(template).toContain('registro.desplazamientoCm');
     expect(template).toContain('registro.distanciaHipocentralKm');
-    expect(template).toContain('registro.alertaSismica');
+    expect(template).toContain('alertaSismicaLabel(registro.alertaSismica)');
     expect(template).not.toContain('registro.coEstacion');
     expect(template).not.toContain('registro.aceleracionMaxima');
   });
@@ -111,6 +111,16 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     expect(component.resumenAcelerogramasArray()).toEqual(resumen);
   });
 
+  it('muestra Sin definir cuando la alerta sísmica viene vacía', () => {
+    const fixture = TestBed.createComponent(SismosPage);
+    const component = fixture.componentInstance;
+
+    expect(component.alertaSismicaLabel('')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('   ')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel(null)).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('NIVEL 2')).toBe('NIVEL 2');
+  });
+
   it('usa una fecha de acelerogramas disponible cuando el ultimo sismo no tiene resumen', async () => {
     const sismoService = TestBed.inject(SismoService);
     const acelerogramasService = TestBed.inject(AcelerogramasService);
@@ -122,7 +132,7 @@ describe('SismosPage resumen acelerográfico por estación', () => {
         aceleracionCmSs: 0.010106,
         desplazamientoCm: null,
         distanciaHipocentralKm: null,
-        alertaSismica: 'SIN_CONFIGURACION'
+        alertaSismica: 'Sin definir'
       }
     ];
 
