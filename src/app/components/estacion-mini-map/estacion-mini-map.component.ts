@@ -9,7 +9,9 @@ import {
   ViewEncapsulation,
   PLATFORM_ID,
   effect,
-  inject
+  inject,
+  computed,
+  signal
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type * as Leaflet from 'leaflet';
@@ -17,7 +19,30 @@ import type * as Leaflet from 'leaflet';
 @Component({
   standalone: true,
   selector: 'app-estacion-mini-map',
-  template: `<div #mapEl class="w-full h-full"></div>`,
+  template: `
+    <div class="estacion-mini-map-shell relative size-full overflow-hidden rounded-lg" [style.minHeight]="'180px'">
+      <div
+        #mapEl
+        class="absolute inset-0 transition-opacity duration-300 ease-out"
+        [class.opacity-0]="mapStatus() !== 'ready'"
+        [class.opacity-100]="mapStatus() === 'ready'"
+        [class.pointer-events-none]="mapStatus() !== 'ready'"
+        aria-hidden="true"
+      ></div>
+
+      @if (mapStatus() !== 'ready') {
+        <div
+          class="estacion-mini-map-fallback absolute inset-0 flex items-center justify-center px-4 py-3 text-center"
+          aria-live="polite"
+          role="status"
+        >
+          <span class="max-w-[16rem] text-xs leading-5 text-slate-700">
+            {{ mapStatusMessage() }}
+          </span>
+        </div>
+      }
+    </div>
+  `,
   styleUrls: ['./estacion-mini-map.component.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -27,9 +52,22 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
   lng = input<number>(-84.1);
   label = input<string>('');
 
-  @ViewChild('mapEl', { static: true }) mapEl!: ElementRef;
+  @ViewChild('mapEl', { static: true }) mapEl!: ElementRef<HTMLElement>;
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  readonly mapStatus = signal<'ssr' | 'loading' | 'ready' | 'error'>(this.isBrowser ? 'loading' : 'ssr');
+  readonly mapStatusMessage = computed(() => {
+    switch (this.mapStatus()) {
+      case 'loading':
+        return 'Cargando mapa de estación.';
+      case 'error':
+        return 'No fue posible cargar el mapa de estación.';
+      case 'ssr':
+        return 'El mapa interactivo se carga cuando la página termina de hidratarse.';
+      default:
+        return '';
+    }
+  });
   private leaflet!: typeof Leaflet;
   private map: Leaflet.Map | null = null;
   private marker: Leaflet.CircleMarker | null = null;
@@ -50,15 +88,27 @@ export class EstacionMiniMapComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit(): Promise<void> {
     if (!this.isBrowser) return;
 
-    this.leaflet = await import('leaflet');
-    this.initMap();
-    this.isInitialized = true;
+    try {
+      this.mapStatus.set('loading');
+      this.leaflet = await import('leaflet');
+      this.initMap();
+      this.isInitialized = true;
+      this.mapStatus.set('ready');
+    } catch (error) {
+      this.map?.remove();
+      this.map = null;
+      this.marker = null;
+      this.isInitialized = false;
+      console.error('No fue posible inicializar el mini mapa de estación', error);
+      this.mapStatus.set('error');
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.map) {
-      this.map.remove();
-    }
+    this.map?.remove();
+    this.map = null;
+    this.marker = null;
+    this.isInitialized = false;
   }
 
   private initMap(): void {

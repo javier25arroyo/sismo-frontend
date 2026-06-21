@@ -1,12 +1,29 @@
-<div class="sismo-map-container w-full h-full rounded-lg overflow-hidden"
-     role="img"
-     [attr.aria-label]="ariaLabel()">
+<div
+  class="sismo-map-container relative w-full overflow-hidden rounded-lg"
+  role="img"
+  [attr.aria-label]="ariaLabel()"
+  [style.minHeight]="height()"
+>
   <div
     #mapContainer
-    class="w-full h-full"
-    [style.minHeight]="height()"
+    class="absolute inset-0 transition-opacity duration-300 ease-out"
+    [class.opacity-0]="mapStatus() !== 'ready'"
+    [class.opacity-100]="mapStatus() === 'ready'"
+    [class.pointer-events-none]="mapStatus() !== 'ready'"
     aria-hidden="true"
   ></div>
+
+  @if (mapStatus() !== 'ready') {
+    <div
+      class="sismo-map-fallback absolute inset-0 flex items-center justify-center px-4 py-6 text-center"
+      aria-live="polite"
+      role="status"
+    >
+      <p class="max-w-[32rem] text-sm leading-6 text-slate-700">
+        {{ mapStatusMessage() }}
+      </p>
+    </div>
+  }
 
   <!-- Alternativa textual para screen readers -->
   @if (estaciones().length > 0) {

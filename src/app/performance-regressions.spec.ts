@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const source = (path: string): string => readFileSync(join(process.cwd(), path), 'utf8');
@@ -54,10 +54,27 @@ describe('performance regressions', () => {
 
   it('carga Leaflet en el mapa de sismos solo en el navegador', () => {
     const component = source('src/app/components/sismo-map/sismo-map.component.ts');
+    const miniMap = source('src/app/components/estacion-mini-map/estacion-mini-map.component.ts');
 
     expect(component).not.toMatch(/import\s+\*\s+as\s+L\s+from\s+['"]leaflet['"]/);
     expect(component).toContain("import type * as Leaflet from 'leaflet'");
     expect(component).toContain("await import('leaflet')");
+    expect(miniMap).not.toMatch(/import\s+\*\s+as\s+L\s+from\s+['"]leaflet['"]/);
+    expect(miniMap).toContain("import type * as Leaflet from 'leaflet'");
+    expect(miniMap).toContain("await import('leaflet')");
+  });
+
+  it('centraliza la politica SSR de las rutas con mapas', () => {
+    const policy = source('src/app/routing/server-render-policy.ts');
+    const routes = source('src/app/app.routes.server.ts');
+
+    expect(policy).toContain('MAP_ROUTE_PATHS');
+    expect(policy).toContain('AUTH_ROUTE_PATHS');
+    expect(policy).toContain('ADMIN_ROUTE_PATHS');
+
+    for (const path of ['sismos', 'historial', 'estaciones', 'consultas']) {
+      expect(routes).toContain(`serverRoute('${path}')`);
+    }
   });
 
   it('sirve el SSR con compresion HTTP para recursos textuales', () => {
@@ -89,5 +106,29 @@ describe('performance regressions', () => {
     expect(config).not.toContain('provideAnimationsAsync');
     expect(config).not.toContain('withEventReplay');
     expect(layout).not.toContain('@routeAnimation');
+  });
+
+  it('mantiene fallback SSR estable para los mapas y sus estilos', () => {
+    const sismoTemplate = source('src/app/components/sismo-map/sismo-map.component.html');
+    const sismoStyles = source('src/app/components/sismo-map/sismo-map.component.css');
+    const miniMap = source('src/app/components/estacion-mini-map/estacion-mini-map.component.ts');
+    const miniMapStyles = source('src/app/components/estacion-mini-map/estacion-mini-map.component.css');
+
+    expect(sismoTemplate).toContain('mapStatus() !== \'ready\'');
+    expect(sismoTemplate).toContain('sismo-map-fallback');
+    expect(sismoStyles).toContain('.sismo-map-fallback');
+    expect(miniMap).toContain('mapStatus() !== \'ready\'');
+    expect(miniMap).toContain('estacion-mini-map-fallback');
+    expect(miniMapStyles).toContain('.estacion-mini-map-fallback');
+  });
+
+  it('mantiene los assets publicos de Leaflet y la configuracion de public assets', () => {
+    const angularConfig = source('angular.json');
+    const base = join(process.cwd(), 'public', 'leaflet');
+
+    expect(angularConfig).toContain('"input": "public"');
+    expect(existsSync(join(base, 'marker-icon.png'))).toBe(true);
+    expect(existsSync(join(base, 'marker-icon-2x.png'))).toBe(true);
+    expect(existsSync(join(base, 'marker-shadow.png'))).toBe(true);
   });
 });

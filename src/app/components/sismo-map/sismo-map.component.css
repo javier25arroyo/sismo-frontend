@@ -5,6 +5,18 @@
   border: 1px solid #D7E2E5;
 }
 
+.sismo-map-fallback {
+  background:
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    #EAF1F3;
+  background-size: 32px 32px;
+}
+
+.sismo-map-fallback p {
+  margin: 0;
+}
+
 .leaflet-container {
   font-family: "Aptos", "Inter", "Segoe UI", sans-serif;
 }
