@@ -1,11 +1,11 @@
-import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandlerFn, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 
 describe('authInterceptor', () => {
-  function interceptWithToken(token: string | null): HttpRequest<unknown> | null {
+  function interceptWithToken(token: string | null, request = new HttpRequest('GET', '/api/sismos')): HttpRequest<unknown> | null {
     let captured: HttpRequest<unknown> | null = null;
     const next: HttpHandlerFn = request => {
       captured = request;
@@ -21,7 +21,6 @@ describe('authInterceptor', () => {
       ]
     });
 
-    const request = new HttpRequest('GET', '/api/sismos');
     TestBed.runInInjectionContext(() => authInterceptor(request, next));
 
     return captured;
@@ -37,5 +36,22 @@ describe('authInterceptor', () => {
     const request = interceptWithToken(null);
 
     expect(request?.headers.has('Authorization')).toBe(false);
+  });
+
+  it('no agrega Authorization en el inicio de sesión', () => {
+    const request = interceptWithToken('token-prueba', new HttpRequest('POST', '/api/autenticacion/iniciar-sesion', null));
+
+    expect(request?.headers.has('Authorization')).toBe(false);
+  });
+
+  it('no sobrescribe Authorization existente', () => {
+    const request = interceptWithToken(
+      'token-prueba',
+      new HttpRequest('GET', '/api/sismos', {
+        headers: new HttpHeaders({ Authorization: 'Bearer token-manual' })
+      })
+    );
+
+    expect(request?.headers.get('Authorization')).toBe('Bearer token-manual');
   });
 });

@@ -26,9 +26,14 @@ export class ReporteService {
     );
   }
 
-  /** GET /api/reportes/{feReporte}/descargar — URL de descarga directa */
+  /** GET /api/reportes/{feReporte}/descargar - URL de descarga directa */
   getDescargarUrl(feReporte: string): string {
     return this.api.getDownloadUrl(`/api/reportes/${encodeURIComponent(feReporte)}/descargar`);
+  }
+
+  /** GET /api/reportes/{feReporte}/descargar - descarga autenticada */
+  async descargarReporte(feReporte: string): Promise<{ blob: Blob; headers: Headers }> {
+    return this.api.getBlob(`/api/reportes/${encodeURIComponent(feReporte)}/descargar`);
   }
 
   /**
