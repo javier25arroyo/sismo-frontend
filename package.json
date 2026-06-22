@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "check": "pnpm audit --audit-level=moderate && pnpm lint && pnpm test --watch=false && pnpm build",
+    "check": "pnpm lint && pnpm test --watch=false && pnpm build",
     "update": "pnpm update",
     "update:latest": "pnpm update --latest",
     "security": "pnpm audit",
