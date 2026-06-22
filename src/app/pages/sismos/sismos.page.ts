@@ -96,7 +96,13 @@ export class SismosPage implements OnInit, OnDestroy {
     return '640px';
   });
 
-  readonly resumenAcelerogramasArray = computed(() => this.resumenAcelerogramas());
+  readonly resumenAcelerogramasArray = computed(() =>
+    this.completarDistanciasHipocentrales(
+      this.resumenAcelerogramas(),
+      this.ultimoSismo(),
+      this.estaciones()
+    )
+  );
 
   @HostListener('window:resize', ['$event'])
   onResize(e: UIEvent): void {
@@ -190,7 +196,114 @@ export class SismosPage implements OnInit, OnDestroy {
 
   alertaSismicaLabel(alerta: string | null | undefined): string {
     const valor = alerta?.trim();
-    return valor ? valor : 'Sin definir';
+    if (!valor || valor.toUpperCase() === 'SIN_CONFIGURACION') {
+      return 'Sin definir';
+    }
+    return valor;
+  }
+
+  private completarDistanciasHipocentrales(
+    resumen: ResumenAlertaSismicaRespuesta[],
+    sismo: SismoRespuesta | null,
+    estaciones: EstacionRespuesta[]
+  ): ResumenAlertaSismicaRespuesta[] {
+    if (!sismo || estaciones.length === 0) {
+      return resumen;
+    }
+
+    return resumen.map(registro => {
+      if (this.esNumeroFinito(registro.distanciaHipocentralKm)) {
+        return registro;
+      }
+
+      const estacion = this.buscarEstacionParaResumen(registro, estaciones, sismo);
+      const distanciaHipocentralKm = estacion
+        ? this.calcularDistanciaHipocentralKm(sismo, estacion)
+        : null;
+
+      return distanciaHipocentralKm === null
+        ? registro
+        : { ...registro, distanciaHipocentralKm };
+    });
+  }
+
+  private buscarEstacionParaResumen(
+    registro: ResumenAlertaSismicaRespuesta,
+    estaciones: EstacionRespuesta[],
+    sismo: SismoRespuesta
+  ): EstacionRespuesta | null {
+    const codigo = this.normalizarCodigo(registro.codigoEstacion);
+    const nombre = this.normalizarTexto(registro.nombre);
+    const candidatas = estaciones.filter(estacion =>
+      this.normalizarCodigo(estacion.codEstacion) === codigo
+    );
+
+    if (candidatas.length === 0) {
+      return null;
+    }
+
+    const candidatasPorNombre = candidatas.filter(estacion =>
+      this.normalizarTexto(estacion.nomEstacion) === nombre
+    );
+    const opciones = candidatasPorNombre.length > 0 ? candidatasPorNombre : candidatas;
+
+    return opciones.reduce((mejor, actual) => {
+      const distanciaMejor = this.calcularDistanciaEpicentralKm(sismo, mejor) ?? Number.POSITIVE_INFINITY;
+      const distanciaActual = this.calcularDistanciaEpicentralKm(sismo, actual) ?? Number.POSITIVE_INFINITY;
+      return distanciaActual < distanciaMejor ? actual : mejor;
+    });
+  }
+
+  private calcularDistanciaHipocentralKm(sismo: SismoRespuesta, estacion: EstacionRespuesta): number | null {
+    const distanciaEpicentralKm = this.calcularDistanciaEpicentralKm(sismo, estacion);
+    if (distanciaEpicentralKm === null || !this.esNumeroFinito(sismo.profundidad)) {
+      return null;
+    }
+
+    return Math.sqrt((distanciaEpicentralKm ** 2) + (sismo.profundidad ** 2));
+  }
+
+  private calcularDistanciaEpicentralKm(sismo: SismoRespuesta, estacion: EstacionRespuesta): number | null {
+    if (
+      !this.esNumeroFinito(sismo.coordenadaX) ||
+      !this.esNumeroFinito(sismo.coordenadaY) ||
+      !this.esNumeroFinito(estacion.coordenadaX) ||
+      !this.esNumeroFinito(estacion.coordenadaY)
+    ) {
+      return null;
+    }
+
+    const radioTierraKm = 6371.0088;
+    const latSismo = this.gradosARadianes(sismo.coordenadaY);
+    const latEstacion = this.gradosARadianes(estacion.coordenadaY);
+    const deltaLat = this.gradosARadianes(estacion.coordenadaY - sismo.coordenadaY);
+    const deltaLon = this.gradosARadianes(estacion.coordenadaX - sismo.coordenadaX);
+    const a =
+      Math.sin(deltaLat / 2) ** 2 +
+      Math.cos(latSismo) * Math.cos(latEstacion) * Math.sin(deltaLon / 2) ** 2;
+
+    return radioTierraKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  private gradosARadianes(grados: number): number {
+    return grados * Math.PI / 180;
+  }
+
+  private normalizarCodigo(valor: string | null | undefined): string {
+    return (valor ?? '').trim().toUpperCase();
+  }
+
+  private normalizarTexto(valor: string | null | undefined): string {
+    return (valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  private esNumeroFinito(valor: unknown): valor is number {
+    return typeof valor === 'number' && Number.isFinite(valor);
   }
 
   async compartirDatos(): Promise<void> {

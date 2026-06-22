@@ -6,6 +6,12 @@ import {
   ResumenAlertaSismicaRespuesta
 } from '../interfaces/api.interfaces';
 
+type ResumenAlertaSismicaApiRespuesta = Omit<ResumenAlertaSismicaRespuesta, 'distanciaHipocentralKm'> & {
+  distanciaHipocentralKm?: number | null;
+  distanciaHipocentral?: number | null;
+  distHipocentral?: number | null;
+};
+
 @Injectable({ providedIn: 'root' })
 export class AcelerogramasService {
   constructor(private api: ApiService) {}
@@ -17,9 +23,17 @@ export class AcelerogramasService {
    * @returns Lista de estaciones con aceleración, desplazamiento, distancia y alerta calculada.
    */
   async obtenerResumenPorEstacion(feTerremoto: string): Promise<ResumenAlertaSismicaRespuesta[]> {
-    return this.api.get<ResumenAlertaSismicaRespuesta[]>(
+    const resumen = await this.api.get<ResumenAlertaSismicaApiRespuesta[]>(
       `/api/acelerogramas/resumen-por-estacion?feTerremoto=${encodeURIComponent(feTerremoto)}`
     );
+    return resumen.map(registro => ({
+      ...registro,
+      distanciaHipocentralKm:
+        registro.distanciaHipocentralKm ??
+        registro.distanciaHipocentral ??
+        registro.distHipocentral ??
+        null
+    }));
   }
 
   /**
