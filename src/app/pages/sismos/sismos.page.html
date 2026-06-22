@@ -132,8 +132,8 @@
         <div class="relative flex h-full flex-col">
 
           <!-- Magnitud momentánea -->
-          <div>
-            <div class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-sky-400">
+          <div class="text-center">
+            <div class="flex items-center justify-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-sky-400">
               <span class="relative inline-flex h-1.5 w-1.5">
                 <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
                 <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-sky-400"></span>
@@ -141,7 +141,7 @@
               Magnitud momento
             </div>
 
-            <div class="mt-5 flex items-baseline gap-3">
+            <div class="mt-5 flex items-baseline justify-center gap-3">
               <span class="text-7xl font-black leading-none tracking-tight tabular-nums sm:text-8xl lg:text-7xl"
                 [style.color]="magnitudColor()">
                 {{ ultimoSismo()!.magnitud | number:'1.1-1' }}
@@ -151,7 +151,7 @@
               </div>
             </div>
 
-            <p class="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+            <p class="mx-auto mt-4 inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-400">
               <i-lucide [img]="shieldIcon" size="12" class="text-green-400"></i-lucide>
               Verificado por estaciones de control
             </p>
@@ -218,11 +218,12 @@
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[900px] border-collapse text-xs sm:text-sm">
+        <table class="w-full min-w-[1020px] border-collapse text-xs sm:text-sm">
           <caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>
           <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
             <tr class="border-b border-slate-200">
               <th scope="col" class="px-4 py-3 text-center">Nombre</th>
+              <th scope="col" class="px-4 py-3 text-center">Centro de Producción</th>
               <th scope="col" class="px-4 py-3 text-center">Código Estación</th>
               <th scope="col" class="px-4 py-3 text-center">Aceleración (cm/ss)</th>
               <th scope="col" class="px-4 py-3 text-center">Desplazamiento (cm)</th>
@@ -234,6 +235,7 @@
             @for (registro of resumenAcelerogramasArray(); track registro.codigoEstacion) {
               <tr class="transition hover:bg-sky-50/40">
                 <td class="px-4 py-3 text-center font-semibold text-slate-800">{{ registro.nombre || 'Sin nombre' }}</td>
+                <td class="px-4 py-3 text-center font-mono text-xs font-bold text-slate-700">{{ registro.centroProduccion || 'N/D' }}</td>
                 <td class="px-4 py-3 text-center font-mono text-xs font-bold text-sky-700">{{ registro.codigoEstacion || 'N/D' }}</td>
                 <td class="px-4 py-3 text-center font-mono tabular-nums text-slate-700">
                   {{ registro.aceleracionCmSs !== null ? (registro.aceleracionCmSs | number:'1.3-3') : 'N/D' }}
@@ -252,7 +254,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="px-4 py-8 text-center text-sm font-semibold text-slate-600">Sin registros acelerográficos para mostrar.</td>
+                <td colspan="7" class="px-4 py-8 text-center text-sm font-semibold text-slate-600">Sin registros acelerográficos para mostrar.</td>
               </tr>
             }
           </tbody>

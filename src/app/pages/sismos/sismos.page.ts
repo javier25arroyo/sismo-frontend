@@ -31,6 +31,10 @@ import {
   Hourglass
 } from 'lucide-angular';
 
+type ResumenAcelerograficoTabla = ResumenAlertaSismicaRespuesta & {
+  centroProduccion: string | null;
+};
+
 @Component({
   standalone: true,
   selector: 'app-sismos',
@@ -206,24 +210,25 @@ export class SismosPage implements OnInit, OnDestroy {
     resumen: ResumenAlertaSismicaRespuesta[],
     sismo: SismoRespuesta | null,
     estaciones: EstacionRespuesta[]
-  ): ResumenAlertaSismicaRespuesta[] {
+  ): ResumenAcelerograficoTabla[] {
     if (!sismo || estaciones.length === 0) {
-      return resumen;
+      return resumen.map(registro => ({ ...registro, centroProduccion: null }));
     }
 
     return resumen.map(registro => {
+      const estacion = this.buscarEstacionParaResumen(registro, estaciones, sismo);
+      const centroProduccion = this.normalizarCentroProduccion(estacion?.codCentroPrd);
       if (this.esNumeroFinito(registro.distanciaHipocentralKm)) {
-        return registro;
+        return { ...registro, centroProduccion };
       }
 
-      const estacion = this.buscarEstacionParaResumen(registro, estaciones, sismo);
       const distanciaHipocentralKm = estacion
         ? this.calcularDistanciaHipocentralKm(sismo, estacion)
         : null;
 
       return distanciaHipocentralKm === null
-        ? registro
-        : { ...registro, distanciaHipocentralKm };
+        ? { ...registro, centroProduccion }
+        : { ...registro, centroProduccion, distanciaHipocentralKm };
     });
   }
 
@@ -300,6 +305,11 @@ export class SismosPage implements OnInit, OnDestroy {
       .replace(/\s+/g, ' ')
       .trim()
       .toLowerCase();
+  }
+
+  private normalizarCentroProduccion(valor: string | null | undefined): string | null {
+    const centro = valor?.trim();
+    return centro ? centro : null;
   }
 
   private esNumeroFinito(valor: unknown): valor is number {
