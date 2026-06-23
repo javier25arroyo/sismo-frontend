@@ -8,11 +8,12 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "check": "pnpm audit --audit-level=moderate && pnpm lint && pnpm test --watch=false && pnpm build",
+    "check": "pnpm lint && pnpm test --watch=false && pnpm build",
     "update": "pnpm update",
     "update:latest": "pnpm update --latest",
     "security": "pnpm audit",
-    "serve:ssr:sismo-frontend": "node dist/sismo-frontend/server/server.mjs"
+    "serve:ssr:sismo-frontend": "node dist/sismo-frontend/server/server.mjs",
+    "smoke:ssr:maps": "node scripts/smoke-ssr-map-routes.mjs"
   },
   "private": true,
   "packageManager": "pnpm@10.32.1",

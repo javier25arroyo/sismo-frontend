@@ -10,7 +10,8 @@ import {
   ViewEncapsulation,
   PLATFORM_ID,
   inject,
-  effect
+  effect,
+  signal
 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import type * as Leaflet from 'leaflet';
@@ -28,7 +29,7 @@ import { categorizarSismo, type ConsecutivoSismo } from '../../utils/sismo-crite
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SismoMapComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
+  @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef<HTMLElement>;
 
   /** Lista de sismos a mostrar en el mapa */
   sismos = input<Sismo[]>([]);
@@ -76,11 +77,25 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   });
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  readonly mapStatus = signal<'ssr' | 'loading' | 'ready' | 'error'>(this.isBrowser ? 'loading' : 'ssr');
+  readonly mapStatusMessage = computed(() => {
+    switch (this.mapStatus()) {
+      case 'loading':
+        return 'Cargando mapa interactivo.';
+      case 'error':
+        return 'No fue posible cargar el mapa interactivo.';
+      case 'ssr':
+        return 'El mapa interactivo se carga cuando la página termina de hidratarse.';
+      default:
+        return '';
+    }
+  });
+
   private leaflet!: typeof Leaflet;
-  private map!: Leaflet.Map;
-  private markersLayer!: Leaflet.LayerGroup;
-  private epicentroLayer!: Leaflet.LayerGroup;
-  private estacionesLayer!: Leaflet.LayerGroup;
+  private map: Leaflet.Map | null = null;
+  private markersLayer: Leaflet.LayerGroup | null = null;
+  private epicentroLayer: Leaflet.LayerGroup | null = null;
+  private estacionesLayer: Leaflet.LayerGroup | null = null;
   private isInitialized = false;
 
   /** Estilos segun criterio oficial del sismo */
@@ -125,10 +140,11 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
     effect(() => {
       const estaciones = this.estaciones();
-      if (this.isInitialized && this.estacionesLayer) {
+      const map = this.map;
+      if (this.isInitialized && this.estacionesLayer && map) {
         this.addEstaciones(estaciones);
         if (this.flyToEstacion() && estaciones.length === 1) {
-          this.map.flyTo([estaciones[0].coordenadaY, estaciones[0].coordenadaX], 12, { duration: 0.8 });
+          map.flyTo([estaciones[0].coordenadaY, estaciones[0].coordenadaX], 12, { duration: 0.8 });
         }
       }
     });
@@ -137,18 +153,34 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit(): Promise<void> {
     if (!this.isBrowser) return;
 
-    this.leaflet = await import('leaflet');
-    this.initMap();
-    this.addSismos(this.sismos());
-    this.addEpicentroMarker(this.epicentro());
-    this.addEstaciones(this.estaciones());
-    this.isInitialized = true;
+    try {
+      this.mapStatus.set('loading');
+      this.leaflet = await import('leaflet');
+      this.initMap();
+      this.addSismos(this.sismos());
+      this.addEpicentroMarker(this.epicentro());
+      this.addEstaciones(this.estaciones());
+      this.isInitialized = true;
+      this.mapStatus.set('ready');
+    } catch (error) {
+      this.map?.remove();
+      this.map = null;
+      this.markersLayer = null;
+      this.epicentroLayer = null;
+      this.estacionesLayer = null;
+      this.isInitialized = false;
+      console.error('No fue posible inicializar Leaflet', error);
+      this.mapStatus.set('error');
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.map) {
-      this.map.remove();
-    }
+    this.map?.remove();
+    this.map = null;
+    this.markersLayer = null;
+    this.epicentroLayer = null;
+    this.estacionesLayer = null;
+    this.isInitialized = false;
   }
 
   private initMap(): void {
@@ -182,11 +214,13 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private addSismos(sismos: Sismo[]): void {
-    if (!this.markersLayer) return;
+    const markersLayer = this.markersLayer;
+    const map = this.map;
+    if (!markersLayer || !map) return;
     const L = this.leaflet;
 
     // Limpiar marcadores existentes
-    this.markersLayer.clearLayers();
+    markersLayer.clearLayers();
 
     sismos.forEach(sismo => {
       const marker = L.circleMarker([sismo.coordenadaY, sismo.coordenadaX], {
@@ -218,7 +252,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
         </div>
       `);
 
-      marker.addTo(this.markersLayer);
+      marker.addTo(markersLayer);
     });
 
     // Ajustar vista si hay sismos
@@ -226,7 +260,7 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
       const bounds = L.latLngBounds(
         sismos.map(s => [s.coordenadaY, s.coordenadaX] as [number, number])
       );
-      this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
     }
   }
 
@@ -249,9 +283,11 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private addEpicentroMarker(epicentro: SismoUltimoRespuesta | null): void {
-    if (!this.epicentroLayer) return;
+    const epicentroLayer = this.epicentroLayer;
+    const map = this.map;
+    if (!epicentroLayer || !map) return;
     const L = this.leaflet;
-    this.epicentroLayer.clearLayers();
+    epicentroLayer.clearLayers();
     if (!epicentro) return;
 
     const s = epicentro;
@@ -305,17 +341,19 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
         ${this.renderCriterio(s.magnitud, s.distanciaHipocentral)}
       </div>
     `);
-    marker.addTo(this.epicentroLayer);
+    marker.addTo(epicentroLayer);
 
     if (this.flyToEpicentro()) {
-      this.map.flyTo([s.coordenadaY, s.coordenadaX], 9, { duration: 1.2 });
+      map.flyTo([s.coordenadaY, s.coordenadaX], 9, { duration: 1.2 });
     }
   }
 
   private addEstaciones(estaciones: EstacionRespuesta[]): void {
-    if (!this.estacionesLayer) return;
+    const estacionesLayer = this.estacionesLayer;
+    const map = this.map;
+    if (!estacionesLayer || !map) return;
     const L = this.leaflet;
-    this.estacionesLayer.clearLayers();
+    estacionesLayer.clearLayers();
 
     estaciones.forEach(e => {
       const codEstacion = this.escapeHtml(e.codEstacion);
@@ -338,11 +376,13 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
         direction: 'top',
         offset: [0, -8]
       });
-      marker.addTo(this.estacionesLayer);
+      marker.addTo(estacionesLayer);
     });
   }
 
   private addLegend(): void {
+    const map = this.map;
+    if (!map) return;
     const L = this.leaflet;
     const legend = new L.Control({ position: 'bottomright' });
 
@@ -368,18 +408,18 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
       return div;
     };
 
-    legend.addTo(this.map);
+    legend.addTo(map);
   }
 
   /** Método público para centrar el mapa en un sismo específico */
   centerOnSismo(sismo: Sismo): void {
-    this.map.setView([sismo.coordenadaY, sismo.coordenadaX], 12);
+    const map = this.map;
+    if (!map) return;
+    map.setView([sismo.coordenadaY, sismo.coordenadaX], 12);
   }
 
   /** Método público para refrescar el mapa */
   refresh(): void {
-    if (this.map) {
-      this.map.invalidateSize();
-    }
+    this.map?.invalidateSize();
   }
 }

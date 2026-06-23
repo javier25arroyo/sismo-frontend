@@ -26,6 +26,7 @@ describe('SismosPage template', () => {
       "[ngClass]=\"ultimoSismo() ? 'lg:grid-cols-[minmax(0,1fr)_320px]' : 'lg:grid-cols-1'\""
     );
     expect(template).toContain('MAGNITUD MOMENTÁNEA + DATOS — panel lateral');
+    expect(template).toContain('mt-5 flex items-baseline justify-center gap-3');
     expect(template).not.toContain('SIDEBAR — Estado de ubicación');
     expect(template).not.toContain('Quick info strip');
     expect(template).not.toContain('MAGNITUD MOMENTÁNEA + DATOS (full-width, bottom)');
@@ -35,15 +36,17 @@ describe('SismosPage template', () => {
     expect(template).toContain('table-estaciones-alerta-title');
     expect(template).toContain('Resumen acelerográfico por estación');
     expect(template).toContain('<caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>');
+    expect(template).toContain('Centro de Producción');
     expect(template).toContain('Aceleración (cm/ss)');
     expect(template).toContain('Alerta Sísmica');
     expect(template).toContain('resumenAcelerogramasArray()');
     expect(template).toContain('registro.nombre');
+    expect(template).toContain('registro.centroProduccion');
     expect(template).toContain('registro.codigoEstacion');
     expect(template).toContain('registro.aceleracionCmSs');
     expect(template).toContain('registro.desplazamientoCm');
-    expect(template).toContain('registro.distanciaHipocentralKm');
-    expect(template).toContain('registro.alertaSismica');
+    expect(template).toContain('registro.distanciaHipocentralKm !== null && registro.distanciaHipocentralKm !== undefined');
+    expect(template).toContain('alertaSismicaLabel(registro.alertaSismica)');
     expect(template).not.toContain('registro.coEstacion');
     expect(template).not.toContain('registro.aceleracionMaxima');
   });
@@ -108,7 +111,65 @@ describe('SismosPage resumen acelerográfico por estación', () => {
 
     component.resumenAcelerogramas.set(resumen);
 
-    expect(component.resumenAcelerogramasArray()).toEqual(resumen);
+    expect(component.resumenAcelerogramasArray()).toEqual([
+      {
+        ...resumen[0],
+        centroProduccion: null
+      }
+    ]);
+  });
+
+  it('muestra Sin definir cuando la alerta sísmica viene vacía', () => {
+    const fixture = TestBed.createComponent(SismosPage);
+    const component = fixture.componentInstance;
+
+    expect(component.alertaSismicaLabel('')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('   ')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel(null)).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('SIN_CONFIGURACION')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('NIVEL 2')).toBe('NIVEL 2');
+  });
+
+  it('calcula la distancia hipocentral cuando el resumen acelerográfico la trae nula', () => {
+    const fixture = TestBed.createComponent(SismosPage);
+    const component = fixture.componentInstance;
+
+    component.ultimoSismo.set({
+      feSismo: '2026-06-10T13:19:48',
+      magnitud: 5.2,
+      ubicacion: 'Evento reciente',
+      coordenadaX: -85.875,
+      coordenadaY: 10.455,
+      profundidad: 40,
+      sentido: 'SENTIDO'
+    });
+    component.estaciones.set([
+      {
+        codCentroPrd: 'AE',
+        codEstacion: 'TG',
+        nomEstacion: 'Guatuso',
+        coordenadaX: -83.94,
+        coordenadaY: 9.82,
+        estado: 'ACTIVA'
+      }
+    ]);
+    component.resumenAcelerogramas.set([
+      {
+        nombre: 'Guatuso',
+        codigoEstacion: 'TG',
+        aceleracionCmSs: 46.85,
+        desplazamientoCm: 2.264,
+        distanciaHipocentralKm: null,
+        alertaSismica: 'NIVEL 1'
+      }
+    ]);
+
+    const distancia = component.resumenAcelerogramasArray()[0]?.distanciaHipocentralKm;
+    const centroProduccion = component.resumenAcelerogramasArray()[0]?.centroProduccion;
+
+    expect(distancia).not.toBeNull();
+    expect(distancia ?? 0).toBeGreaterThan(0);
+    expect(centroProduccion).toBe('AE');
   });
 
   it('usa una fecha de acelerogramas disponible cuando el ultimo sismo no tiene resumen', async () => {
@@ -122,7 +183,7 @@ describe('SismosPage resumen acelerográfico por estación', () => {
         aceleracionCmSs: 0.010106,
         desplazamientoCm: null,
         distanciaHipocentralKm: null,
-        alertaSismica: 'SIN_CONFIGURACION'
+        alertaSismica: 'Sin definir'
       }
     ];
 
@@ -173,7 +234,12 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     fixture.detectChanges();
 
     await vi.waitFor(() => {
-      expect(fixture.componentInstance.resumenAcelerogramasArray()).toEqual(resumen);
+      expect(fixture.componentInstance.resumenAcelerogramasArray()).toEqual([
+        {
+          ...resumen[0],
+          centroProduccion: null
+        }
+      ]);
     });
 
     expect(acelerogramasService.obtenerResumenPorEstacion).toHaveBeenNthCalledWith(1, '2026-06-10T13:19:48');

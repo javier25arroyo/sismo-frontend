@@ -113,6 +113,13 @@ El código importa siempre `src/environments/environment`. Angular reemplaza el 
 - La configuración de desarrollo activa source maps y HMR.
 - `leaflet` está autorizado como dependencia CommonJS en la build.
 
+### Mapas y SSR
+
+- [src/app/routing/server-render-policy.ts](src/app/routing/server-render-policy.ts): política central de `ServerRoute` para rutas públicas y administrativas.
+- [src/app/components/sismo-map/sismo-map.component.ts](src/app/components/sismo-map/sismo-map.component.ts) y [src/app/components/estacion-mini-map/estacion-mini-map.component.ts](src/app/components/estacion-mini-map/estacion-mini-map.component.ts): inicializan Leaflet solo en navegador y muestran fallback mientras el mapa no está listo.
+- [scripts/smoke-ssr-map-routes.mjs](scripts/smoke-ssr-map-routes.mjs): verificación local de las rutas con mapas sobre el SSR.
+- Validar cambios con `pnpm smoke:ssr:maps` además de `pnpm check` cuando los mapas cambien.
+
 ## Desarrollo local
 
 ### Requisitos

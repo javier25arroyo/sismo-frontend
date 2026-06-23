@@ -12,7 +12,6 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import {
   ReporteRespuesta, FiltroReportes, GeneracionReporteRespuesta
 } from '../../interfaces/api.interfaces';
-import { environment } from '../../../environments/environment';
 
 type Tab = 'descargar' | 'generar' | 'csv';
 
@@ -304,17 +303,11 @@ export class RepositorioPage implements OnInit, OnDestroy {
     this.descargandoGen.set(trackId);
     this.mensajeDescarga.set(null);
     try {
-      const url     = environment.apiUrl + `/api/reportes/${encodeURIComponent(feReporte)}/descargar`;
-      const token   = this.auth.getToken();
-      const headers: Record<string, string> = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(url, { headers });
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-      const blob    = await res.blob();
+      const { blob, headers } = await this.reporteService.descargarReporte(feReporte);
       const blobUrl = URL.createObjectURL(blob);
       const a       = document.createElement('a');
       a.href        = blobUrl;
-      const disp    = res.headers.get('Content-Disposition') ?? '';
+      const disp    = headers.get('Content-Disposition') ?? '';
       const match   = disp.match(/filename[^;=\n]*=(?:(\\?["'])(.*?)\1|([^;\n]*))/i);
       a.download    = match?.[2] ?? match?.[3] ?? `${titulo}.pdf`;
       document.body.appendChild(a);
