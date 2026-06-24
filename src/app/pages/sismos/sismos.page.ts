@@ -8,6 +8,7 @@ import { SismoService } from '../../services/sismo.service';
 import { AcelerogramasService } from '../../services/acelerogramas.service';
 import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import {
+  CentroProduccionRespuesta,
   EstacionRespuesta,
   GeneracionReporteRespuesta,
   ResumenAlertaSismicaRespuesta,
@@ -16,6 +17,7 @@ import {
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CentroService } from '../../services/centro.service';
 import {
   LucideAngularModule,
   Share2,
@@ -35,6 +37,11 @@ type ResumenAcelerograficoTabla = ResumenAlertaSismicaRespuesta & {
   centroProduccion: string | null;
 };
 
+interface ResumenAcelerograficoCentro {
+  centroProduccion: string;
+  registros: ResumenAcelerograficoTabla[];
+}
+
 @Component({
   standalone: true,
   selector: 'app-sismos',
@@ -50,6 +57,7 @@ type ResumenAcelerograficoTabla = ResumenAlertaSismicaRespuesta & {
 export class SismosPage implements OnInit, OnDestroy {
   ultimoSismo = signal<SismoRespuesta | null>(null);
   estaciones = signal<EstacionRespuesta[]>([]);
+  centros = signal<CentroProduccionRespuesta[]>([]);
   resumenAcelerogramas = signal<ResumenAlertaSismicaRespuesta[]>([]);
   cargando = signal(true);
   errorCarga = signal('');
@@ -104,9 +112,26 @@ export class SismosPage implements OnInit, OnDestroy {
     this.completarDistanciasHipocentrales(
       this.resumenAcelerogramas(),
       this.ultimoSismo(),
-      this.estaciones()
+      this.estaciones(),
+      this.centros()
     )
   );
+
+  readonly resumenAcelerogramasPorCentro = computed((): ResumenAcelerograficoCentro[] => {
+    const grupos = new Map<string, ResumenAcelerograficoTabla[]>();
+
+    for (const registro of this.resumenAcelerogramasArray()) {
+      const centroProduccion = registro.centroProduccion ?? 'Sin planta';
+      const registros = grupos.get(centroProduccion);
+      if (registros) {
+        registros.push(registro);
+      } else {
+        grupos.set(centroProduccion, [registro]);
+      }
+    }
+
+    return Array.from(grupos, ([centroProduccion, registros]) => ({ centroProduccion, registros }));
+  });
 
   @HostListener('window:resize', ['$event'])
   onResize(e: UIEvent): void {
@@ -121,11 +146,13 @@ export class SismosPage implements OnInit, OnDestroy {
     private reporteService: ReporteService,
     readonly auth: AuthService,
     private route: ActivatedRoute,
-    private estacionesCache: EstacionesCacheService
+    private estacionesCache: EstacionesCacheService,
+    private centroService: CentroService
   ) {}
 
   ngOnInit(): void {
     void this.cargarEstaciones();
+    void this.cargarCentros();
     const sismoFromState = this.isBrowser
       ? (window.history.state as { sismo?: SismoRespuesta })?.sismo ?? null
       : null;
@@ -138,6 +165,15 @@ export class SismosPage implements OnInit, OnDestroy {
   private async cargarEstaciones(): Promise<void> {
     const data = await this.estacionesCache.getEstaciones();
     this.estaciones.set(data);
+  }
+
+  private async cargarCentros(): Promise<void> {
+    try {
+      const page = await this.centroService.getCentros(undefined, undefined, 0, 500);
+      this.centros.set(page.content);
+    } catch {
+      this.centros.set([]);
+    }
   }
 
   ngOnDestroy(): void {
@@ -209,16 +245,19 @@ export class SismosPage implements OnInit, OnDestroy {
   private completarDistanciasHipocentrales(
     resumen: ResumenAlertaSismicaRespuesta[],
     sismo: SismoRespuesta | null,
-    estaciones: EstacionRespuesta[]
+    estaciones: EstacionRespuesta[],
+    centros: CentroProduccionRespuesta[]
   ): ResumenAcelerograficoTabla[] {
-    if (!sismo || estaciones.length === 0) {
+    if (estaciones.length === 0) {
       return resumen.map(registro => ({ ...registro, centroProduccion: null }));
     }
 
     return resumen.map(registro => {
-      const estacion = this.buscarEstacionParaResumen(registro, estaciones, sismo);
-      const centroProduccion = this.normalizarCentroProduccion(estacion?.codCentroPrd);
-      if (this.esNumeroFinito(registro.distanciaHipocentralKm)) {
+      const estacion = sismo
+        ? this.buscarEstacionParaResumen(registro, estaciones, sismo)
+        : this.buscarEstacionPorCodigoYNombre(registro, estaciones);
+      const centroProduccion = this.centroProduccionLabel(estacion?.codCentroPrd, centros);
+      if (!sismo || this.esNumeroFinito(registro.distanciaHipocentralKm)) {
         return { ...registro, centroProduccion };
       }
 
@@ -237,6 +276,29 @@ export class SismosPage implements OnInit, OnDestroy {
     estaciones: EstacionRespuesta[],
     sismo: SismoRespuesta
   ): EstacionRespuesta | null {
+    const opciones = this.buscarEstacionesCandidatas(registro, estaciones);
+    if (opciones.length === 0) {
+      return null;
+    }
+
+    return opciones.reduce((mejor, actual) => {
+      const distanciaMejor = this.calcularDistanciaEpicentralKm(sismo, mejor) ?? Number.POSITIVE_INFINITY;
+      const distanciaActual = this.calcularDistanciaEpicentralKm(sismo, actual) ?? Number.POSITIVE_INFINITY;
+      return distanciaActual < distanciaMejor ? actual : mejor;
+    });
+  }
+
+  private buscarEstacionPorCodigoYNombre(
+    registro: ResumenAlertaSismicaRespuesta,
+    estaciones: EstacionRespuesta[]
+  ): EstacionRespuesta | null {
+    return this.buscarEstacionesCandidatas(registro, estaciones)[0] ?? null;
+  }
+
+  private buscarEstacionesCandidatas(
+    registro: ResumenAlertaSismicaRespuesta,
+    estaciones: EstacionRespuesta[]
+  ): EstacionRespuesta[] {
     const codigo = this.normalizarCodigo(registro.codigoEstacion);
     const nombre = this.normalizarTexto(registro.nombre);
     const candidatas = estaciones.filter(estacion =>
@@ -244,19 +306,13 @@ export class SismosPage implements OnInit, OnDestroy {
     );
 
     if (candidatas.length === 0) {
-      return null;
+      return [];
     }
 
     const candidatasPorNombre = candidatas.filter(estacion =>
       this.normalizarTexto(estacion.nomEstacion) === nombre
     );
-    const opciones = candidatasPorNombre.length > 0 ? candidatasPorNombre : candidatas;
-
-    return opciones.reduce((mejor, actual) => {
-      const distanciaMejor = this.calcularDistanciaEpicentralKm(sismo, mejor) ?? Number.POSITIVE_INFINITY;
-      const distanciaActual = this.calcularDistanciaEpicentralKm(sismo, actual) ?? Number.POSITIVE_INFINITY;
-      return distanciaActual < distanciaMejor ? actual : mejor;
-    });
+    return candidatasPorNombre.length > 0 ? candidatasPorNombre : candidatas;
   }
 
   private calcularDistanciaHipocentralKm(sismo: SismoRespuesta, estacion: EstacionRespuesta): number | null {
@@ -310,6 +366,21 @@ export class SismosPage implements OnInit, OnDestroy {
   private normalizarCentroProduccion(valor: string | null | undefined): string | null {
     const centro = valor?.trim();
     return centro ? centro : null;
+  }
+
+  private centroProduccionLabel(
+    codigoCentro: string | null | undefined,
+    centros: CentroProduccionRespuesta[]
+  ): string | null {
+    const codigo = this.normalizarCentroProduccion(codigoCentro);
+    if (!codigo) {
+      return null;
+    }
+
+    const centro = centros.find(c =>
+      this.normalizarCodigo(c.codCentroPrd) === this.normalizarCodigo(codigo)
+    );
+    return this.normalizarCentroProduccion(centro?.nomCentroPrd) ?? codigo;
   }
 
   private esNumeroFinito(valor: unknown): valor is number {

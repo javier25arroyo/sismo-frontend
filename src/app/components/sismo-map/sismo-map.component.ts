@@ -155,8 +155,8 @@ export class SismoMapComponent implements AfterViewInit, OnDestroy {
 
     try {
       this.mapStatus.set('loading');
-      const leafletModule = await import('leaflet');
-      this.leaflet = (leafletModule as any).default || leafletModule;
+      const leafletModule = await import('leaflet') as typeof import('leaflet') & { default?: typeof Leaflet };
+      this.leaflet = leafletModule.default ?? leafletModule;
       this.initMap();
       this.addSismos(this.sismos());
       this.addEpicentroMarker(this.epicentro());

@@ -9,6 +9,7 @@ import { SismosPage } from './sismos.page';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AcelerogramasService } from '../../services/acelerogramas.service';
+import { CentroService } from '../../services/centro.service';
 import { EstacionesCacheService } from '../../services/estaciones-cache.service';
 import { ReporteService } from '../../services/reporte.service';
 import { SismoService } from '../../services/sismo.service';
@@ -32,21 +33,23 @@ describe('SismosPage template', () => {
     expect(template).not.toContain('MAGNITUD MOMENTÁNEA + DATOS (full-width, bottom)');
   });
 
-  it('muestra la tabla de resumen acelerográfico con columnas de alerta sísmica', () => {
+  it('muestra la tabla de resumen acelerográfico con las columnas de la imagen', () => {
     expect(template).toContain('table-estaciones-alerta-title');
     expect(template).toContain('Resumen acelerográfico por estación');
     expect(template).toContain('<caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>');
-    expect(template).toContain('Centro de Producción');
+    expect(template).not.toContain('Centro de Producción');
     expect(template).toContain('Aceleración (cm/ss)');
     expect(template).toContain('Alerta Sísmica');
-    expect(template).toContain('resumenAcelerogramasArray()');
+    expect(template).toContain('resumenAcelerogramasPorCentro()');
+    expect(template).toContain('scope="rowgroup"');
     expect(template).toContain('registro.nombre');
-    expect(template).toContain('registro.centroProduccion');
     expect(template).toContain('registro.codigoEstacion');
     expect(template).toContain('registro.aceleracionCmSs');
     expect(template).toContain('registro.desplazamientoCm');
     expect(template).toContain('registro.distanciaHipocentralKm !== null && registro.distanciaHipocentralKm !== undefined');
     expect(template).toContain('alertaSismicaLabel(registro.alertaSismica)');
+    expect(template).toContain('colspan="6"');
+    expect(template).not.toContain('colspan="7"');
     expect(template).not.toContain('registro.coEstacion');
     expect(template).not.toContain('registro.aceleracionMaxima');
   });
@@ -82,6 +85,12 @@ describe('SismosPage resumen acelerográfico por estación', () => {
           }
         },
         {
+          provide: CentroService,
+          useValue: {
+            getCentros: vi.fn()
+          }
+        },
+        {
           provide: ReporteService,
           useValue: {}
         },
@@ -95,12 +104,12 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     }).compileComponents();
   });
 
-  it('expone la lista del endpoint para la tabla de resumen acelerográfico', () => {
+  it('agrupa el resumen acelerográfico por centro de producción', () => {
     const fixture = TestBed.createComponent(SismosPage);
     const component = fixture.componentInstance;
     const resumen = [
       {
-        nombre: 'Arenal',
+        nombre: 'Casa de Máquinas',
         codigoEstacion: 'A1',
         aceleracionCmSs: 18,
         desplazamientoCm: 2.5,
@@ -110,11 +119,30 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     ];
 
     component.resumenAcelerogramas.set(resumen);
-
-    expect(component.resumenAcelerogramasArray()).toEqual([
+    component.estaciones.set([
       {
-        ...resumen[0],
-        centroProduccion: null
+        codCentroPrd: 'AR',
+        codEstacion: 'A1',
+        nomEstacion: 'Casa de Máquinas',
+        coordenadaX: -84.9,
+        coordenadaY: 10.3,
+        estado: 'ACTIVA'
+      }
+    ]);
+
+    const grupos = (component as unknown as {
+      resumenAcelerogramasPorCentro: () => { centroProduccion: string; registros: unknown[] }[];
+    }).resumenAcelerogramasPorCentro();
+
+    expect(grupos).toEqual([
+      {
+        centroProduccion: 'AR',
+        registros: [
+          {
+            ...resumen[0],
+            centroProduccion: 'AR'
+          }
+        ]
       }
     ]);
   });
@@ -176,6 +204,7 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     const sismoService = TestBed.inject(SismoService);
     const acelerogramasService = TestBed.inject(AcelerogramasService);
     const estacionesCache = TestBed.inject(EstacionesCacheService);
+    const centroService = TestBed.inject(CentroService);
     const resumen = [
       {
         nombre: 'Caseta presa, MD',
@@ -188,6 +217,17 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     ];
 
     vi.mocked(estacionesCache.getEstaciones).mockResolvedValue([]);
+    vi.mocked(centroService.getCentros).mockResolvedValue({
+      content: [],
+      page: 0,
+      size: 0,
+      totalElements: 0,
+      totalPages: 0,
+      first: true,
+      last: true,
+      numberOfElements: 0,
+      empty: true
+    });
     vi.mocked(sismoService.listarSismos).mockResolvedValue({
       content: [{
         feSismo: '2026-06-10T13:19:48',
