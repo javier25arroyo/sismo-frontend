@@ -198,18 +198,19 @@ export class SismosPage implements OnInit, OnDestroy {
       }
 
       this.ultimoSismo.set(sismo);
+      this.cargando.set(false);
 
       if (sismo) {
-        try {
-          await this.cargarResumenAcelerografico(sismo.feSismo);
-        } catch {
+        // Carga el resumen acelerográfico en segundo plano para no bloquear el renderizado del mapa
+        this.cargarResumenAcelerografico(sismo.feSismo).catch(() => {
           this.resumenAcelerogramas.set([]);
-        }
+        });
       }
     } catch (error) {
       this.ultimoSismo.set(null);
       this.resumenAcelerogramas.set([]);
       this.errorCarga.set(this.obtenerMensajeError(error, 'No fue posible cargar la información sísmica.'));
+      this.cargando.set(false);
     } finally {
       this.cargando.set(false);
     }
