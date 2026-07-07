@@ -1,276 +1,122 @@
 # Sismo Frontend
 
-Frontend Angular 21 para monitoreo y consulta sismológica del ICE. La app usa componentes standalone, autenticación JWT, rutas con carga diferida, Tailwind CSS 4 y un despliegue final detrás de Nginx.
+Frontend institucional para monitoreo, consulta y administracion sismologica del ICE. La aplicacion esta construida con Angular standalone, SSR, Tailwind CSS 4, mapas Leaflet, graficas Chart.js y una capa de API centralizada sobre `fetch`.
+
+Este documento es la guia principal para entrega final: resume alcance, arquitectura, instalacion, rutas, despliegue, validacion y criterios de mantenimiento.
+
+## Estado De Entrega
+
+| Area | Estado |
+|---|---|
+| Framework | Angular 22 con componentes standalone |
+| Renderizado | Angular SSR con rutas publicas server-side y rutas sensibles client-side |
+| Estilos | Tailwind CSS 4 con tokens propios en `src/styles.css` |
+| API | `ApiService` centralizado, JWT y soporte SSR con `SSR_API_URL` |
+| Mapas | Leaflet inicializado solo en navegador |
+| Calidad | ESLint, Vitest, build de produccion y build Docker en CI |
+| Runtime | Node.js 24.16.0 y pnpm 10.32.1 |
 
 ## Stack
 
-| Tecnología | Versión |
+| Tecnologia | Version |
 |---|---|
-| Angular | 21.2.x |
-| Node.js | 24.16.0 LTS |
-| TypeScript | 5.9.x |
-| PNPM | 10.32.1 |
-| Tailwind CSS | 4.x |
+| Angular | 22.0.x |
+| Angular SSR | 22.0.x |
+| TypeScript | 6.0.x |
+| Node.js | 24.16.0 |
+| pnpm | 10.32.1 |
+| Tailwind CSS | 4.3.x |
 | RxJS | 7.8.x |
 | Leaflet | 1.9.x |
-| Chart.js | 4.x |
-| Lucide Angular | 1.x |
-| Vitest | 4.x (via `@angular/build:unit-test`) |
+| Chart.js | 4.5.x |
+| Vitest | 4.1.x |
 
-## Funcionalidad actual
+## Funcionalidad
 
-- Layout principal con header y footer.
-- Navegación pública para monitoreo sismológico, histórico, estaciones y consultas.
-- Pantallas administrativas para umbrales, repositorio, perfil y cambio de contraseña.
-- Autenticación JWT con persistencia en `localStorage`.
-- Cliente HTTP centralizado con header `Authorization` automático.
-- Mapas, tablas, gráficas, formularios y modales reutilizables.
+- Monitoreo del ultimo evento sismico y estado de red.
+- Consulta de sismos recientes e historicos con filtros.
+- Visualizacion de mapas con epicentros, estaciones y leyenda por magnitud.
+- Consulta de acelerografos, datos RSN, tablas y graficas.
+- Administracion de estaciones, umbrales por estacion, repositorio de reportes y perfil tecnico.
+- Autenticacion JWT para rutas administrativas.
+- Exportacion y descarga de reportes desde el repositorio.
+- Renderizado SSR para rutas publicas y carga client-side para rutas sensibles.
 
-## Rutas principales
+## Arquitectura General
 
-| Ruta | Acceso | Guardia | Descripción |
-| --- | --- | --- | --- |
-| `/` | Público | — | Inicio: último sismo y estado de la red. |
-| `/sismos` | Público | — | Análisis de eventos sísmicos recientes. |
-| `/historial` | Público | — | Catálogo histórico de sismos con filtros. |
-| `/estaciones` | Público | — | Estado operativo de la red de estaciones. |
-| `/consultas` | Público | — | Acelerógrafos + RSN: tablas, mapas y gráficas. |
-| `/acceso` | Público | — | Ingreso técnico para personal autorizado. |
-| `/recuperar-acceso` | Público | — | Guía para recuperar acceso al sistema. |
-| `/cambiar-contrasena` | Público | — | Cambio de contraseña (flujo post-login). |
-| `/umbrales-estaciones` | Admin | `AdminGuard` | Configuración de umbrales por estación. |
-| `/repositorio` | Admin | `AdminGuard` | Reportes y archivos generados por el sistema. |
-| `/profile` | Admin | `AdminGuard` | Gestión del perfil y usuarios autorizados. |
-| `/login` | Redirección | — | Alias de compatibilidad → redirige a `/acceso`. |
+```mermaid
+flowchart LR
+  user["Usuario / Navegador"] --> nginx["Nginx :80"]
+  nginx -->|"/"| ssr["Angular SSR Node :4000"]
+  nginx -->|"/api/**"| api["Backend Spring Boot :8080"]
+  nginx -->|"/actuator/** interno"| actuator["Actuator Backend"]
 
-La definición está en [src/app/app.routes.ts](src/app/app.routes.ts). La ruta raíz carga `MainLayoutComponent`.
+  ssr --> browser["HTML inicial + assets"]
+  browser -->|same-origin "/api/**"| nginx
 
-## Convenciones de nomenclatura
-
-| Elemento | Convención | Ejemplo |
-| --- | --- | --- |
-| Archivos y carpetas | `kebab-case` | `cambiar-contrasena.page.ts` |
-| Clases y componentes | `PascalCase` | `CambiarContrasenaPage` |
-| Métodos y variables | `camelCase` | `buildHeaders()` |
-| Servicios, guards, interceptors, pipes e interfaces | nombre del dominio + sufijo | `auth.service.ts`, `auth.guard.ts`, `auth.interceptor.ts`, `utc-local.pipe.ts`, `user.interface.ts` |
-| Selectores Angular | prefijo `app-` + `kebab-case` | `app-main-layout` |
-| Rutas | `kebab-case` | `/cambiar-contrasena` |
-
-Distribución por carpetas:
-
-| Carpeta | Propósito |
-|---|---|
-| `src/app/pages/` | Pantallas completas (lazy-loaded por ruta) |
-| `src/app/components/` | Piezas reutilizables entre páginas |
-| `src/app/services/` | Acceso a API y lógica de dominio compartida |
-| `src/app/guards/` | `AdminGuard` — protege rutas de administración |
-| `src/app/interceptors/` | `auth.interceptor.ts` — inyecta token JWT en cada petición |
-| `src/app/interfaces/` | DTOs TypeScript (`api.interfaces.ts`) |
-| `src/app/pipes/` | Transformaciones de presentación (`utc-local.pipe.ts`) |
-| `src/environments/` | `environment.ts` (dev) / `environment.prod.ts` (prod) |
-
-## Normas de desarrollo
-
-- Mantener el patrón standalone. No introducir NgModules nuevos.
-- Colocar pantallas completas en `pages` y reutilizables en `components`.
-- Centralizar llamadas HTTP en `ApiService` y la lógica de token en `auth.interceptor.ts`.
-- Evitar duplicar headers, manejo de errores o reglas de auth en páginas individuales.
-- Usar Node.js 24.16.0 LTS y `pnpm` 10.32.1. No mezclar `npm`, `yarn` y `pnpm`.
-- Conservar `pnpm-lock.yaml`; no eliminarlo para resolver problemas de instalación.
-- Dejar `src/styles.css` como entrada global de Tailwind y de los tokens visuales.
-- `public/` se usa para activos estáticos servidos tal cual.
-- Validar cambios con `pnpm check` antes de publicar.
-- Usar `AdminGuard` (no `AuthGuard`) para proteger rutas administrativas.
-- Si alternas entre Windows y WSL, reinstala `node_modules` en el mismo entorno donde vas a ejecutar Angular.
-
-## Configuración
-
-### Entornos
-
-El código importa siempre `src/environments/environment`. Angular reemplaza el archivo de producción en la build.
-
-- [src/environments/environment.ts](src/environments/environment.ts): desarrollo, `apiUrl: 'http://localhost:8080'`.
-- [src/environments/environment.prod.ts](src/environments/environment.prod.ts): producción, `apiUrl: ''` para usar same-origin y el proxy de Nginx.
-- [angular.json](angular.json): define el `fileReplacement` entre ambos entornos en la configuración `production`.
-
-### Bootstrap de Angular
-
-- [src/app/app.config.ts](src/app/app.config.ts): locale `es`, animaciones, router con preloading selectivo y restauración de scroll, `withFetch()` y `authInterceptor`.
-- [src/app/interceptors/auth.interceptor.ts](src/app/interceptors/auth.interceptor.ts): agrega el bearer token a las peticiones cuando hay sesión.
-- [src/app/services/api.service.ts](src/app/services/api.service.ts): wrapper de `fetch` con normalización de errores y construcción centralizada de headers.
-- [src/app/services/selective-preloading.strategy.ts](src/app/services/selective-preloading.strategy.ts): pre-carga selectiva para rutas marcadas.
-- [src/app/services/seo-title.strategy.ts](src/app/services/seo-title.strategy.ts): resuelve títulos de página y metadatos de navegación.
-
-### Estilos globales
-
-- [src/styles.css](src/styles.css): importa Tailwind 4 con `@import "tailwindcss";`, define fuentes, colores, radios, sombras y utilidades globales.
-- [postcss.config.json](postcss.config.json): activa el plugin `@tailwindcss/postcss`.
-- No hace falta `tailwind.config.js` en este proyecto con la configuración actual.
-
-### Build
-
-- [angular.json](angular.json): build de producción con AOT, `outputHashing`, `autoCsp` y budgets de tamaño.
-- La configuración de desarrollo activa source maps y HMR.
-- `leaflet` está autorizado como dependencia CommonJS en la build.
-
-### Mapas y SSR
-
-- [src/app/routing/server-render-policy.ts](src/app/routing/server-render-policy.ts): política central de `ServerRoute` para rutas públicas y administrativas.
-- [src/app/components/sismo-map/sismo-map.component.ts](src/app/components/sismo-map/sismo-map.component.ts) y [src/app/components/estacion-mini-map/estacion-mini-map.component.ts](src/app/components/estacion-mini-map/estacion-mini-map.component.ts): inicializan Leaflet solo en navegador y muestran fallback mientras el mapa no está listo.
-- [scripts/smoke-ssr-map-routes.mjs](scripts/smoke-ssr-map-routes.mjs): verificación local de las rutas con mapas sobre el SSR.
-- Validar cambios con `pnpm smoke:ssr:maps` además de `pnpm check` cuando los mapas cambien.
-
-## Desarrollo local
-
-### Requisitos
-
-Este proyecto debe ejecutarse con Node.js 24.16.0 LTS y pnpm 10.32.1. La descarga oficial de Node.js está en:
-
-- https://nodejs.org/en/download/
-
-Versiones esperadas:
-
-- Node.js `v24.16.0`
-- pnpm `10.32.1`
-
-Verifica versiones con:
-
-```bash
-node --version   # debe mostrar v24.16.0
-pnpm --version
+  subgraph frontend["sismo-frontend"]
+    ssr
+    browser
+  end
 ```
 
-Si `node --version` muestra una versión distinta, instala Node.js 24.16.0 LTS y vuelve a abrir la terminal antes de instalar dependencias.
+La aplicacion se sirve mediante Nginx como proxy inverso. Las rutas web pasan al servidor SSR de Angular y las rutas `/api/**` pasan al backend. En produccion el navegador usa mismo origen, mientras el servidor SSR usa `SSR_API_URL` para llamar al backend con URL absoluta.
 
-Comandos recomendados:
+## Flujo De Datos
 
-```powershell
-# Windows con winget
-winget install OpenJS.NodeJS.LTS --version 24.16.0
+```mermaid
+sequenceDiagram
+  participant Page as Pagina Angular
+  participant Service as Servicio de dominio
+  participant Api as ApiService
+  participant Auth as AuthService
+  participant Backend as Backend API
+
+  Page->>Service: solicita datos
+  Service->>Api: get/post/put/delete
+  Api->>Auth: lee JWT si aplica
+  Api->>Backend: fetch con headers normalizados
+  Backend-->>Api: JSON, blob o error
+  Api-->>Service: DTO tipado o ApiError
+  Service-->>Page: Promise resuelta
+  Page->>Page: actualiza signal/computed
 ```
 
-```bash
-# macOS o Linux con nvm
-nvm install 24.16.0
-nvm use 24.16.0
-nvm alias default 24.16.0
-```
+Regla de mantenimiento: las paginas consumen servicios de dominio. No deben construir URLs ni manejar headers directamente.
 
-```bash
-# Activar pnpm desde Corepack
-corepack enable
-corepack prepare pnpm@10.32.1 --activate
-```
+## Rutas
 
-### Instalación
+| Ruta | Acceso | Render | Descripcion |
+|---|---|---|---|
+| `/` | Publico | Server | Inicio y resumen operativo |
+| `/sismos` | Publico | Server | Analisis de eventos recientes |
+| `/historial` | Publico | Server | Catalogo historico con filtros |
+| `/estaciones` | Publico | Server | Red de estaciones acelerograficas |
+| `/consultas` | Publico | Server | Consultas tecnicas, mapas y graficas |
+| `/acceso` | Publico | Client | Login tecnico |
+| `/recuperar-acceso` | Publico | Client | Recuperacion de acceso |
+| `/cambiar-contrasena` | Publico | Client | Cambio de contrasena |
+| `/umbrales-estaciones` | Admin | Client | Umbrales por estacion |
+| `/repositorio` | Admin | Client | Reportes, CSV y documentos |
+| `/profile` | Admin | Client | Perfil y usuarios autorizados |
+| `/login` | Redireccion | - | Alias hacia `/acceso` |
 
-```bash
-git clone https://github.com/javier25arroyo/sismo-frontend.git
-cd sismo-frontend
-pnpm install --frozen-lockfile
-```
+Las rutas se definen en `src/app/app.routes.ts`. La politica SSR se centraliza en `src/app/routing/server-render-policy.ts`.
 
-Si ya tenías `node_modules` instalado con otra versión de Node, elimina dependencias y caché de Angular antes de reinstalar.
-
-PowerShell:
-
-```powershell
-if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
-if (Test-Path .angular\cache) { Remove-Item -Recurse -Force .angular\cache }
-pnpm install --frozen-lockfile
-```
-
-Bash:
-
-```bash
-rm -rf node_modules .angular/cache
-pnpm install --frozen-lockfile
-```
-
-Validación completa:
-
-```bash
-pnpm check
-```
-
-### Ejecución
-
-```bash
-pnpm start
-```
-
-o:
-
-```bash
-pnpm ng serve
-```
-
-La aplicación queda disponible en `http://localhost:4200/` y la API de desarrollo se espera en `http://localhost:8080`.
-
-### Build
-
-```bash
-pnpm build
-```
-
-La build de producción es la configuración por defecto. Para build con watch:
-
-```bash
-pnpm watch
-```
-
-### Pruebas
-
-```bash
-pnpm test
-```
-
-Si quieres ejecutarlas sin modo interactivo, usa:
-
-```bash
-pnpm test --watch=false
-```
-
-## Despliegue
-
-### Docker
-
-El repositorio incluye un `Dockerfile` multi-etapa:
-
-- etapa de dependencias sobre `node:24.16.0-alpine`
-- etapa de build con `pnpm build --configuration=production`
-- etapa runtime SSR sobre `node:24.16.0-alpine`
-
-Comandos habituales:
-
-```bash
-docker build -t sismo-frontend:local .
-docker compose up --build
-```
-
-`docker-compose.yml` publica la UI en `http://localhost:4200/`. El backend debe estar accesible como `app:8080` en la misma red Docker para que el proxy `/api/` funcione.
-
-### Nginx
-
-[nginx.conf](nginx.conf) hace tres cosas principales:
-
-- sirve la SPA con fallback a `index.html`
-- proxy inverso de `/api/` hacia el backend
-- restringe `/actuator/` a acceso interno
-
-Además aplica cabeceras de seguridad, compresión gzip y caché inmutable para assets con hash.
-
-### Releases
-
-El workflow [`.github/workflows/release.yml`](.github/workflows/release.yml) se activa con tags `vX.Y.Z`. Ese flujo construye la imagen, la publica en GHCR y crea o actualiza el release de GitHub con los tags semver y `latest`.
-
-Si el release es `v0.x.y`, el workflow omite el tag Docker `0` porque major `0` se trata como etapa inicial de desarrollo.
-
-Ejemplo:
-
-```bash
-git tag -a v1.2.3 -m "Release v1.2.3"
-git push origin v1.2.3
+```mermaid
+flowchart TD
+  root["MainLayoutComponent"] --> home["/"]
+  root --> sismos["/sismos"]
+  root --> historial["/historial"]
+  root --> estaciones["/estaciones"]
+  root --> consultas["/consultas"]
+  root --> repo["/repositorio AdminGuard"]
+  root --> profile["/profile AdminGuard"]
+  root --> umbrales["/umbrales-estaciones AdminGuard"]
+  acceso["/acceso"]
+  recuperar["/recuperar-acceso"]
+  cambiar["/cambiar-contrasena"]
+  login["/login"] --> acceso
 ```
 
 ## Estructura
@@ -278,65 +124,163 @@ git push origin v1.2.3
 ```text
 src/
   app/
-    components/
-      button/
-      confirm-dialog/
-      estacion-form-modal/
-      footer/
-      header/
-      main-layout/
-      password-expiration-warning/
-      paginacion/
-      scatter-chart/
-      sismo-map/
-      magnitud-badge/
-      stat-card/
-      status-badge/
-    guards/
-      admin.guard.ts
-    interceptors/
-      auth.interceptor.ts
-    interfaces/
-      api.interfaces.ts
-    pages/
-      cambiar-contrasena/
-      consultas/
-      estaciones/
-      historial/
-      home/
-      login/
-      profile/
-      recuperar-acceso/
-      repositorio/
-      sismos/
-      umbrales-estaciones/
-    pipes/
-    services/
-    app.config.ts
-    app.routes.ts
-    app.ts
-  environments/
-    environment.ts
-    environment.prod.ts
-  main.ts
-  styles.css
-public/
-  Iconos/
-docs/
-  DESPLIEGUE.md
+    components/       Componentes reutilizables
+    guards/           Proteccion de rutas
+    interceptors/     Interceptores Angular
+    interfaces/       DTOs y contratos TypeScript
+    pages/            Vistas lazy-loaded por ruta
+    pipes/            Transformaciones de presentacion
+    routing/          Politica SSR
+    services/         Capa de API y dominio
+    utils/            Reglas puras y helpers
+  main.ts             Bootstrap browser
+  main.server.ts      Bootstrap SSR
+  server.ts           Servidor Angular SSR
+  styles.css          Tailwind 4 y tokens visuales
+public/               Activos estaticos
+docs/                 Documentacion operativa
 ```
 
-## Archivos clave
+## Requisitos Locales
 
-- [src/app/app.routes.ts](src/app/app.routes.ts): definición de rutas.
-- [src/app/app.config.ts](src/app/app.config.ts): bootstrap de Angular.
-- [src/app/services/api.service.ts](src/app/services/api.service.ts): acceso HTTP centralizado.
-- [src/app/interceptors/auth.interceptor.ts](src/app/interceptors/auth.interceptor.ts): inyección del token JWT.
-- [src/environments/environment.ts](src/environments/environment.ts): configuración de desarrollo.
-- [src/environments/environment.prod.ts](src/environments/environment.prod.ts): configuración de producción.
-- [Dockerfile](Dockerfile): imagen de despliegue.
-- [nginx.conf](nginx.conf): proxy inverso y reglas de servidor.
+Usar exactamente las versiones declaradas en `package.json`, `.node-version` y `packageManager`.
+
+```bash
+node --version
+# v24.16.0
+
+pnpm --version
+# 10.32.1
+```
+
+Activacion recomendada de pnpm:
+
+```bash
+corepack enable
+corepack prepare pnpm@10.32.1 --activate
+```
+
+## Instalacion
+
+```bash
+git clone https://github.com/javier25arroyo/sismo-frontend.git
+cd sismo-frontend
+pnpm install --frozen-lockfile
+```
+
+Si `node_modules` fue creado con otra version de Node, reinstalar en limpio:
+
+```bash
+rm -rf node_modules .angular/cache
+pnpm install --frozen-lockfile
+```
+
+En PowerShell:
+
+```powershell
+if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
+if (Test-Path .angular\cache) { Remove-Item -Recurse -Force .angular\cache }
+pnpm install --frozen-lockfile
+```
+
+## Desarrollo
+
+```bash
+pnpm start
+```
+
+La aplicacion queda disponible en `http://localhost:4200`. El backend local se espera en `http://localhost:8080`.
+
+## Scripts
+
+| Comando | Uso |
+|---|---|
+| `pnpm start` | Servidor de desarrollo |
+| `pnpm build` | Build de produccion SSR |
+| `pnpm watch` | Build en modo watch |
+| `pnpm test` | Tests con Vitest |
+| `pnpm lint` | Lint Angular/ESLint |
+| `pnpm check` | Lint, tests sin watch y build |
+| `pnpm security` | Auditoria de dependencias |
+| `pnpm smoke:ssr:maps` | Smoke local de rutas SSR con mapas |
+
+## Configuracion
+
+| Archivo | Proposito |
+|---|---|
+| `src/environments/environment.ts` | API local para desarrollo |
+| `src/environments/environment.prod.ts` | API same-origin para navegador en produccion |
+| `SSR_API_URL` | URL absoluta del backend para renderizado SSR |
+| `angular.json` | Build, SSR, budgets, allowed hosts y assets |
+| `nginx.conf` | Proxy inverso a SSR y backend |
+| `docker-compose.yml` | Orquestacion local de frontend SSR y Nginx |
+
+## Despliegue
+
+```bash
+docker compose up -d --build
+```
+
+El compose publica Nginx en `http://localhost:4200` y mantiene el servidor SSR interno en `frontend:4000`.
+
+```mermaid
+flowchart TB
+  compose["docker compose"] --> frontend["frontend\nNode 24.16\nAngular SSR :4000"]
+  compose --> nginx["nginx\npublica :4200 -> :80"]
+  nginx --> frontend
+  nginx --> backend["app:8080\nBackend externo/en red"]
+```
+
+Checklist de despliegue:
+
+- `SSR_API_URL` apunta al backend accesible desde el contenedor SSR.
+- `nginx.conf` resuelve `frontend:4000` y `app:8080` en la red Docker.
+- `angular.json` incluye el host de produccion en `security.allowedHosts`.
+- `pnpm check` pasa antes de construir imagen.
+- `docker build -t sismo-frontend:ci .` pasa en CI.
+
+Mas detalle en `docs/DESPLIEGUE.md`.
+
+## Calidad Y CI
+
+El workflow `.github/workflows/ci.yml` se ejecuta en push y pull request:
+
+1. Checkout.
+2. Setup pnpm.
+3. Setup Node desde `.node-version`.
+4. `pnpm install --frozen-lockfile`.
+5. `pnpm check`.
+6. `docker build -t sismo-frontend:ci .`.
+
+Antes de entregar cambios:
+
+```bash
+pnpm check
+docker build -t sismo-frontend:local .
+```
+
+## Convenciones De Desarrollo
+
+- Mantener componentes standalone.
+- Usar `ChangeDetectionStrategy.OnPush`.
+- Usar `signal()`, `computed()` y `effect()` para estado local.
+- No introducir `BehaviorSubject` para estado de componentes.
+- Centralizar DTOs en `src/app/interfaces/api.interfaces.ts`.
+- Usar `ApiService` para HTTP; no duplicar headers ni manejo de errores.
+- Proteger Leaflet y APIs de navegador con `isPlatformBrowser`.
+- Usar `AdminGuard` para rutas administrativas.
+- Mantener estilos en Tailwind y tokens de `src/styles.css`.
+
+## Documentacion Relacionada
+
+| Documento | Uso |
+|---|---|
+| `docs/DESPLIEGUE.md` | Despliegue operativo y verificacion |
+| `DEPLOY-SSR.md` | Arquitectura SSR y decisiones de despliegue |
+| `DESIGN-SYSTEM.md` | Tokens visuales, componentes y reglas UI |
+| `SIGNALS_MIGRATION.md` | Guia de reactividad con signals |
+| `CLAUDE.md` | Reglas para agentes y mantenimiento tecnico |
 
 ## Licencia
 
-Apache 2.0. Consulta [LICENSE](LICENSE).
+Apache 2.0. Ver `LICENSE`.

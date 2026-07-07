@@ -1,177 +1,126 @@
-# Cambios requeridos para producción — Angular SSR
+# Arquitectura SSR De Produccion
 
-## Contexto
+Este documento describe la arquitectura SSR vigente del frontend SISMO. La guia operativa paso a paso esta en `docs/DESPLIEGUE.md`.
 
-La migración a Angular SSR cambia la arquitectura de despliegue:
+## Decision
 
-| Antes | Después |
+El frontend ya no se publica como SPA estatica servida directamente por Nginx. La build usa Angular SSR y se ejecuta con Node.js.
+
+| Aspecto | Implementacion vigente |
 |---|---|
-| nginx sirve archivos estáticos (`dist/browser/`) | nginx hace proxy a Node.js SSR |
-| Imagen Docker: `nginx:alpine` | Imagen Docker: `node:alpine` + nginx como proxy |
-| Un solo proceso | Dos procesos: Node.js SSR + nginx |
+| Build | `@angular/build:application` con `outputMode: "server"` |
+| Runtime | `node:24.16.0-alpine` |
+| Proceso web | `node dist/sismo-frontend/server/server.mjs` |
+| Puerto SSR | `4000` |
+| Proxy publico | Nginx |
+| API navegador | Same-origin `/api/**` |
+| API SSR | `SSR_API_URL` |
 
----
+## Topologia
 
-## 1. Dockerfile
+```mermaid
+flowchart LR
+  browser["Navegador"] --> nginx["Nginx"]
+  nginx -->|HTML y rutas web| ssr["Angular SSR Node"]
+  nginx -->|"/api/**"| backend["Backend Spring Boot"]
+  ssr -->|datos para render server-side| backend
 
-Reemplazar la etapa 3 (`runtime`) completa:
-
-```dockerfile
-#############################################
-# Etapa 3: Runtime SSR (Node.js)
-#############################################
-FROM node:24.16.0-alpine AS runtime
-
-RUN apk add --no-cache wget
-
-WORKDIR /app
-
-# Copiar output del build
-COPY --from=build /app/dist/sismo-frontend ./dist/sismo-frontend
-
-EXPOSE 4000
-
-ENV PORT=4000
-
-HEALTHCHECK --interval=30s --timeout=5s --start_period=15s --retries=3 \
-  CMD wget -q -O /dev/null http://127.0.0.1:4000/ || exit 1
-
-CMD ["node", "dist/sismo-frontend/server/server.mjs"]
+  subgraph docker["Docker Compose"]
+    nginx
+    ssr
+  end
 ```
 
-> La etapa 3 deja de ser `nginx:alpine` y pasa a ser `node:alpine`.
-> El servidor SSR ya incluye `express.static` para servir los assets de `browser/`.
+## Renderizado Por Ruta
 
----
+La politica vive en `src/app/routing/server-render-policy.ts`.
 
-## 2. nginx.conf
+```mermaid
+flowchart TD
+  route["Ruta solicitada"] --> public{"Ruta publica?"}
+  public -->|si| server["RenderMode.Server"]
+  public -->|no: auth/admin| client["RenderMode.Client"]
 
-nginx pasa de servir archivos estáticos a hacer **proxy inverso al servidor Node.js SSR**.
+  server --> html["HTML SSR con contenido inicial"]
+  client --> shell["Shell client-side sin pre-render sensible"]
+```
 
-Reemplazar el bloque `location /` y el bloque de assets por:
+Rutas server-side:
 
-```nginx
-# ── Upstream SSR ────────────────────────────────────────────────────────────
-upstream ssr {
-    server frontend:4000;   # nombre del servicio en docker-compose
-    keepalive 16;
-}
+- `/`
+- `/sismos`
+- `/historial`
+- `/estaciones`
+- `/consultas`
 
-server {
-    listen 80;
-    server_name _;
-    server_tokens off;
+Rutas client-side:
 
-    # Cabeceras de seguridad (sin cambios)
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "0" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(self)" always;
-    add_header Cross-Origin-Opener-Policy "same-origin" always;
-    add_header Cross-Origin-Resource-Policy "same-origin" always;
+- `/acceso`
+- `/recuperar-acceso`
+- `/cambiar-contrasena`
+- `/repositorio`
+- `/profile`
+- `/umbrales-estaciones`
 
-    gzip on;
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_min_length 256;
-    gzip_types text/plain text/css text/javascript application/json
-               application/javascript image/svg+xml;
+La separacion reduce exposicion de informacion sensible y evita renderizar formularios de autenticacion o vistas administrativas en servidor.
 
-    # ── API → Spring Boot (sin cambios) ─────────────────────────────────────
-    location /api/ {
-        proxy_pass http://backend;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_connect_timeout 5s;
-        proxy_read_timeout 60s;
-        proxy_send_timeout 30s;
-        proxy_buffering off;
-    }
+## API En SSR
 
-    # ── Todo lo demás → Node.js SSR ─────────────────────────────────────────
-    location / {
-        proxy_pass http://ssr;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_connect_timeout 5s;
-        proxy_read_timeout 30s;
-    }
+`environment.prod.ts` usa `apiUrl: ''` para que el navegador llame al mismo origen. En servidor, `ApiService` resuelve `baseUrl` asi:
+
+```typescript
+if (isPlatformBrowser(inject(PLATFORM_ID))) {
+  this.baseUrl = environment.apiUrl;
+} else {
+  this.baseUrl = process.env['SSR_API_URL'] ?? 'http://localhost:8080';
 }
 ```
 
-> **Eliminar** los bloques `location = /index.html`, `location ~* \.(...css|js...)$`
-> y `try_files` — el Node.js SSR maneja todo eso internamente.
+Esto evita llamadas relativas desde Node.js, donde `fetch('/api/...')` no es una URL valida.
 
----
+## Dockerfile
 
-## 3. docker-compose.yml
+La imagen tiene tres etapas:
 
-El servicio `web` ahora ejecuta Node.js. Añadir nginx como servicio separado si se requiere proxy (arquitectura recomendada con backend en el mismo compose):
-
-```yaml
-services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - NODE_ENV=production
-    image: sismo-frontend:local
-    container_name: sismo-frontend
-    expose:
-      - "4000"          # interno — nginx hace proxy
-    environment:
-      - PORT=4000
-      - SSR_API_URL=http://app:8080   # ver sección 5
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    deploy:
-      resources:
-        limits:
-          cpus: "0.75"
-          memory: 512M      # Node.js necesita más que nginx
-        reservations:
-          cpus: "0.25"
-          memory: 256M
-    security_opt:
-      - no-new-privileges:true
-
-  # Si nginx existe como servicio separado en el compose:
-  nginx:
-    image: nginx:1.27-alpine
-    ports:
-      - "4200:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - frontend
-      - app
-    restart: unless-stopped
+```mermaid
+flowchart LR
+  deps["deps\npnpm install --frozen-lockfile"] --> build["build\npnpm build --configuration=production"]
+  build --> runtime["runtime\nnode server.mjs"]
 ```
 
-> Si actualmente nginx corre en el mismo contenedor que el frontend,
-> separarlo en su propio servicio es el cambio principal.
+Etapa runtime:
 
----
+- Base: `node:24.16.0-alpine`.
+- Copia `dist/sismo-frontend`.
+- Expone `4000`.
+- Healthcheck HTTP contra `127.0.0.1:4000`.
 
-## 4. angular.json — `allowedHosts`
+## Nginx
 
-Añadir el hostname de producción (dominio real o IP del servidor):
+Nginx no sirve `index.html` directamente. Reenvia:
+
+| Ruta | Destino |
+|---|---|
+| `/api/**` | Backend `app:8080` |
+| `/actuator/**` | Backend, restringido a red interna |
+| `/**` | Angular SSR `frontend:4000` |
+
+Se omite CSP en cabecera Nginx porque Angular genera CSP con `autoCsp` en build.
+
+## Seguridad
+
+- `server_tokens off`.
+- `X-Frame-Options: SAMEORIGIN`.
+- `X-Content-Type-Options: nosniff`.
+- `Referrer-Policy: strict-origin-when-cross-origin`.
+- `Permissions-Policy` restrictiva.
+- Bloqueo de archivos ocultos via `location ~ /\.`.
+- Rutas administrativas en `RenderMode.Client`.
+- `AdminGuard` protege rutas privadas.
+
+## Allowed Hosts
+
+Angular SSR valida hosts permitidos. En produccion se debe agregar el dominio final en `angular.json`:
 
 ```json
 "security": {
@@ -179,73 +128,22 @@ Añadir el hostname de producción (dominio real o IP del servidor):
 }
 ```
 
-Sin esto, el servidor SSR devuelve `400 Bad Request` para cualquier
-petición cuyo header `Host` no esté en la lista.
-
----
-
-## 5. URL de API en servidor SSR (crítico)
-
-`environment.prod.ts` tiene `apiUrl: ''` (mismo origen). En el navegador
-funciona. En Node.js **falla** porque `fetch('/api/sismos')` requiere URL absoluta.
-
-**Impacto actual**: las páginas con datos dinámicos (`/historial`, `/sismos`, `/estaciones`)
-se renderizan con estado "cargando" en el servidor y cargan datos al hidratar en el cliente.
-La home page no se ve afectada (la sección de datos usa `@defer (on idle)`).
-
-**Fix recomendado** — leer URL de variable de entorno en el servidor:
-
-En `src/app/services/api.service.ts`, cambiar el constructor:
-
-```typescript
-import { PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-
-// En el constructor:
-private readonly baseUrl: string;
-
-constructor(private auth: AuthService) {
-  const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  if (isBrowser) {
-    this.baseUrl = environment.apiUrl;   // '' en prod (mismo origen)
-  } else {
-    // En Node.js SSR usa URL absoluta inyectada via env var
-    this.baseUrl = (typeof process !== 'undefined' && process.env['SSR_API_URL'])
-      ? process.env['SSR_API_URL']
-      : 'http://localhost:8080';
-  }
-}
-```
-
-Pasar la variable al contenedor:
-```yaml
-environment:
-  - SSR_API_URL=http://app:8080   # nombre del servicio Spring Boot en docker-compose
-```
-
----
-
-## 6. Resumen de archivos a modificar
-
-| Archivo | Cambio |
-|---|---|
-| `Dockerfile` | Etapa 3: `nginx:alpine` → `node:alpine`, ejecuta `server.mjs` |
-| `nginx.conf` | `try_files` → `proxy_pass http://ssr` para todo excepto `/api/` |
-| `docker-compose.yml` | Servicio `web`→`frontend` con Node, nuevo servicio `nginx` |
-| `angular.json` | `allowedHosts` agrega dominio de producción |
-| `src/app/services/api.service.ts` | Guard `isPlatformBrowser` para `baseUrl` (opcional pero recomendado) |
-
----
-
-## 7. Verificación post-deploy
+## Verificacion Rapida
 
 ```bash
-# 1. El HTML de respuesta debe contener el <img> del acelerograma
-curl -s https://sismologia.ice.go.cr | grep 'acelerograma1'
-
-# 2. Las rutas de admin deben devolver HTML vacío (client-side rendering)
-curl -s https://sismologia.ice.go.cr/repositorio | grep 'app-root'
-
-# 3. Healthcheck del contenedor SSR
-curl -f http://localhost:4000/
+pnpm check
+pnpm smoke:ssr:maps
+docker build -t sismo-frontend:ci .
+docker compose up -d --build
+curl -i http://localhost:4200/
 ```
+
+## Riesgos Conocidos
+
+| Riesgo | Mitigacion |
+|---|---|
+| Uso accidental de `window`/`document` en SSR | Proteger con `isPlatformBrowser` |
+| Backend no resoluble desde SSR | Configurar `SSR_API_URL` |
+| Dominio final no autorizado | Actualizar `security.allowedHosts` |
+| Mezcla de Node versions | Usar `.node-version` y pnpm reproducible |
+| Rutas sensibles renderizadas en servidor | Mantener `AUTH_ROUTE_PATHS` y `ADMIN_ROUTE_PATHS` en client mode |

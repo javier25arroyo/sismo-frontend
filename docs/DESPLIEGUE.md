@@ -1,329 +1,237 @@
-# Guía de Despliegue — Sismo Frontend
+# Guia De Despliegue
 
-Cubre requisitos, configuración, desarrollo local y despliegue con Docker.
+Guia operativa para construir, configurar, desplegar y verificar `sismo-frontend` en modo Angular SSR detras de Nginx.
 
----
+## Resumen
 
-## Requisitos previos
+El frontend se despliega con dos servicios:
 
-| Componente | Versión | Notas |
+- `frontend`: contenedor Node.js que ejecuta Angular SSR en el puerto interno `4000`.
+- `nginx`: proxy inverso que publica el sitio y enruta `/api/**` al backend.
+
+```mermaid
+flowchart LR
+  user["Navegador"] --> nginx["Nginx :80"]
+  nginx -->|"/"| ssr["Angular SSR :4000"]
+  nginx -->|"/api/**"| backend["Spring Boot :8080"]
+  nginx -->|"/actuator/** interno"| actuator["Actuator"]
+  ssr -->|SSR_API_URL| backend
+```
+
+## Requisitos
+
+| Componente | Version | Uso |
 |---|---|---|
-| Node.js | 24.16.0 LTS | Versión requerida para desarrollo local, CI y contenedores |
-| pnpm | 10.32.1 | Gestor de paquetes (`corepack enable`) |
-| Angular CLI | 21.2.6 | Instalado via devDependencies — no instalar globalmente |
-| Docker Engine | 24+ | Solo para despliegue containerizado |
+| Node.js | 24.16.0 | Desarrollo, CI y runtime Docker |
+| pnpm | 10.32.1 | Instalacion reproducible |
+| Docker Engine | 24+ | Build y ejecucion containerizada |
+| Docker Compose | v2 | Orquestacion local o servidor |
 
-Descargar Node.js 24.16.0 LTS desde la página oficial:
-
-- https://nodejs.org/en/download/
-
-Después de instalar Node.js, cerrar y abrir la terminal. La versión debe quedar exactamente en 24.16.0:
+Validar versiones:
 
 ```bash
 node --version
-# esperado: v24.16.0
-```
-
-Opciones de instalación por entorno:
-
-```powershell
-# Windows con winget
-winget install OpenJS.NodeJS.LTS --version 24.16.0
-```
-
-```bash
-# macOS o Linux con nvm
-nvm install 24.16.0
-nvm use 24.16.0
-nvm alias default 24.16.0
-```
-
-Activar pnpm con Corepack:
-
-```bash
-corepack enable
-corepack prepare pnpm@10.32.1 --activate
 pnpm --version
-# esperado: 10.32.1
+docker --version
+docker compose version
 ```
 
----
+El proyecto debe ejecutarse con `node v24.16.0`. Versiones menores de Node 24, como `v24.0.0`, no cumplen el minimo requerido por Angular CLI 22.
 
-## Configuración del entorno
+## Variables De Entorno
 
-La URL del backend se define en los archivos de entorno:
+| Variable | Servicio | Valor recomendado | Descripcion |
+|---|---|---|---|
+| `PORT` | `frontend` | `4000` | Puerto interno del servidor SSR |
+| `SSR_API_URL` | `frontend` | `http://app:8080` | URL absoluta del backend desde Node SSR |
+| `NODE_ENV` | build/runtime | `production` | Modo de ejecucion |
 
-```
-src/environments/
-├── environment.ts          ← desarrollo local
-└── environment.prod.ts     ← build de producción
-```
+En el navegador, `environment.prod.ts` usa `apiUrl: ''` para llamar al mismo origen. En SSR, `ApiService` usa `SSR_API_URL` porque `fetch('/api/...')` no es valido en Node.
 
-### Desarrollo (`environment.ts`)
-
-```typescript
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8080'   // backend local
-};
-```
-
-### Producción (`environment.prod.ts`)
-
-```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'http://localhost:8080'   // ← cambiar al dominio/IP real del backend
-};
-```
-
-> **Importante:** Actualizar `apiUrl` en `environment.prod.ts` antes de construir la imagen Docker de producción. Esta URL debe ser accesible desde el navegador del cliente, no desde el contenedor.
-
----
-
-## Desarrollo local
+## Construccion Local
 
 ```bash
-# 1. Verificar versiones
-node --version   # v24.16.0
-pnpm --version   # 10.32.1
-
-# 2. Instalar dependencias de forma reproducible
 pnpm install --frozen-lockfile
-
-# 3. Iniciar servidor de desarrollo (hot reload)
-pnpm start            # equivale a: ng serve
-                      # disponible en http://localhost:4200
+pnpm check
+pnpm build
 ```
 
-Si el proyecto ya tenía `node_modules` creado con Node 20, 22 u otra versión anterior, hacer una instalación limpia:
+La build genera artefactos SSR bajo:
 
-```powershell
-# Windows PowerShell
-if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
-if (Test-Path .angular\cache) { Remove-Item -Recurse -Force .angular\cache }
-pnpm install --frozen-lockfile
+```text
+dist/sismo-frontend/
+  browser/
+  server/
 ```
+
+## Docker
+
+Construir imagen:
 
 ```bash
-# macOS, Linux o WSL
+docker build -t sismo-frontend:local .
+```
+
+Levantar stack:
+
+```bash
+docker compose up -d --build
+```
+
+Ver logs:
+
+```bash
+docker compose logs -f frontend
+docker compose logs -f nginx
+```
+
+Detener:
+
+```bash
+docker compose down
+```
+
+## Servicios Docker
+
+```mermaid
+flowchart TB
+  subgraph network["Red Docker: frontend"]
+    nginx["nginx\nnginx:1.27-alpine\npublica 4200:80"]
+    frontend["frontend\nnode:24.16.0-alpine\nexpone 4000"]
+    backend["app\nSpring Boot\n8080"]
+  end
+
+  nginx --> frontend
+  nginx --> backend
+  frontend --> backend
+```
+
+El archivo `docker-compose.yml` incluido espera que el backend sea resoluble como `app:8080` dentro de la misma red. Si el backend tiene otro nombre de servicio, ajustar `SSR_API_URL` y el upstream `backend` en `nginx.conf`.
+
+## Nginx
+
+`nginx.conf` cumple cuatro responsabilidades:
+
+1. Reenviar rutas web al servidor SSR (`frontend:4000`).
+2. Reenviar `/api/**` al backend (`app:8080`).
+3. Restringir `/actuator/**` a redes internas.
+4. Aplicar cabeceras de seguridad y gzip.
+
+No se define CSP como cabecera Nginx porque Angular genera CSP con `autoCsp` durante la build. Agregar otra CSP en Nginx podria crear conflicto.
+
+## Allowed Hosts
+
+Angular SSR valida el header `Host`. En `angular.json` existe:
+
+```json
+"security": {
+  "allowedHosts": ["localhost"]
+}
+```
+
+Para produccion, agregar el dominio real:
+
+```json
+"security": {
+  "allowedHosts": ["localhost", "sismologia.ice.go.cr"]
+}
+```
+
+Sin este cambio, el servidor SSR puede responder `400 Bad Request` en dominios no autorizados.
+
+## Verificacion
+
+Verificar Nginx:
+
+```bash
+curl -i http://localhost:4200/
+```
+
+Verificar SSR interno:
+
+```bash
+docker compose exec frontend wget -q -O - http://127.0.0.1:4000/ | head
+```
+
+Verificar proxy API:
+
+```bash
+curl -i http://localhost:4200/api/actuator/health
+```
+
+Verificar rutas con mapas:
+
+```bash
+pnpm smoke:ssr:maps
+```
+
+Verificacion minima antes de entrega:
+
+```bash
+pnpm check
+docker build -t sismo-frontend:ci .
+```
+
+## Flujo De Release
+
+```mermaid
+flowchart LR
+  dev["Cambio en rama"] --> pr["Pull Request"]
+  pr --> ci["CI: pnpm check + Docker build"]
+  ci --> merge["Merge a main"]
+  merge --> tag["Tag vX.Y.Z"]
+  tag --> release["Workflow de release"]
+  release --> ghcr["Imagen GHCR"]
+  release --> github["GitHub Release"]
+```
+
+El workflow de release se activa con tags `vX.Y.Z`. Construye la imagen, publica en GHCR y crea o actualiza el release de GitHub.
+
+## Problemas Comunes
+
+### Angular CLI rechaza la version de Node
+
+Instalar Node `24.16.0`, abrir una terminal nueva y reinstalar dependencias.
+
+```bash
 rm -rf node_modules .angular/cache
 pnpm install --frozen-lockfile
 ```
 
-Scripts disponibles:
+### SSR no llega al backend
 
-| Comando | Acción |
-|---|---|
-| `pnpm start` | Servidor de desarrollo con hot reload |
-| `pnpm build` | Build de producción en `dist/` |
-| `pnpm test` | Tests unitarios con Vitest (via `@angular/build:unit-test`) |
-| `pnpm watch` | Build en modo watch (desarrollo) |
-| `pnpm check` | Ejecuta lint, tests sin watch y build |
-
----
-
-## Build de producción
+Revisar `SSR_API_URL` dentro del contenedor:
 
 ```bash
-# Build optimizado con hashing de assets
-pnpm build                              # usa configuración production por defecto
-pnpm build --configuration=production  # equivalente explícito
-pnpm build --configuration=development # build de desarrollo (sin minificación)
+docker compose exec frontend env | grep SSR_API_URL
 ```
 
-Artefactos generados en `dist/sismo-frontend/browser/`. La configuración de producción activa:
+El valor debe ser accesible desde el contenedor `frontend`, no necesariamente desde el navegador.
 
-- Minificación y tree-shaking
-- Hashing de todos los assets (`outputHashing: all`)
-- CSP auto-generado via nonce (`autoCsp: true`)
-- Sin source maps
+### El navegador no llega a la API
 
----
+Revisar Nginx:
 
-## Despliegue con Docker
+- `location /api/` existe.
+- `proxy_pass http://backend;` apunta al upstream correcto.
+- El backend esta en la misma red Docker o el hostname resuelve.
 
-### Paso 1 — Configurar URL del backend
+### Rutas con mapa fallan durante SSR
 
-Editar `src/environments/environment.prod.ts`:
+Leaflet no debe ejecutarse en servidor. Revisar que cualquier uso de `window`, `document` o `L.map()` este protegido con `isPlatformBrowser`.
 
-```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'https://tu-backend.dominio.com'  // o http://IP:9090
-};
-```
+### Host de produccion devuelve 400
 
-### Paso 2 — Construir e iniciar
+Agregar el dominio a `security.allowedHosts` en `angular.json` y reconstruir la imagen.
 
-```bash
-cd FrontEnd-Angular/sismo-frontend
-docker compose up -d --build
-```
+## Checklist Final
 
-Frontend disponible en `http://localhost:4200` (el Compose mapea `4200:80`).
-
-### Paso 3 — Verificar
-
-```bash
-docker compose logs -f web
-curl -s -o /dev/null -w "%{http_code}" http://localhost:4200/
-# Debe retornar: 200
-```
-
-### Configuración nginx
-
-El contenedor usa nginx con:
-- Gzip habilitado para JS/CSS/JSON/SVG
-- `index.html` sin caché (`no-store`) — garantiza que Angular cargue assets hasheados correctos
-- Assets estáticos con caché inmutable de 1 año
-- Routing SPA: todas las rutas redirigen a `index.html`
-- Headers de seguridad: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, etc.
-
----
-
-## Estructura del proyecto
-
-```
-src/app/
-├── components/          # Componentes reutilizables
-│   ├── header/          # Barra de navegación
-│   ├── footer/
-│   ├── main-layout/     # Shell de la app (header + router-outlet + footer)
-│   ├── sismo-map/       # Mapa Leaflet de sismos
-│   ├── scatter-chart/   # Gráfica de dispersión (Chart.js)
-│   ├── paginacion/      # Paginador genérico
-│   ├── magnitud-badge/  # Badge de color por magnitud
-│   ├── stat-card/       # Tarjeta de estadística
-│   ├── status-badge/    # Badge de estado
-│   ├── button/
-│   └── confirm-dialog/
-├── pages/               # Vistas enrutadas (lazy-loaded)
-│   ├── home/
-│   ├── sismos/          # Lista paginada de sismos
-│   ├── historial/       # Catálogo histórico RSS
-│   ├── estaciones/      # Gestión de estaciones
-│   ├── consultas/       # Acelerógrafos + RSN (tabs + mapa + gráficas)
-│   ├── repositorio/     # Reportes y archivos generados
-│   ├── umbrales-estaciones/  # Admin: configuración de umbrales por estación
-│   ├── profile/         # Admin: perfil del usuario autenticado
-│   ├── login/           # Acceso técnico (/acceso)
-│   ├── recuperar-acceso/
-│   └── cambiar-contrasena/
-├── services/            # Capa de acceso al API
-├── guards/              # AuthGuard (protege rutas privadas)
-├── interfaces/          # Tipos TypeScript
-│   ├── api.interfaces.ts   # DTOs del backend
-│   └── sismo.interface.ts
-└── environments/        # Configuración por entorno
-```
-
----
-
-## Rutas
-
-| Ruta | Componente | Guardia |
-|---|---|---|
-| `/` | `HomePage` | — |
-| `/sismos` | `SismosPage` | — |
-| `/historial` | `HistorialPage` | — |
-| `/estaciones` | `EstacionesPage` | — |
-| `/consultas` | `ConsultasPage` | — |
-| `/umbrales-estaciones` | `UmbralesEstacionesPage` | `AdminGuard` |
-| `/repositorio` | `RepositorioPage` | `AdminGuard` |
-| `/profile` | `ProfilePage` | `AdminGuard` |
-| `/acceso` | `LoginPage` | — |
-| `/recuperar-acceso` | `RecuperarAccesoPage` | — |
-| `/cambiar-contrasena` | `CambiarContrasenaPage` | — |
-
----
-
-## Arquitectura técnica
-
-### Convenciones
-
-- **100% standalone components** — no hay `NgModules`.
-- **Signals** (`signal()`, `computed()`, `effect()`) para estado local reactivo; sin RxJS en componentes.
-- **`ApiService`** como capa única de HTTP — usa `fetch` nativo, no `HttpClient`. Adjunta el token JWT automáticamente desde `localStorage`.
-- **Lazy loading** — cada página es un chunk independiente cargado bajo demanda.
-- **Tailwind CSS v4** — sin `tailwind.config.js`; configuración vía `src/styles.css`.
-- **Vitest** como motor de tests, integrado via `@angular/build:unit-test`.
-
-### Autenticación
-
-- Login POST `/api/autenticacion/iniciar-sesion` → recibe JWT.
-- Token almacenado en `localStorage` via `AuthService`.
-- `auth.interceptor.ts` inyecta `Authorization: Bearer <token>` en cada petición.
-- `AdminGuard` bloquea rutas administrativas y redirige a `/acceso` si no autenticado.
-
-### Componentes compartidos clave
-
-| Selector | Inputs principales | Propósito |
-|---|---|---|
-| `app-sismo-map` | `[sismos]`, `[height]`, `[zoom]`, `[center]`, `[showLegend]` | Mapa Leaflet con marcadores por magnitud |
-| `app-scatter-chart` | `[datos]`, `[tituloX]`, `[tituloY]`, `[titulo]`, `[colorPunto]` | Gráfica de dispersión Chart.js |
-| `app-paginacion` | `[paginaActual]`, `[totalPaginas]`, `(paginaCambio)` | Paginador genérico |
-| `app-magnitud-badge` | `[magnitud]` | Badge con color según escala de magnitud |
-| `app-status-badge` | `[estado]` | Badge de estado operativo de estación |
-| `app-stat-card` | `[titulo]`, `[valor]` | Tarjeta de estadística |
-| `app-confirm-dialog` | `[visible]`, `[title]`, `[message]`, `[action]`, `(confirm)`, `(cancel)` | Modal de confirmación |
-| `app-password-expiration-warning` | — | Aviso de contraseña por vencer |
-
----
-
-## Agregar una nueva página
-
-1. Crear carpeta `src/app/pages/<nombre>/`.
-2. Crear `<nombre>.page.ts` con `@Component({ standalone: true, ... })`.
-3. Agregar ruta en `src/app/app.routes.ts`:
-   ```typescript
-   { path: 'ruta', loadComponent: () => import('./pages/<nombre>/<nombre>.page').then(m => m.NombrePage) }
-   ```
-4. Agregar enlace en `src/app/components/header/header.component.html`.
-
----
-
-## Agregar un nuevo servicio
-
-1. Crear `src/app/services/<nombre>.service.ts`.
-2. Inyectar `ApiService` y usar `this.api.get<T>(path)`, `.post<T>(path, body)`, etc.
-3. Declarar con `@Injectable({ providedIn: 'root' })`.
-
----
-
-## Solución de problemas comunes
-
-### `ng: command not found`
-
-Angular CLI está en `devDependencies`, no en PATH global. Usar siempre:
-
-```bash
-pnpm ng <comando>
-# o via script:
-pnpm build
-```
-
-### Error de CORS al llamar al backend
-
-El backend debe tener `APP_CORS_ALLOWED_ORIGINS=http://localhost:4200` (o el dominio de producción). Ver `docs/DESPLIEGUE.md` del backend.
-
-### `pnpm install` falla con versión incorrecta de Node
-
-Verificar versión:
-
-```bash
-node -v   # debe ser v24.16.0
-```
-
-Usar el instalador oficial de Node.js 24.16.0 LTS o un gestor de versiones como `nvm`/`fnm` para cambiar de versión. Después de cambiar Node, eliminar `node_modules` y reinstalar con `pnpm install --frozen-lockfile`.
-
-### La app muestra datos vacíos / errores de red
-
-Verificar que `environment.ts` (desarrollo) o `environment.prod.ts` (producción) apunten al backend correcto y que el backend esté corriendo.
-
-### Build falla por presupuesto de bundle excedido
-
-El bundle inicial tiene límite de advertencia en 500 kB y error en 1 MB. Si se superan:
-- Revisar imports innecesarios
-- Verificar que componentes grandes sean lazy-loaded
-- Usar `pnpm build --configuration=production` para ver el análisis de tamaños
+- [ ] `node --version` muestra `v24.16.0`.
+- [ ] `pnpm install --frozen-lockfile` termina sin modificar lockfile.
+- [ ] `pnpm check` pasa.
+- [ ] `docker build -t sismo-frontend:ci .` pasa.
+- [ ] `SSR_API_URL` apunta al backend correcto.
+- [ ] `allowedHosts` incluye el dominio final.
+- [ ] `/`, `/sismos`, `/historial`, `/estaciones` y `/consultas` responden 200.
+- [ ] `/api/**` responde desde el backend via Nginx.
+- [ ] Las rutas administrativas cargan en modo client-side.
