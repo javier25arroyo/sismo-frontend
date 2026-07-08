@@ -209,49 +209,55 @@
       </section>
     </section>
 
-    <section *ngIf="!cargando()" class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm" aria-labelledby="table-estaciones-alerta-title">
+    <section *ngIf="!cargando()" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="table-estaciones-alerta-title">
       <div class="border-b border-slate-100 px-5 py-4">
-        <h2 id="table-estaciones-alerta-title" class="text-sm font-bold uppercase tracking-[0.2em] text-slate-700">
+        <h2 id="table-estaciones-alerta-title" class="font-semibold text-slate-800">
           Resumen acelerográfico por estación
         </h2>
         <p class="mt-1 text-xs text-slate-600">{{ resumenAcelerogramasArray().length }} estaciones con datos del evento actual</p>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[900px] border-collapse text-xs sm:text-sm">
+        <table class="w-full min-w-[900px] border-collapse text-xs xl:text-sm">
           <caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>
           <thead class="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-600">
             <tr class="border-b border-slate-200">
-              <th scope="col" class="px-4 py-3 text-center">Nombre</th>
-              <th scope="col" class="px-4 py-3 text-center">Código Estación</th>
-              <th scope="col" class="px-4 py-3 text-center">Aceleración (cm/ss)</th>
-              <th scope="col" class="px-4 py-3 text-center">Desplazamiento (cm)</th>
-              <th scope="col" class="px-4 py-3 text-center">Distancia Hipocentral (km)</th>
-              <th scope="col" class="px-4 py-3 text-center">Alerta Sísmica</th>
+              <th scope="col" class="w-[28%] px-3 py-4 text-left">Nombre</th>
+              <th scope="col" class="w-[12%] px-3 py-4 text-center">Código Estación</th>
+              <th scope="col" class="w-[15%] px-3 py-4 text-right">Aceleración (cm/s²)</th>
+              <th scope="col" class="w-[15%] px-3 py-4 text-right">Desplazamiento (cm)</th>
+              <th scope="col" class="w-[16%] px-3 py-4 text-right">Distancia Hipocentral (km)</th>
+              <th scope="col" class="w-[14%] px-3 py-4 text-center">Alerta Sísmica</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (grupo of resumenAcelerogramasPorCentro(); track grupo.centroProduccion) {
-              <tr class="bg-slate-200/80">
-                <th scope="rowgroup" colspan="6" class="px-4 py-3 text-left text-sm font-bold text-slate-900">
+              <tr class="bg-slate-50">
+                <th scope="rowgroup" colspan="6" class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
                   {{ grupo.centroProduccion }}
                 </th>
               </tr>
               @for (registro of grupo.registros; track registro.codigoEstacion + '-' + registro.nombre) {
                 <tr class="transition hover:bg-sky-50/40">
-                  <td class="px-4 py-3 text-center font-medium text-slate-700">{{ registro.nombre || 'Sin nombre' }}</td>
-                  <td class="px-4 py-3 text-center font-mono text-xs font-bold text-slate-700">{{ registro.codigoEstacion || 'N/D' }}</td>
-                  <td class="px-4 py-3 text-center font-mono tabular-nums text-slate-700">
-                    {{ registro.aceleracionCmSs !== null ? (registro.aceleracionCmSs | number:'1.3-3') : 'N/D' }}
+                  <td class="px-3 py-3.5 font-semibold text-slate-700">{{ registro.nombre || 'Sin nombre' }}</td>
+                  <td class="px-3 py-3.5 text-center">
+                    <span class="inline-block rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-700">
+                      {{ registro.codigoEstacion || 'N/D' }}
+                    </span>
                   </td>
-                  <td class="px-4 py-3 text-center font-mono tabular-nums text-slate-700">
-                    {{ registro.desplazamientoCm !== null ? (registro.desplazamientoCm | number:'1.3-3') : 'N/D' }}
+                  <td class="px-3 py-3.5 text-right font-mono tabular-nums text-slate-700">
+                    {{ formatearAceleracionCmSs(registro.aceleracionCmSs) }}
                   </td>
-                  <td class="px-4 py-3 text-center font-mono tabular-nums text-slate-700">
-                    {{ registro.distanciaHipocentralKm !== null && registro.distanciaHipocentralKm !== undefined ? (registro.distanciaHipocentralKm | number:'1.2-2') : 'N/D' }}
+                  <td class="px-3 py-3.5 text-right font-mono tabular-nums text-slate-700">
+                    {{ formatearMedidaCientifica(registro.desplazamientoCm, 'cm') }}
                   </td>
-                  <td class="px-4 py-3 text-center font-medium uppercase text-slate-700">
-                    {{ alertaSismicaLabel(registro.alertaSismica) }}
+                  <td class="px-3 py-3.5 text-right font-mono tabular-nums text-slate-700">
+                    {{ formatearDistanciaKm(registro.distanciaHipocentralKm) }}
+                  </td>
+                  <td class="px-3 py-3.5 text-center">
+                    <span class="inline-block max-w-[9rem] truncate rounded-full bg-slate-50 px-3 py-0.5 align-middle text-[10px] font-bold uppercase tracking-tight text-slate-700 ring-1 ring-inset ring-slate-700/10">
+                      {{ alertaSismicaLabel(registro.alertaSismica) }}
+                    </span>
                   </td>
                 </tr>
               }

@@ -1,10 +1,11 @@
+import '@angular/compiler';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SismosPage } from './sismos.page';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -38,15 +39,15 @@ describe('SismosPage template', () => {
     expect(template).toContain('Resumen acelerográfico por estación');
     expect(template).toContain('<caption class="sr-only">Resumen acelerográfico por estación del último sismo</caption>');
     expect(template).not.toContain('Centro de Producción');
-    expect(template).toContain('Aceleración (cm/ss)');
+    expect(template).toContain('Aceleración (cm/s²)');
     expect(template).toContain('Alerta Sísmica');
     expect(template).toContain('resumenAcelerogramasPorCentro()');
     expect(template).toContain('scope="rowgroup"');
     expect(template).toContain('registro.nombre');
     expect(template).toContain('registro.codigoEstacion');
-    expect(template).toContain('registro.aceleracionCmSs');
-    expect(template).toContain('registro.desplazamientoCm');
-    expect(template).toContain('registro.distanciaHipocentralKm !== null && registro.distanciaHipocentralKm !== undefined');
+    expect(template).toContain('formatearAceleracionCmSs(registro.aceleracionCmSs)');
+    expect(template).toContain("formatearMedidaCientifica(registro.desplazamientoCm, 'cm')");
+    expect(template).toContain('formatearDistanciaKm(registro.distanciaHipocentralKm)');
     expect(template).toContain('alertaSismicaLabel(registro.alertaSismica)');
     expect(template).toContain('colspan="6"');
     expect(template).not.toContain('colspan="7"');
@@ -155,7 +156,21 @@ describe('SismosPage resumen acelerográfico por estación', () => {
     expect(component.alertaSismicaLabel('   ')).toBe('Sin definir');
     expect(component.alertaSismicaLabel(null)).toBe('Sin definir');
     expect(component.alertaSismicaLabel('SIN_CONFIGURACION')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('SIN DEFINIR')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('SIN_ALERTA')).toBe('Sin definir');
+    expect(component.alertaSismicaLabel('N/D')).toBe('Sin definir');
     expect(component.alertaSismicaLabel('NIVEL 2')).toBe('NIVEL 2');
+  });
+
+  it('formatea medidas de la tabla con la notación requerida', () => {
+    const fixture = TestBed.createComponent(SismosPage);
+    const component = fixture.componentInstance;
+
+    expect(component.formatearAceleracionCmSs(0.010106)).toBe('0.010106 cm/s²');
+    expect(component.formatearAceleracionCmSs(18)).toBe('18.000 cm/s²');
+    expect(component.formatearMedidaCientifica(2.5, 'cm')).toBe('2.500e+0 cm');
+    expect(component.formatearDistanciaKm(116)).toBe('116.00 km');
+    expect(component.formatearDistanciaKm(null)).toBe('N/D');
   });
 
   it('calcula la distancia hipocentral cuando el resumen acelerográfico la trae nula', () => {

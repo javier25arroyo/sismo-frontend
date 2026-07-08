@@ -366,36 +366,40 @@ export class ConsultasPage {
   formatTipoSismo(tipo: string | null): string {
     if (!tipo) return '';
 
-    // 1. Quitar paréntesis y limpiar espacios
-    let text = tipo.trim().replace(/\s*\(.*\)/g, '');
+    let text = tipo
+      .trim()
+      .replace(/\s*\([^)]*\)/g, '')
+      .replace(/[_-]/g, ' ')
+      .replace(/\s+/g, ' ');
 
-    // 2. Eliminar acentos "huérfanos" o símbolos que el backend envía como caracteres separados
-    //    Esto limpia casos como "Subduccio´n" o "Deformacio´n"
     text = text.replace(/[´‘’']/g, '');
 
-    // 3. Crear llave de búsqueda normalizada (sin acentos reales) para el mapeo
     const searchKey = text
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase()
-      .replace(/_/g, ' ')
       .trim();
 
-    const correcciones: Record<string, string> = {
-      'SUBDUCCION': 'Subducción',
-      'DEFORMACION': 'Deformación',
-      'TECTONICO': 'Tectónico',
-      'VOLCANICO': 'Volcánico',
-      'LOCAL': 'Local',
-      'REGIONAL': 'Regional',
-      'DISTANTE': 'Distante'
-    };
+    const categorias: Array<[RegExp, string]> = [
+      [/\bDEFORMACION\b/, 'Sismo por deformación'],
+      [/\bINTERPLACA\b/, 'Subducción interplaca'],
+      [/\bINTRAPLACA\b/, 'Subducción intraplaca'],
+      [/\bCOCOS?\b/, 'Subducción placa del Coco'],
+      [/\bCARIBE\b/, 'Subducción placa Caribe'],
+      [/\bSUBDUC(CION|TIVO|TION)\b/, 'Sismo por subducción'],
+      [/\bCORTEZA|CORTICAL|FALLA|TECTONIC/, 'Sismo tectónico'],
+      [/\bVOLCAN|VOLCANIC|MAGMATIC/, 'Sismo volcánico'],
+      [/\bLOCAL\b/, 'Sismo local'],
+      [/\bREGIONAL\b/, 'Sismo regional'],
+      [/\bDISTANTE|TELESISM/, 'Sismo distante']
+    ];
 
-    if (correcciones[searchKey]) return correcciones[searchKey];
+    const categoria = categorias.find(([patron]) => patron.test(searchKey));
+    if (categoria) return categoria[1];
 
-    // 4. Fallback: Formateo genérico (Primera letra en mayúscula)
-    const lower = text.toLowerCase().replace(/_/g, ' ');
-    return lower.charAt(0).toUpperCase() + lower.slice(1);
+    const lower = text.toLowerCase();
+    const normalizado = lower.charAt(0).toUpperCase() + lower.slice(1);
+    return normalizado.length > 28 ? `${normalizado.slice(0, 27).trimEnd()}...` : normalizado;
   }
 
   colorMagnitud(m: number): string {

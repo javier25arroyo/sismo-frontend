@@ -237,10 +237,41 @@ export class SismosPage implements OnInit, OnDestroy {
 
   alertaSismicaLabel(alerta: string | null | undefined): string {
     const valor = alerta?.trim();
-    if (!valor || valor.toUpperCase() === 'SIN_CONFIGURACION') {
+    const normalizado = valor?.toUpperCase().replace(/[\s-]+/g, '_');
+    if (!normalizado || ['SIN_CONFIGURACION', 'SIN_DEFINIR', 'SIN_ALERTA', 'N_D', 'ND'].includes(normalizado)) {
       return 'Sin definir';
     }
-    return valor;
+    return valor ?? 'Sin definir';
+  }
+
+  formatearMedidaCientifica(valor: number | null | undefined, unidad: string, decimales = 3): string {
+    if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+      return 'N/D';
+    }
+
+    return `${valor.toExponential(decimales)} ${unidad}`;
+  }
+
+  formatearAceleracionCmSs(valor: number | null | undefined): string {
+    if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+      return 'N/D';
+    }
+
+    const [entero, decimal = ''] = valor
+      .toFixed(6)
+      .replace(/0+$/, '')
+      .replace(/\.$/, '')
+      .split('.');
+
+    return `${entero}.${decimal.padEnd(3, '0')} cm/s²`;
+  }
+
+  formatearDistanciaKm(valor: number | null | undefined): string {
+    if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+      return 'N/D';
+    }
+
+    return `${valor.toFixed(2)} km`;
   }
 
   private completarDistanciasHipocentrales(
