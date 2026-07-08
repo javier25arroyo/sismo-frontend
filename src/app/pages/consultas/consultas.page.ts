@@ -380,7 +380,7 @@ export class ConsultasPage {
       .toUpperCase()
       .trim();
 
-    const categorias: Array<[RegExp, string]> = [
+    const categorias: [RegExp, string][] = [
       [/\bDEFORMACION\b/, 'Sismo por deformación'],
       [/\bINTERPLACA\b/, 'Subducción interplaca'],
       [/\bINTRAPLACA\b/, 'Subducción intraplaca'],
