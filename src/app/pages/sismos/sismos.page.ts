@@ -237,7 +237,7 @@ export class SismosPage implements OnInit, OnDestroy {
 
   alertaSismicaLabel(alerta: string | null | undefined): string {
     const valor = alerta?.trim();
-    const normalizado = valor?.toUpperCase().replace(/[\s-]+/g, '_');
+    const normalizado = valor?.toUpperCase().replace(/[\s/-]+/g, '_');
     if (!normalizado || ['SIN_CONFIGURACION', 'SIN_DEFINIR', 'SIN_ALERTA', 'N_D', 'ND'].includes(normalizado)) {
       return 'Sin definir';
     }
