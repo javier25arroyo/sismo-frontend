@@ -57,12 +57,12 @@ flowchart LR
   actuator["Actuator Backend"]
 
   browser -->|solicita paginas| nginx
-  nginx -->|"/"| ssr
+  nginx -->|ruta web| ssr
   ssr -->|SSR_API_URL| api
-  nginx -->|"/api/**"| api
-  nginx -->|"/actuator/** interno"| actuator
+  nginx -->|ruta /api| api
+  nginx -->|ruta /actuator interna| actuator
   ssr -->|HTML inicial + assets| browser
-  browser -->|same-origin "/api/**"| nginx
+  browser -->|same-origin /api| nginx
 ```
 
 La aplicacion se sirve mediante Nginx como proxy inverso. Las rutas web pasan al servidor SSR de Angular y las rutas `/api/**` pasan al backend. En produccion el navegador usa mismo origen, mientras el servidor SSR usa `SSR_API_URL` para llamar al backend con URL absoluta.
