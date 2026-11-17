@@ -46,18 +46,23 @@ Este documento es la guia principal para entrega final: resume alcance, arquitec
 
 ```mermaid
 flowchart LR
-  user["Usuario / Navegador"] --> nginx["Nginx :80"]
-  nginx -->|"/"| ssr["Angular SSR Node :4000"]
-  nginx -->|"/api/**"| api["Backend Spring Boot :8080"]
-  nginx -->|"/actuator/** interno"| actuator["Actuator Backend"]
-
-  ssr --> browser["HTML inicial + assets"]
-  browser -->|same-origin "/api/**"| nginx
+  browser["Usuario / Navegador"]
 
   subgraph frontend["sismo-frontend"]
-    ssr
-    browser
+    ssr["Angular SSR Node :4000"]
   end
+
+  nginx["Nginx :80"]
+  api["Backend Spring Boot :8080"]
+  actuator["Actuator Backend"]
+
+  browser -->|solicita paginas| nginx
+  nginx -->|"/"| ssr
+  ssr -->|SSR_API_URL| api
+  nginx -->|"/api/**"| api
+  nginx -->|"/actuator/** interno"| actuator
+  ssr -->|HTML inicial + assets| browser
+  browser -->|same-origin "/api/**"| nginx
 ```
 
 La aplicacion se sirve mediante Nginx como proxy inverso. Las rutas web pasan al servidor SSR de Angular y las rutas `/api/**` pasan al backend. En produccion el navegador usa mismo origen, mientras el servidor SSR usa `SSR_API_URL` para llamar al backend con URL absoluta.
